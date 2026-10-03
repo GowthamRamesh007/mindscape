@@ -1,10 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "cleanUrls": true,
-  "buildCommand": null,
-  "installCommand": null,
-  "framework": null,
-  "outputDirectory": ".",
   "rewrites": [
     {
       "source": "/api/(.*)",
@@ -12,6 +8,10 @@
     },
     {
       "source": "/portal",
+      "destination": "/portal.html"
+    },
+    {
+      "source": "/admin",
       "destination": "/portal.html"
     },
     {
