@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 480" width="400" height="480">
+  <defs>
+    <linearGradient id="bg2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0a1a3a"/>
+      <stop offset="50%" stop-color="#07031b"/>
+      <stop offset="100%" stop-color="#141a54"/>
+    </linearGradient>
+    <linearGradient id="glow2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2ad8ff"/>
+      <stop offset="100%" stop-color="#8b30ff"/>
+    </linearGradient>
+  </defs>
+  <rect width="100%" height="100%" fill="url(#bg2)"/>
+  <circle cx="200" cy="180" r="70" fill="url(#glow2)" opacity="0.3"/>
+  <circle cx="200" cy="180" r="55" fill="#1b255e"/>
+  <!-- Head & Shoulders silhouette -->
+  <circle cx="200" cy="160" r="32" fill="#c7bce0"/>
+  <path d="M 140 250 C 140 210, 260 210, 260 250 Z" fill="#c7bce0"/>
+  <text x="200" y="320" font-family="'Space Grotesk', sans-serif" font-size="20" font-weight="bold" fill="#ffffff" text-anchor="middle">CO-CHAIRPERSON</text>
+  <text x="200" y="350" font-family="'DM Mono', monospace" font-size="12" fill="#2ad8ff" letter-spacing="1" text-anchor="middle">ROTARACT CLUB OF VEPERY</text>
+  <text x="200" y="410" font-family="'DM Mono', monospace" font-size="11" fill="#7d6d9c" text-anchor="middle">Place co-chairperson.jpg here</text>
+</svg>
