@@ -1,42 +1,22 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "cleanUrls": true,
+  "buildCommand": null,
+  "installCommand": null,
+  "framework": null,
+  "outputDirectory": ".",
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "/mindscape/api/index.py"
+      "destination": "/api/index.py"
     },
     {
       "source": "/portal",
-      "destination": "/mindscape/portal.html"
-    },
-    {
-      "source": "/portal.html",
-      "destination": "/mindscape/portal.html"
+      "destination": "/portal.html"
     },
     {
       "source": "/submit",
-      "destination": "/mindscape/index.html"
-    },
-    {
-      "source": "/media/(.*)",
-      "destination": "/mindscape/media/$1"
-    },
-    {
-      "source": "/fonts/(.*)",
-      "destination": "/mindscape/fonts/$1"
-    },
-    {
-      "source": "/src/(.*)",
-      "destination": "/mindscape/src/$1"
-    },
-    {
-      "source": "/",
-      "destination": "/mindscape/index.html"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/mindscape/$1"
+      "destination": "/index.html"
     }
   ]
 }

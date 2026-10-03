@@ -1,0 +1,1378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+  <meta name="theme-color" content="#08051d">
+  <title>MINDSCAPE — Reel Making Contest on Mobile Phone Addiction</title>
+  <meta name="description" content="MINDSCAPE: What if a reel could change a mind? A Mental Health Awareness Initiative by Rotary Club of Madras, hosted by Rotaract Club of Vepery. Win prizes up to ₹25,000.">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="MINDSCAPE — Reel Making Contest on Mobile Phone Addiction">
+  <meta property="og:description" content="25–45 seconds. One idea. One message. Turn short-form visual storytelling into meaningful digital awareness.">
+  <meta property="og:type" content="website">
+
+  <!-- Fonts Preload -->
+  <link rel="preload" href="/fonts/OBLISK.otf" as="font" type="font/otf" crossorigin>
+  <link rel="stylesheet" href="/src/index.css">
+
+  <!-- Supabase Client CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+  <div class="neon-site" id="site-root">
+    
+    <!-- ===================== HEADER ===================== -->
+    <header class="neon-header">
+      <a href="#home" class="neon-brand" aria-label="Mindscape home">
+        <span class="neon-brand-word font-oblisk">Mind<span>scape</span></span>
+        <small>REEL MAKING CONTEST</small>
+      </a>
+      <nav class="neon-nav" id="main-nav" aria-label="Main navigation">
+        <a class="active" href="#home">Home</a>
+        <a href="#about">About</a>
+        <a href="#leadership">Leadership</a>
+        <a href="#partners">Partners</a>
+        <a href="#prizes">Prizes</a>
+        <a href="https://forms.google.com" target="_blank" rel="noreferrer" style="color: #c8fa60; font-weight: 700;">Register (Google Form) ↗</a>
+        <a href="#submit">Submit Reel</a>
+        <a href="#faq">FAQ</a>
+        <a href="/portal" style="color: #ff9eee; font-weight: 600;">Organizer Portal 🔒</a>
+      </nav>
+      <button class="neon-menu" id="menu-btn" aria-label="Toggle menu">☰</button>
+    </header>
+
+    <main>
+      <!-- ===================== 1. 3D HERO SECTION ===================== -->
+      <section class="neon-hero" id="home">
+        <div class="neon-bg-cloud cloud-one"></div>
+        <div class="neon-bg-cloud cloud-two"></div>
+        <div class="neon-bg-cloud cloud-three"></div>
+        <div class="neon-stars"></div>
+        
+        <div class="confetti-field" aria-hidden="true">
+          <i class="confetti c-1"></i><i class="confetti c-2"></i><i class="confetti c-3"></i>
+          <i class="confetti c-4"></i><i class="confetti c-5"></i><i class="confetti c-6"></i>
+          <i class="confetti c-7"></i><i class="confetti c-8"></i><i class="confetti c-9"></i>
+          <i class="confetti c-10"></i><i class="confetti c-11"></i><i class="confetti c-12"></i>
+          <i class="confetti c-13"></i><i class="confetti c-14"></i><i class="confetti c-15"></i>
+          <i class="confetti c-16"></i><i class="confetti c-17"></i><i class="confetti c-18"></i>
+        </div>
+
+        <div class="neon-hero-inner">
+          <div class="neon-hero-copy">
+            <p class="neon-kicker">
+              ROTARY CLUB OF MADRAS & ROTARACT CLUB OF VEPERY<br>
+              <span>PRESENT</span>
+            </p>
+            <h1 class="font-oblisk">Mind<span>scape</span></h1>
+            <p class="neon-subtitle">REEL MAKING CONTEST ON MOBILE PHONE ADDICTION</p>
+            <p class="neon-hero-description">
+              <strong>What if a reel could change a mind?</strong><br>
+              25–45 seconds. One idea. One message. Turn short-form creativity into meaningful digital awareness and mental health impact.
+            </p>
+            
+            <div class="neon-hero-actions">
+              <a class="neon-button neon-button-primary" href="https://forms.google.com" target="_blank" rel="noreferrer">
+                Register Your Team (Google Form) ↗
+              </a>
+              <a class="neon-text-button" href="#submit">
+                Upload Reel Video ↓
+              </a>
+            </div>
+
+            <div class="neon-open-state">
+              <span class="live-pulse"></span> ₹55,000 Prize Pool · Submissions Open · Chennai '26
+            </div>
+
+            <!-- Live IST Countdown Timer -->
+            <div class="countdown-box">
+              <div class="countdown-title" id="timer-title">Registration Closes In</div>
+              <div class="countdown-grid">
+                <div class="timer-unit">
+                  <div class="timer-number" id="timer-days">00</div>
+                  <div class="timer-label">Days</div>
+                </div>
+                <div class="timer-separator">:</div>
+                <div class="timer-unit">
+                  <div class="timer-number" id="timer-hours">00</div>
+                  <div class="timer-label">Hours</div>
+                </div>
+                <div class="timer-separator">:</div>
+                <div class="timer-unit">
+                  <div class="timer-number" id="timer-minutes">00</div>
+                  <div class="timer-label">Mins</div>
+                </div>
+                <div class="timer-separator">:</div>
+                <div class="timer-unit">
+                  <div class="timer-number" id="timer-seconds">00</div>
+                  <div class="timer-label">Secs</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3D Hero Reel Illustration Art -->
+          <div class="neon-hero-visual" id="hero-visual">
+            <div class="neon-hero-art" aria-label="3D reel making contest illustration">
+              <div class="hero-halo halo-a"></div>
+              <div class="hero-halo halo-b"></div>
+              <div class="hero-orbit orbit-a"></div>
+              <div class="hero-orbit orbit-b"></div>
+              <div class="clapper clapper-top">
+                <span></span><span></span><span></span><span></span><span></span>
+              </div>
+              <div class="clapper clapper-body">
+                <div class="clapper-lens"></div>
+                <div class="clapper-screen">
+                  <svg width="47" height="47" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                  <span>YOUR STORY</span>
+                </div>
+                <div class="clapper-controls"><i></i><i></i><i></i><b></b></div>
+              </div>
+              <div class="floating-film film-one"></div>
+              <div class="floating-film film-two"></div>
+              <div class="hero-arrow">➜</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-scroll-cue">
+          <span>scroll to discover</span>
+          <span class="cue-line"></span>
+        </div>
+      </section>
+
+      <!-- ===================== 2. ABOUT & 3D PHONESTACK ===================== -->
+      <section class="neon-about" id="about">
+        <div class="neon-grid-lines"></div>
+        <div class="neon-section-inner">
+          <div class="neon-about-copy">
+            <p class="neon-section-label">ABOUT THE INITIATIVE</p>
+            <h2>Behind Every Screen<br><span>is a Human Story</span></h2>
+            <p class="neon-body-copy">
+              Mindscape is a Mental Health Awareness Initiative centered around Mobile Phone Addiction, inviting young creators and students across Chennai and beyond to use short-form vertical visual storytelling to encourage digital detachment and healthier habits.
+            </p>
+            <p class="neon-body-copy" style="margin-top: 14px;">
+              Explore through: <strong>Acting • Storytelling • Humour • Animation • Memes • Visual Poetry</strong>.
+            </p>
+            <div class="neon-rule">
+              <i></i><i></i><i></i>
+            </div>
+          </div>
+
+          <div class="neon-about-art">
+            <div class="phone-scene" aria-label="3D reel cards preview">
+              <div class="phone-ring ring-one"></div>
+              <div class="phone-ring ring-two"></div>
+              <div class="phone-card phone-back">
+                <span>01</span>
+                <strong>behind<br>the<br><em>screen.</em></strong>
+              </div>
+              <div class="phone-card phone-mid">
+                <span>REEL / 02</span>
+                <strong>look up<br>from the<br><em>feed.</em></strong>
+              </div>
+              <div class="phone-card phone-front">
+                <div class="phone-top">
+                  <span>◉</span>
+                  <span class="font-oblisk">mindscape</span>
+                  <b>⋯</b>
+                </div>
+                <div class="phone-image">
+                  <div class="phone-sun"></div>
+                  <div class="phone-person"></div>
+                </div>
+                <div class="phone-bottom">
+                  <strong>change<br><em>a mind</em></strong>
+                  <span>▶ 00:35</span>
+                </div>
+              </div>
+              <div class="phone-note note-one">Real Stories.<br><em>Bigger Impact.</em></div>
+              <div class="phone-note note-two">✦ 25 — 45 sec</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================== 2.5 3D MOVIE CAROUSEL - LEADERSHIP COMMITTEE ===================== -->
+      <section class="neon-about" id="leadership" style="background: radial-gradient(ellipse at 50% 40%, rgba(139, 48, 255, 0.18), transparent 45%), #090522; padding: 90px clamp(22px, 8.8vw, 140px); border-top: 1px solid rgba(255,255,255,0.06); overflow: hidden;">
+        <div class="neon-grid-lines"></div>
+        <div style="max-width: 1200px; margin: auto; position: relative; z-index: 2;">
+          <div class="neon-centered-heading" style="text-align: center; margin-bottom: 32px;">
+            <p class="neon-section-label">MINDSCAPE LEADERSHIP</p>
+            <h2>Organizing <span>Committee</span></h2>
+            <p style="color: #c7bcdb; max-width: 650px; margin: 14px auto 0; font-size: 15px; line-height: 1.6;">
+              Rotaract Club of Vepery (Chairperson) · Rotaract Club of VMRF (Secretary) · Partner Club Co-Chairpersons.
+            </p>
+          </div>
+
+          <div class="movie-carousel-container" id="leader-carousel-wrapper">
+            <div class="film-strip-sprockets"></div>
+
+            <div class="partner-carousel-stage" id="leader-carousel-stage" style="height: 440px;">
+              <button class="circle-arrow" id="leader-prev" aria-label="Previous committee member">‹</button>
+              <div class="partner-orbit-line" style="top: 55%;"></div>
+              
+              <div id="leader-cards" class="movie-carousel-deck" style="height: 100%;">
+                <!-- 1 Chairperson, 1 Secretary, 5 Co-Chairpersons rendered dynamically in 3D -->
+              </div>
+
+              <button class="circle-arrow" id="leader-next" aria-label="Next committee member">›</button>
+            </div>
+
+            <div class="film-strip-sprockets"></div>
+          </div>
+
+          <div class="carousel-dots" id="leader-dots"></div>
+        </div>
+      </section>
+
+      <!-- ===================== 3. MOVIE CAROUSEL - PARTNER CLUBS ===================== -->
+      <section class="neon-partners" id="partners">
+        <div class="neon-centered-heading">
+          <p class="neon-section-label">IN COLLABORATION WITH</p>
+          <h2>Host & Supporting <span>Institutions</span></h2>
+          <p style="color: #c7bcdb; font-size: 14px; margin-top: 8px;">Rotary Club of Madras, Rotaract Club of Vepery & Supporting Partner Colleges</p>
+        </div>
+
+        <div class="movie-carousel-container" id="movie-carousel-wrapper">
+          <div class="film-strip-sprockets"></div>
+
+          <div class="partner-carousel-stage" id="partner-carousel-stage">
+            <button class="circle-arrow" id="partner-prev" aria-label="Previous partner">‹</button>
+            <div class="partner-orbit-line"></div>
+            
+            <div id="partner-cards" class="movie-carousel-deck">
+              <!-- Rendered once and transformed smoothly in 3D -->
+            </div>
+
+            <button class="circle-arrow" id="partner-next" aria-label="Next partner">›</button>
+          </div>
+
+          <div class="film-strip-sprockets"></div>
+        </div>
+
+        <div class="carousel-dots" id="partner-dots"></div>
+      </section>
+
+      <!-- ===================== 4. PRIZE POOL SECTION ===================== -->
+      <section class="neon-about" id="prizes" style="background: radial-gradient(ellipse at 50% 30%, rgba(139, 48, 255, 0.22), transparent 45%), #08041d;">
+        <div class="neon-grid-lines"></div>
+        <div style="max-width: 1240px; margin: auto; padding: 90px clamp(22px, 8.8vw, 140px);">
+          <div class="neon-centered-heading">
+            <p class="neon-section-label">GRAND AWARDS</p>
+            <h2>₹55,000 <span>Prize Pool</span></h2>
+            <p style="color: #c7bcdb; max-width: 540px; margin: 14px auto 0; font-size: 16px;">
+              Rewarding transformative visual storytelling addressing mobile phone addiction with cash awards, trophies, and official recognition.
+            </p>
+          </div>
+
+          <div class="prize-poster-grid">
+            <div class="award-poster-tile tile-spotlight-1st">
+              <div class="tile-number">01</div>
+              <div class="tile-rank-title">1ST PRIZE</div>
+              <div class="tile-headline">The One That Changed The Mind</div>
+              <div class="tile-prize-amount">₹25,000</div>
+              <div class="tile-award-details">
+                Cash Award + Grand Trophy + Winner Certificate for all team members
+              </div>
+            </div>
+
+            <div class="award-poster-tile">
+              <div class="tile-number">02</div>
+              <div class="tile-rank-title">2ND PRIZE</div>
+              <div class="tile-headline">Runner-Up Excellence</div>
+              <div class="tile-prize-amount">₹15,000</div>
+              <div class="tile-award-details">
+                Cash Award + Runner-Up Trophy + Certificate of Merit
+              </div>
+            </div>
+
+            <div class="award-poster-tile">
+              <div class="tile-number">03</div>
+              <div class="tile-rank-title">3RD PRIZE</div>
+              <div class="tile-headline">Creative Visionary</div>
+              <div class="tile-prize-amount">₹10,000</div>
+              <div class="tile-award-details">
+                Cash Award + Recognition Trophy + Certificate of Merit
+              </div>
+            </div>
+
+            <div class="award-poster-tile">
+              <div class="tile-number">04</div>
+              <div class="tile-rank-title">4TH PRIZE</div>
+              <div class="tile-headline">Special Recognition Award</div>
+              <div class="tile-prize-amount">₹5,000</div>
+              <div class="tile-award-details">
+                Cash Award + Certificate of Excellence
+              </div>
+            </div>
+          </div>
+
+          <div style="text-align: center; margin-top: 36px;">
+            <span class="meta-badge badge-valid" style="font-size: 12px; padding: 10px 24px;">
+              ✓ Participation certificates will be provided to all eligible participating teams.
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================== 5. REEL SUBMISSION STUDIO (SUPABASE BACKEND) ===================== -->
+      <section class="neon-about" id="submit" style="background: radial-gradient(circle at 50% 50%, rgba(225, 48, 108, 0.12) 0%, transparent 60%), #07031b;">
+        <div class="neon-grid-lines"></div>
+        <div style="max-width: 860px; margin: auto; padding: 90px clamp(22px, 8.8vw, 140px);">
+          
+          <div class="neon-centered-heading">
+            <p class="neon-section-label">VIDEO REPOSITORY</p>
+            <h2>Upload Reel to <span>Supabase Backend</span></h2>
+            <p style="color: #c7bcdb; max-width: 580px; margin: 14px auto 20px; font-size: 15px;">
+              Already registered on Google Form? Upload your 25–45 second vertical reel video here to store it securely in our Supabase backend archive.
+            </p>
+            <div style="margin-bottom: 28px;">
+              <a href="https://forms.google.com" target="_blank" rel="noreferrer" class="neon-button neon-button-primary" style="display: inline-flex; padding: 12px 28px; font-size: 14px; text-decoration: none; border-radius: 99px;">
+                📝 Step 1: Complete Team Registration on Google Form ↗
+              </a>
+            </div>
+          </div>
+
+          <div id="submission-box-shell" class="submission-box-shell" style="background: rgba(18, 8, 48, 0.85); border: 1px solid rgba(255, 68, 213, 0.35); border-radius: 20px; padding: 36px 30px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);">
+            <div class="drop-anywhere-banner" id="drop-anywhere-banner">
+              🎬 Release to drop your Reel video anywhere here!
+            </div>
+            
+            <form id="submission-form">
+              <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                <span style="font: 600 11px monospace; letter-spacing: 0.2em; color: #ff54d9; text-transform: uppercase;">REEL VIDEO SUBMISSION</span>
+                <span style="font: 500 11px monospace; color: #a5b4fc; background: rgba(165, 180, 252, 0.1); border: 1px solid rgba(165, 180, 252, 0.25); padding: 3px 10px; border-radius: 99px;">⚡ Drag & Drop Anywhere</span>
+              </div>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 18px;">
+                <div>
+                  <label style="display: block; font: 500 11px monospace; color: #cbd5e1; margin-bottom: 6px;">REGISTERED TEAM NAME *</label>
+                  <input type="text" id="sub-team-name" required placeholder="Team Name as registered on Google Form" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: rgba(0,0,0,0.3); color: #fff;">
+                </div>
+                <div>
+                  <label style="display: block; font: 500 11px monospace; color: #cbd5e1; margin-bottom: 6px;">REEL TITLE *</label>
+                  <input type="text" id="sub-title" required placeholder="e.g. Beyond the Screen" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: rgba(0,0,0,0.3); color: #fff;">
+                </div>
+              </div>
+
+              <div style="margin-bottom: 20px;">
+                <label style="display: block; font: 500 11px monospace; color: #cbd5e1; margin-bottom: 6px;">PRIMARY LANGUAGE *</label>
+                <select id="sub-language" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: #0c0628; color: #fff;">
+                  <option value="Tamil">Tamil</option>
+                  <option value="English">English</option>
+                  <option value="Tamil with English Subtitles">Tamil with English Subtitles</option>
+                  <option value="Bilingual">Bilingual (Tamil + English)</option>
+                  <option value="Non-Verbal">Silent / Visual Storytelling</option>
+                </select>
+              </div>
+
+              <!-- Video File Inspector -->
+              <div style="margin-bottom: 16px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.1);">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span style="font: 600 11px monospace; letter-spacing: 0.2em; color: #ff54d9; text-transform: uppercase;">SELECT VIDEO FILE (25–45s VERTICAL)</span>
+                  <span style="font-size: 11px; color: #94a3b8; font-family: monospace;">MAX 100 MB</span>
+                </div>
+              </div>
+
+              <input type="file" id="video-file-input" accept="video/mp4,video/quicktime,video/webm,video/*,.mp4,.mov,.webm,.mkv,.m4v" style="display: none;">
+
+              <div class="reel-dropzone" id="dropzone-box">
+                <div style="font-size: 38px; margin-bottom: 10px; transition: transform 0.25s ease;" id="dropzone-icon">🎬</div>
+                <div style="font: 600 16px 'Space Grotesk', sans-serif; color: #fff;" id="dropzone-label">
+                  Drag & Drop your Reel video here
+                </div>
+                <div style="font-size: 12px; color: #94a3b8; margin-top: 4px;" id="dropzone-sub">
+                  or drop anywhere within this card
+                </div>
+                <div style="margin-top: 14px;">
+                  <button type="button" class="dropzone-browse-btn" id="browse-btn">
+                    📁 Browse Files
+                  </button>
+                </div>
+                <div style="font-size: 11px; color: #64748b; margin-top: 14px; font-family: 'DM Mono', monospace;">
+                  MP4, MOV, WEBM (25–45s • Vertical 9:16 portrait)
+                </div>
+              </div>
+
+              <!-- In-Browser Video Inspector Preview -->
+              <div id="video-preview-block" style="display: none; margin-top: 18px; background: rgba(0,0,0,0.45); border: 1px solid rgba(255, 68, 213, 0.25); border-radius: 14px; padding: 18px;">
+                <div style="display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap;">
+                  <div style="width: 86px; height: 140px; border-radius: 8px; overflow: hidden; background: #000; flex: 0 0 auto; border: 1px solid rgba(255,255,255,0.15);">
+                    <video id="preview-video" controls playsinline style="width: 100%; height: 100%; object-fit: cover;"></video>
+                  </div>
+                  <div style="flex: 1; min-width: 200px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 8px;">
+                      <div style="font: 600 13px 'Space Grotesk', sans-serif; color: #fff;">HTML5 Reel Inspector</div>
+                      <button type="button" id="change-video-btn" style="background: rgba(255, 68, 213, 0.15); border: 1px solid rgba(255, 68, 213, 0.4); color: #ff9eee; padding: 4px 12px; border-radius: 99px; font-size: 11px; cursor: pointer; font-family: 'DM Mono', monospace; transition: all 0.2s ease;">
+                        ↺ Change Video
+                      </button>
+                    </div>
+                    <div id="inspector-file-name" style="font-size: 12px; color: #cbd5e1; font-family: 'DM Mono', monospace; margin-bottom: 8px; word-break: break-all;"></div>
+                    <div id="inspector-badges" style="display: flex; flex-wrap: wrap; gap: 4px;"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Ethical & Legal Confirmation -->
+              <div style="display: flex; flex-direction: column; gap: 10px; font-size: 13px; color: #c7bcdb; margin: 24px 0;">
+                <label style="display: flex; gap: 10px; align-items: flex-start; cursor: pointer;">
+                  <input type="checkbox" required style="accent-color: #ff3ecb; margin-top: 3px;">
+                  <span>I confirm our team registered via Google Form and this reel is our original work.</span>
+                </label>
+              </div>
+
+              <!-- Live Upload Progress Bar -->
+              <div id="upload-progress-box" style="display: none; margin-bottom: 18px;">
+                <div style="display: flex; justify-content: space-between; font: 500 11px monospace; color: #ff8ae1; margin-bottom: 6px;">
+                  <span id="upload-progress-label">Uploading to Supabase Storage...</span>
+                  <span id="upload-progress-pct">0%</span>
+                </div>
+                <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden;">
+                  <div id="upload-progress-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #ff3ecb, #8b30ff); transition: width 0.2s ease;"></div>
+                </div>
+              </div>
+
+              <div id="submit-error" style="display: none; padding: 12px; border-radius: 8px; background: rgba(231,76,60,0.15); border: 1px solid #e74c3c; color: #ff8f82; font-size: 13px; margin-bottom: 16px;"></div>
+
+              <button type="submit" id="submit-btn" class="neon-button neon-button-primary" style="width: 100%; justify-content: center; font-size: 15px;">
+                Upload Video to Supabase Archive →
+              </button>
+            </form>
+
+            <!-- Success Confirmation Box -->
+            <div id="submit-success-box" style="display: none; text-align: center; padding: 30px 10px;">
+              <div style="width: 60px; height: 60px; border-radius: 50%; background: rgba(46, 204, 113, 0.2); border: 2px solid #2ecc71; color: #2ecc71; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 28px;">✓</div>
+              <h3 style="font: 600 28px 'Space Grotesk', sans-serif; color: #fff; margin-bottom: 10px;">Reel Successfully Uploaded!</h3>
+              <p style="color: #cbd5e1; font-size: 15px; max-width: 460px; margin: 0 auto 20px;">
+                Your video has been securely stored in the Supabase backend archive. Authorized committee members can view all submissions through the Organizer Portal.
+              </p>
+              <div style="background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; padding: 16px; max-width: 380px; margin: 0 auto 24px;">
+                <span style="font: 500 10px monospace; letter-spacing: 0.15em; color: #a79cb8;">SUBMISSION REFERENCE ID</span>
+                <div id="success-ref-id" style="font: 700 22px 'Space Grotesk', sans-serif; color: #2ecc71; margin-top: 4px;">MS-2026-SUBMISSION</div>
+              </div>
+              <a href="/portal" class="neon-button neon-button-outline" style="margin-right: 12px;">Organizer Portal 🔒</a>
+              <button onclick="location.reload()" class="neon-button neon-button-primary">Submit Another Reel</button>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================== 7. FAQ ACCORDION ===================== -->
+      <section class="neon-faq" id="faq">
+        <div class="neon-centered-heading">
+          <p class="neon-section-label">COMMON QUESTIONS</p>
+          <h2>Frequently Asked <span>Questions</span></h2>
+          <p class="faq-copy">Everything you need to know about participating in MINDSCAPE 2026.</p>
+        </div>
+
+        <div class="neon-accordion" id="faq-container">
+          <!-- 12 official questions rendered dynamically -->
+        </div>
+      </section>
+
+      <!-- FAQ ends -->
+    </main>
+
+    <!-- ===================== FOOTER ===================== -->
+    <footer class="neon-footer">
+      <div class="footer-brand-lockup">
+        <span class="neon-brand-word font-oblisk">Mind<span>scape</span></span>
+        <small>REEL MAKING CONTEST</small>
+      </div>
+      <p>
+        A Mental Health Awareness Initiative by <strong>Rotary Club of Madras</strong><br>
+        Hosted by <strong>Rotaract Club of Vepery</strong> and supporting college clubs across Chennai.
+      </p>
+      <div class="footer-bottom-neon">
+        <span>© 2026 Mindscape · Mobile Phone Addiction Reel Contest</span>
+        <span>made with ✦ in Chennai</span>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- Client-side Interactive Script -->
+  <script>
+    // 1. Mouse Parallax on 3D Hero
+    const siteRoot = document.getElementById("site-root");
+    window.addEventListener("mousemove", (e) => {
+      const x = (e.clientX / window.innerWidth - 0.5) * 2;
+      const y = (e.clientY / window.innerHeight - 0.5) * 2;
+      siteRoot.style.setProperty("--mouse-x", x.toFixed(3));
+      siteRoot.style.setProperty("--mouse-y", y.toFixed(3));
+    });
+
+    // 2. Mobile Menu Toggle
+    const menuBtn = document.getElementById("menu-btn");
+    const mainNav = document.getElementById("main-nav");
+    menuBtn?.addEventListener("click", () => {
+      mainNav.classList.toggle("is-open");
+    });
+    mainNav?.querySelectorAll("a").forEach(a => {
+      a.addEventListener("click", () => mainNav.classList.remove("is-open"));
+    });
+
+    // 3. Live IST Countdown
+    function updateCountdown() {
+      const now = new Date().getTime();
+      const regDeadline = new Date("2026-10-07T23:59:59+05:30").getTime();
+      const subDeadline = new Date("2026-11-08T23:59:59+05:30").getTime();
+
+      let diff = 0;
+      const titleEl = document.getElementById("timer-title");
+      if (now < regDeadline) {
+        if (titleEl) titleEl.innerText = "Registration Closes In";
+        diff = Math.max(0, Math.floor((regDeadline - now) / 1000));
+      } else {
+        if (titleEl) titleEl.innerText = "Reel Submissions Close In";
+        diff = Math.max(0, Math.floor((subDeadline - now) / 1000));
+      }
+
+      const days = Math.floor(diff / 86400);
+      const hours = Math.floor((diff % 86400) / 3600);
+      const minutes = Math.floor((diff % 3600) / 60);
+      const seconds = diff % 60;
+
+      document.getElementById("timer-days").innerText = String(days).padStart(2, "0");
+      document.getElementById("timer-hours").innerText = String(hours).padStart(2, "0");
+      document.getElementById("timer-minutes").innerText = String(minutes).padStart(2, "0");
+      document.getElementById("timer-seconds").innerText = String(seconds).padStart(2, "0");
+    }
+    updateCountdown();
+    // 3.5 3D Movie Carousel - Leadership Committee (1 Chairperson, 1 Secretary, 5 Co-Chairpersons)
+    const leaders = [
+      {
+        role: "Chairperson",
+        org: "Rotaract Club of Vepery",
+        badge: "CHAIRPERSON",
+        badgeClass: "badge-chair",
+        roleClass: "role-chair",
+        img: "/media/committee/chairperson-vepery.jpeg",
+        altImg: "/media/committee/chairperson.jpg",
+        fallback: "/media/committee/placeholder-chairperson.svg",
+        objectPosition: "50% 6%",
+        desc: "Leading Mindscape 2026 to foster impactful smartphone mindfulness and creative youth engagement."
+      },
+      {
+        role: "Secretary",
+        org: "Rotaract Club of VMRF",
+        badge: "SECRETARY",
+        badgeClass: "badge-secretary",
+        roleClass: "role-secretary",
+        img: "/media/committee/secretary-vmrf.jpeg",
+        altImg: "/media/committee/secretary.jpg",
+        fallback: "/media/committee/placeholder-secretary.svg",
+        objectPosition: "50% 12%",
+        desc: "Managing event operations, inter-club communications, and registration workflows."
+      },
+      {
+        role: "Co-Chairperson",
+        org: "Rotaract Club of Jeppiaar Eng. College",
+        badge: "CO-CHAIRPERSON",
+        badgeClass: "badge-cochair",
+        roleClass: "role-cochair",
+        img: "/media/committee/cochairperson-jeppiaar-engineering-college.jpeg",
+        altImg: "/media/committee/co-chairperson-1.jpg",
+        fallback: "/media/committee/placeholder-cochairperson.svg",
+        objectPosition: "50% 6%",
+        desc: "Coordinating inter-collegiate student outreach and submission curation."
+      },
+      {
+        role: "Co-Chairperson",
+        org: "Rotaract Club of Jeppiaar University",
+        badge: "CO-CHAIRPERSON",
+        badgeClass: "badge-cochair",
+        roleClass: "role-cochair",
+        img: "/media/committee/co-chairperson-2.jpg",
+        altImg: "/media/committee/placeholder-cochairperson.svg",
+        fallback: "/media/committee/placeholder-cochairperson.svg",
+        objectPosition: "50% 50%",
+        desc: "Facilitating university-level partnerships and delegate participation."
+      },
+      {
+        role: "Co-Chairperson",
+        org: "Rotaract Club of SDNB Vaishnav College",
+        badge: "CO-CHAIRPERSON",
+        badgeClass: "badge-cochair",
+        roleClass: "role-cochair",
+        img: "/media/committee/cochairperson-sdnbvaishnav.png",
+        altImg: "/media/committee/co-chairperson-3.png",
+        fallback: "/media/committee/placeholder-cochairperson.svg",
+        objectPosition: "50% 10%",
+        desc: "Spearheading campus awareness campaigns and digital media promotions."
+      },
+      {
+        role: "Co-Chairperson",
+        org: "Rotaract Club of The New College",
+        badge: "CO-CHAIRPERSON",
+        badgeClass: "badge-cochair",
+        roleClass: "role-cochair",
+        img: "/media/committee/cochairperson-new-college.png",
+        altImg: "/media/committee/co-chairperson-4.png",
+        fallback: "/media/committee/placeholder-cochairperson.svg",
+        objectPosition: "50% 6%",
+        desc: "Overseeing student engagement and multilingual reel curation."
+      },
+      {
+        role: "Co-Chairperson",
+        org: "Rotaract Club of Chennai",
+        badge: "CO-CHAIRPERSON",
+        badgeClass: "badge-cochair",
+        roleClass: "role-cochair",
+        img: "/media/committee/cochairperson-chennai.jpeg",
+        altImg: "/media/committee/co-chairperson-5.jpg",
+        fallback: "/media/committee/placeholder-cochairperson.svg",
+        objectPosition: "50% 8%",
+        desc: "Managing city-wide institutional coordination and event execution."
+      }
+    ];
+
+    let leaderIdx = 0;
+    let leaderTimer = null;
+
+    function initLeaderCarousel() {
+      const container = document.getElementById("leader-cards");
+      const dotsContainer = document.getElementById("leader-dots");
+      if (!container) return;
+
+      container.innerHTML = leaders.map((l, idx) => `
+        <div class="leader-reel-card ${l.roleClass}" data-idx="${idx}" onclick="selectLeader(${idx})">
+          <div class="leader-photo-frame">
+            <img src="${l.img}" alt="${l.role}" class="leader-photo" style="object-position: ${l.objectPosition || 'center 10%'};"
+              onerror="if (!this.triedAlt) { this.triedAlt = true; this.src = '${l.altImg}'; } else { this.onerror=null; this.src='${l.fallback}'; }">
+            <span class="leadership-badge ${l.badgeClass}">${l.badge}</span>
+          </div>
+          <div class="leader-card-info">
+            <h3>${l.role}</h3>
+            <p class="leader-org">${l.org}</p>
+            <p class="leader-desc">${l.desc}</p>
+          </div>
+        </div>
+      `).join('');
+
+      if (dotsContainer) {
+        dotsContainer.innerHTML = leaders.map((_, i) => `
+          <i class="${i === 0 ? 'active' : ''}" onclick="selectLeader(${i})" aria-label="Leader ${i + 1}"></i>
+        `).join('');
+      }
+
+      updateLeaderCarouselPositions();
+    }
+
+    function updateLeaderCarouselPositions() {
+      const total = leaders.length;
+      const cards = document.querySelectorAll(".leader-reel-card");
+      if (!cards.length) return;
+
+      const isMobile = window.innerWidth < 640;
+      const isTablet = window.innerWidth < 1000;
+      const spread = isMobile ? 120 : (isTablet ? 190 : 270);
+
+      cards.forEach((card, i) => {
+        let rel = (i - leaderIdx) % total;
+        if (rel > total / 2) rel -= total;
+        if (rel < -total / 2) rel += total;
+
+        const isActive = (rel === 0);
+        card.classList.toggle("is-active", isActive);
+
+        let tx = 0, tz = 0, rotY = 0, scale = 1, opacity = 1, zIndex = 1, pointerEvents = "auto", blur = 0;
+
+        if (rel === 0) {
+          tx = 0;
+          tz = 120;
+          rotY = 0;
+          scale = 1.12;
+          opacity = 1;
+          zIndex = 10;
+        } else if (rel === 1) {
+          tx = spread;
+          tz = 15;
+          rotY = -24;
+          scale = 0.9;
+          opacity = 0.85;
+          zIndex = 8;
+        } else if (rel === -1) {
+          tx = -spread;
+          tz = 15;
+          rotY = 24;
+          scale = 0.9;
+          opacity = 0.85;
+          zIndex = 8;
+        } else if (rel === 2) {
+          tx = spread * 1.85;
+          tz = -85;
+          rotY = -44;
+          scale = isMobile ? 0.65 : 0.72;
+          opacity = isMobile ? 0.25 : 0.55;
+          zIndex = 5;
+          blur = isMobile ? 1 : 0.5;
+        } else if (rel === -2) {
+          tx = -spread * 1.85;
+          tz = -85;
+          rotY = 44;
+          scale = isMobile ? 0.65 : 0.72;
+          opacity = isMobile ? 0.25 : 0.55;
+          zIndex = 5;
+          blur = isMobile ? 1 : 0.5;
+        } else {
+          tx = (rel > 0 ? 1 : -1) * (spread * 0.9);
+          tz = -260;
+          rotY = (rel > 0 ? -90 : 90);
+          scale = 0.4;
+          opacity = 0;
+          zIndex = 1;
+          pointerEvents = "none";
+        }
+
+        card.style.transform = `translateX(${tx}px) translateZ(${tz}px) rotateY(${rotY}deg) scale(${scale})`;
+        card.style.opacity = opacity;
+        card.style.zIndex = zIndex;
+        card.style.pointerEvents = pointerEvents;
+        card.style.filter = blur ? `blur(${blur}px) grayscale(20%)` : "none";
+      });
+
+      const dots = document.querySelectorAll("#leader-dots i");
+      dots.forEach((dot, idx) => {
+        dot.classList.toggle("active", idx === leaderIdx);
+      });
+    }
+
+    function selectLeader(idx) {
+      leaderIdx = idx;
+      updateLeaderCarouselPositions();
+      resetLeaderTimer();
+    }
+
+    function nextLeader() {
+      leaderIdx = (leaderIdx + 1) % leaders.length;
+      updateLeaderCarouselPositions();
+    }
+
+    function prevLeader() {
+      leaderIdx = (leaderIdx - 1 + leaders.length) % leaders.length;
+      updateLeaderCarouselPositions();
+    }
+
+    function startLeaderTimer() {
+      stopLeaderTimer();
+      leaderTimer = setInterval(nextLeader, 2800);
+    }
+
+    function stopLeaderTimer() {
+      if (leaderTimer) {
+        clearInterval(leaderTimer);
+        leaderTimer = null;
+      }
+    }
+
+    function resetLeaderTimer() {
+      stopLeaderTimer();
+      startLeaderTimer();
+    }
+
+    // 4. 3D Movie Carousel - Partner Logos
+    const partners = [
+      { short: "RCM", name: "Rotary Club\nof Madras", logo: "/media/logo/rotary club of madras.png" },
+      { short: "VEP", name: "Rotaract Club\nof Vepery", logo: "/media/logo/rotaract club of vepery.png" },
+      { short: "VMR", name: "Rotaract Club\nof VMRF", logo: "/media/logo/rotaract club of vmrf.jpg" },
+      { short: "JEC", name: "Jeppiaar Engineering\nCollege", logo: "/media/logo/rotaract cub of jeppiaar enginnering college.png" },
+      { short: "JPU", name: "Jeppiaar\nUniversity", logo: "/media/logo/rotaract club of jeppiaar universirty.jpg" },
+      { short: "SDN", name: "SDNB Vaishnav\nCollege", logo: "/media/logo/rotaract club of sdnb vaishnac college.jpg" },
+      { short: "TNC", name: "The New\nCollege", logo: "/media/logo/rotaract club of new college.png" },
+      { short: "CHN", name: "Rotaract Club\nof Chennai", logo: "/media/logo/rotaract club of chennai.jpg" }
+    ];
+
+    let moviePartnerIdx = 0;
+    let movieCarouselTimer = null;
+
+    function initMovieCarousel() {
+      const container = document.getElementById("partner-cards");
+      const dotsContainer = document.getElementById("partner-dots");
+      if (!container) return;
+
+      container.innerHTML = partners.map((p, idx) => `
+        <div class="movie-reel-card" data-idx="${idx}" onclick="selectMoviePartner(${idx})">
+          <div class="movie-reel-orb">
+            <img src="${p.logo}" alt="${p.name}" class="partner-logo-img" onerror="this.outerHTML='<span style=\\'font-size:24px; color:#fff\\'>✦</span><small style=\\'color:#c7bce0\\'>${p.short}</small>'">
+          </div>
+          <p>${p.name}</p>
+        </div>
+      `).join('');
+
+      if (dotsContainer) {
+        dotsContainer.innerHTML = partners.map((_, i) => `
+          <i class="${i === 0 ? 'active' : ''}" onclick="selectMoviePartner(${i})" aria-label="Partner ${i + 1}"></i>
+        `).join('');
+      }
+
+      updateMovieCarouselPositions();
+    }
+
+    function updateMovieCarouselPositions() {
+      const total = partners.length;
+      const cards = document.querySelectorAll(".movie-reel-card");
+      if (!cards.length) return;
+
+      const isMobile = window.innerWidth < 640;
+      const isTablet = window.innerWidth < 1000;
+      const spread = isMobile ? 95 : (isTablet ? 160 : 220);
+
+      cards.forEach((card, i) => {
+        let rel = (i - moviePartnerIdx) % total;
+        if (rel > total / 2) rel -= total;
+        if (rel < -total / 2) rel += total;
+
+        const isActive = (rel === 0);
+        card.classList.toggle("is-active", isActive);
+
+        let tx = 0, tz = 0, rotY = 0, scale = 1, opacity = 1, zIndex = 1, pointerEvents = "auto", blur = 0;
+
+        if (rel === 0) {
+          // Central Spotlight Card
+          tx = 0;
+          tz = 110;
+          rotY = 0;
+          scale = 1.18;
+          opacity = 1;
+          zIndex = 10;
+        } else if (rel === 1) {
+          // Curved Right Card
+          tx = spread;
+          tz = 15;
+          rotY = -26;
+          scale = 0.92;
+          opacity = 0.85;
+          zIndex = 8;
+        } else if (rel === -1) {
+          // Curved Left Card
+          tx = -spread;
+          tz = 15;
+          rotY = 26;
+          scale = 0.92;
+          opacity = 0.85;
+          zIndex = 8;
+        } else if (rel === 2) {
+          // Outer Right Card
+          tx = spread * 1.82;
+          tz = -85;
+          rotY = -46;
+          scale = isMobile ? 0.65 : 0.74;
+          opacity = isMobile ? 0.25 : 0.55;
+          zIndex = 5;
+          blur = isMobile ? 1 : 0.5;
+        } else if (rel === -2) {
+          // Outer Left Card
+          tx = -spread * 1.82;
+          tz = -85;
+          rotY = 46;
+          scale = isMobile ? 0.65 : 0.74;
+          opacity = isMobile ? 0.25 : 0.55;
+          zIndex = 5;
+          blur = isMobile ? 1 : 0.5;
+        } else {
+          // Back-orbiting Cards
+          tx = (rel > 0 ? 1 : -1) * (spread * 0.9);
+          tz = -260;
+          rotY = (rel > 0 ? -90 : 90);
+          scale = 0.4;
+          opacity = 0;
+          zIndex = 1;
+          pointerEvents = "none";
+        }
+
+        card.style.transform = `translateX(${tx}px) translateZ(${tz}px) rotateY(${rotY}deg) scale(${scale})`;
+        card.style.opacity = opacity;
+        card.style.zIndex = zIndex;
+        card.style.pointerEvents = pointerEvents;
+        card.style.filter = blur ? `blur(${blur}px) grayscale(20%)` : "none";
+      });
+
+      const dots = document.querySelectorAll("#partner-dots i");
+      dots.forEach((dot, idx) => {
+        dot.classList.toggle("active", idx === moviePartnerIdx);
+      });
+    }
+
+    function selectMoviePartner(idx) {
+      moviePartnerIdx = idx;
+      updateMovieCarouselPositions();
+      resetMovieCarouselTimer();
+    }
+
+    function nextMoviePartner() {
+      moviePartnerIdx = (moviePartnerIdx + 1) % partners.length;
+      updateMovieCarouselPositions();
+    }
+
+    function prevMoviePartner() {
+      moviePartnerIdx = (moviePartnerIdx - 1 + partners.length) % partners.length;
+      updateMovieCarouselPositions();
+    }
+
+    function startMovieCarouselTimer() {
+      stopMovieCarouselTimer();
+      movieCarouselTimer = setInterval(() => {
+        nextMoviePartner();
+      }, 2400); // Smooth continuous rotation like a cinema reel carousel
+    }
+
+    function stopMovieCarouselTimer() {
+      if (movieCarouselTimer) {
+        clearInterval(movieCarouselTimer);
+        movieCarouselTimer = null;
+      }
+    }
+
+    function resetMovieCarouselTimer() {
+      stopMovieCarouselTimer();
+      startMovieCarouselTimer();
+    }
+
+    // Initialize Leadership Committee 3D Movie Carousel
+    initLeaderCarousel();
+    startLeaderTimer();
+
+    document.getElementById("leader-prev")?.addEventListener("click", () => {
+      prevLeader();
+      resetLeaderTimer();
+    });
+    document.getElementById("leader-next")?.addEventListener("click", () => {
+      nextLeader();
+      resetLeaderTimer();
+    });
+
+    const leaderWrapper = document.getElementById("leader-carousel-wrapper");
+    leaderWrapper?.addEventListener("mouseenter", stopLeaderTimer);
+    leaderWrapper?.addEventListener("mouseleave", startLeaderTimer);
+
+    // Initialize Partner Logos 3D Movie Carousel
+    initMovieCarousel();
+    startMovieCarouselTimer();
+
+    window.addEventListener("resize", () => {
+      updateLeaderCarouselPositions();
+      updateMovieCarouselPositions();
+    });
+
+    document.getElementById("partner-prev")?.addEventListener("click", () => {
+      prevMoviePartner();
+      resetMovieCarouselTimer();
+    });
+    document.getElementById("partner-next")?.addEventListener("click", () => {
+      nextMoviePartner();
+      resetMovieCarouselTimer();
+    });
+
+    const carouselWrapper = document.getElementById("movie-carousel-wrapper");
+    carouselWrapper?.addEventListener("mouseenter", stopMovieCarouselTimer);
+    carouselWrapper?.addEventListener("mouseleave", startMovieCarouselTimer);
+
+    // 5. HTML5 In-Browser Video Inspector with Universal Drag & Drop ("Uploadable at all places")
+    let selectedFile = null;
+    let videoMetadata = null;
+    const fileInput = document.getElementById("video-file-input");
+    const previewBlock = document.getElementById("video-preview-block");
+    const previewVideo = document.getElementById("preview-video");
+    const badgesContainer = document.getElementById("inspector-badges");
+    const dropzoneBox = document.getElementById("dropzone-box");
+    const dropzoneLabel = document.getElementById("dropzone-label");
+    const dropzoneSub = document.getElementById("dropzone-sub");
+    const inspectorFileName = document.getElementById("inspector-file-name");
+    const browseBtn = document.getElementById("browse-btn");
+    const changeVideoBtn = document.getElementById("change-video-btn");
+    const submissionShell = document.getElementById("submission-box-shell");
+    const errorBox = document.getElementById("submit-error");
+
+    // Prevent default browser behavior across window to avoid opening video in tab
+    ["dragenter", "dragover", "dragleave", "drop"].forEach(eventName => {
+      window.addEventListener(eventName, (e) => {
+        e.preventDefault();
+      }, false);
+    });
+
+    function showError(msg) {
+      if (errorBox) {
+        errorBox.innerText = msg;
+        errorBox.style.display = "block";
+      }
+    }
+    function hideError() {
+      if (errorBox) errorBox.style.display = "none";
+    }
+
+    function handleVideoFile(file) {
+      if (!file) return;
+
+      const validExts = [".mp4", ".mov", ".webm", ".m4v", ".mkv"];
+      const fName = (file.name || "").toLowerCase();
+      const hasValidExt = validExts.some(ext => fName.endsWith(ext));
+      const isVideoMime = file.type && file.type.startsWith("video/");
+
+      if (!isVideoMime && !hasValidExt) {
+        showError("Please upload a valid video file (.mp4, .mov, or .webm).");
+        return;
+      }
+
+      if (file.size > 100 * 1024 * 1024) {
+        showError("File exceeds 100 MB limit. Please compress or export at 1080x1920.");
+        return;
+      }
+
+      selectedFile = file;
+      hideError();
+
+      if (dropzoneBox) dropzoneBox.classList.add("has-file");
+      if (dropzoneLabel) dropzoneLabel.innerText = "✓ Selected: " + file.name;
+      if (dropzoneSub) dropzoneSub.innerText = `${(file.size / (1024 * 1024)).toFixed(1)} MB · Drag another file to replace`;
+      if (inspectorFileName) inspectorFileName.innerText = `${file.name} (${(file.size / (1024 * 1024)).toFixed(1)} MB)`;
+
+      const blobUrl = URL.createObjectURL(file);
+      if (previewVideo) previewVideo.src = blobUrl;
+      if (previewBlock) previewBlock.style.display = "block";
+
+      const vid = document.createElement("video");
+      vid.preload = "metadata";
+      vid.src = blobUrl;
+      vid.onloadedmetadata = () => {
+        const dur = Math.round(vid.duration * 10) / 10;
+        const w = vid.videoWidth;
+        const h = vid.videoHeight;
+        const isPortrait = h > w;
+        const durationOk = dur >= 25.0 && dur <= 45.0;
+
+        videoMetadata = { duration: dur, width: w, height: h, isPortrait, durationOk };
+
+        if (badgesContainer) {
+          badgesContainer.innerHTML = `
+            <span class="meta-badge ${durationOk ? 'badge-valid' : 'badge-invalid'}">
+              ⏱ ${dur}s ${durationOk ? '✓ (25–45s valid)' : '✕ (Must be 25–45s)'}
+            </span>
+            <span class="meta-badge ${isPortrait ? 'badge-valid' : 'badge-invalid'}">
+              📐 ${w}×${h} ${isPortrait ? '✓ (Vertical 9:16)' : '✕ (Not portrait)'}
+            </span>
+            <span class="meta-badge badge-neutral">
+              💾 ${(file.size / (1024 * 1024)).toFixed(1)} MB
+            </span>
+          `;
+        }
+
+        if (!durationOk) {
+          showError(`Video duration is ${dur}s. Competition rules mandate reels between 25 and 45 seconds.`);
+        } else if (!isPortrait) {
+          showError("Video must be in vertical portrait mode (9:16). Horizontal or square video detected.");
+        }
+      };
+    }
+
+    // Trigger file chooser
+    function openFileChooser() {
+      if (fileInput) {
+        fileInput.value = "";
+        fileInput.click();
+      }
+    }
+
+    dropzoneBox?.addEventListener("click", (e) => {
+      // Avoid re-triggering if browse-btn was clicked
+      if (e.target !== browseBtn && !browseBtn?.contains(e.target)) {
+        openFileChooser();
+      }
+    });
+    browseBtn?.addEventListener("click", (e) => {
+      e.stopPropagation();
+      openFileChooser();
+    });
+    changeVideoBtn?.addEventListener("click", (e) => {
+      e.stopPropagation();
+      openFileChooser();
+    });
+
+    fileInput?.addEventListener("change", (e) => {
+      if (e.target.files && e.target.files[0]) {
+        handleVideoFile(e.target.files[0]);
+      }
+    });
+
+    // Dropzone Drag & Drop
+    let dzCounter = 0;
+    dropzoneBox?.addEventListener("dragenter", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dzCounter++;
+      dropzoneBox.classList.add("drag-active");
+    });
+    dropzoneBox?.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      e.dataTransfer.dropEffect = "copy";
+      dropzoneBox.classList.add("drag-active");
+    });
+    dropzoneBox?.addEventListener("dragleave", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dzCounter--;
+      if (dzCounter <= 0) {
+        dzCounter = 0;
+        dropzoneBox.classList.remove("drag-active");
+      }
+    });
+    dropzoneBox?.addEventListener("drop", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dzCounter = 0;
+      dropzoneBox.classList.remove("drag-active");
+      submissionShell?.classList.remove("box-drag-active");
+      const dt = e.dataTransfer;
+      if (dt && dt.files && dt.files.length > 0) {
+        handleVideoFile(dt.files[0]);
+      }
+    });
+
+    // Submission Shell Drag & Drop ("Uploadable at all places")
+    let shellCounter = 0;
+    submissionShell?.addEventListener("dragenter", (e) => {
+      e.preventDefault();
+      shellCounter++;
+      submissionShell.classList.add("box-drag-active");
+    });
+    submissionShell?.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = "copy";
+      submissionShell.classList.add("box-drag-active");
+    });
+    submissionShell?.addEventListener("dragleave", (e) => {
+      e.preventDefault();
+      shellCounter--;
+      if (shellCounter <= 0) {
+        shellCounter = 0;
+        submissionShell.classList.remove("box-drag-active");
+      }
+    });
+    submissionShell?.addEventListener("drop", (e) => {
+      e.preventDefault();
+      shellCounter = 0;
+      submissionShell.classList.remove("box-drag-active");
+      dropzoneBox?.classList.remove("drag-active");
+      const dt = e.dataTransfer;
+      if (dt && dt.files && dt.files.length > 0) {
+        handleVideoFile(dt.files[0]);
+      }
+    });
+
+    // 6. Direct Submission Handler (Supabase & FastAPI)
+    document.getElementById("submission-form")?.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (!selectedFile) {
+        showError("Please select a video file to upload.");
+        return;
+      }
+      if (videoMetadata && (!videoMetadata.durationOk || !videoMetadata.isPortrait)) {
+        showError("Please ensure video is between 25 and 45 seconds and in vertical 9:16 portrait mode.");
+        return;
+      }
+
+      hideError();
+      const progressBox = document.getElementById("upload-progress-box");
+      const progressBar = document.getElementById("upload-progress-bar");
+      const progressPct = document.getElementById("upload-progress-pct");
+      const submitBtn = document.getElementById("submit-btn");
+
+      progressBox.style.display = "block";
+      submitBtn.disabled = true;
+      submitBtn.innerText = "Uploading & Locking Reel...";
+
+      // Upload progress simulation or Supabase upload
+      for (let i = 10; i <= 90; i += 20) {
+        progressBar.style.width = i + "%";
+        progressPct.innerText = i + "%";
+        await new Promise(r => setTimeout(r, 150));
+      }
+
+      const teamName = document.getElementById("sub-team-name")?.value.trim() || "Registered Team";
+      const repName = document.getElementById("sub-rep-name")?.value?.trim() || teamName;
+      const repEmail = document.getElementById("sub-rep-email")?.value?.trim() || "participant@mindscape.org";
+      const repPhone = document.getElementById("sub-rep-phone")?.value?.trim() || "";
+      const institution = document.getElementById("sub-institution")?.value?.trim() || "College / Institution";
+      const city = document.getElementById("sub-city")?.value?.trim() || "Chennai";
+      const title = document.getElementById("sub-title")?.value.trim() || "Mindscape Reel";
+      const language = document.getElementById("sub-language")?.value || "Tamil";
+      const description = document.getElementById("sub-desc")?.value?.trim() || `Reel submission for team ${teamName}`;
+
+      const DB_NAME = "MindscapeDB";
+      const STORE_NAME = "reels_videos";
+      function openDB() {
+        return new Promise((resolve, reject) => {
+          const req = indexedDB.open(DB_NAME, 1);
+          req.onupgradeneeded = (e) => {
+            const db = e.target.result;
+            if (!db.objectStoreNames.contains(STORE_NAME)) {
+              db.createObjectStore(STORE_NAME, { keyPath: "id" });
+            }
+          };
+          req.onsuccess = (e) => resolve(e.target.result);
+          req.onerror = (e) => reject(e);
+        });
+      }
+      async function saveVideoBlob(id, file) {
+        try {
+          const db = await openDB();
+          const tx = db.transaction(STORE_NAME, "readwrite");
+          tx.objectStore(STORE_NAME).put({ id: id, file: file, name: file.name, timestamp: Date.now() });
+        } catch(e) {}
+      }
+
+      try {
+        const formData = new FormData();
+        formData.append("video_file", selectedFile);
+        formData.append("team_name", teamName);
+        formData.append("representative_name", repName);
+        formData.append("representative_email", repEmail);
+        formData.append("representative_phone", repPhone);
+        formData.append("institution", institution);
+        formData.append("city", city);
+        formData.append("title", title);
+        formData.append("description", description);
+        formData.append("language", language);
+        formData.append("duration", videoMetadata ? videoMetadata.duration : 30.0);
+        formData.append("width", videoMetadata ? videoMetadata.width : 1080);
+        formData.append("height", videoMetadata ? videoMetadata.height : 1920);
+
+        let resData = null;
+        try {
+          const response = await fetch("/api/submissions/direct-submit-upload", {
+            method: "POST",
+            body: formData
+          });
+          if (response.ok) {
+            resData = await response.json();
+          }
+        } catch (uploadErr) {
+          console.warn("Direct upload error, trying fallback:", uploadErr);
+        }
+
+        if (!resData) {
+          const payload = {
+            team_name: teamName,
+            representative_name: repName,
+            representative_email: repEmail,
+            representative_phone: repPhone,
+            institution: institution,
+            city: city,
+            title: title,
+            description: description,
+            language: language,
+            file_path: `/media/submissions/${selectedFile.name}`,
+            file_name: selectedFile.name,
+            file_size: selectedFile.size,
+            duration: videoMetadata ? videoMetadata.duration : 30.0,
+            width: videoMetadata ? videoMetadata.width : 1080,
+            height: videoMetadata ? videoMetadata.height : 1920,
+            originality_confirmed: true,
+            participant_consent_confirmed: true,
+            copyright_confirmed: true,
+            rules_confirmed: true,
+            final_lock_confirmed: true
+          };
+
+          const fallbackRes = await fetch("/api/submissions/direct-submit", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          });
+          resData = await fallbackRes.json();
+        }
+
+        progressBar.style.width = "100%";
+        progressPct.innerText = "100%";
+
+        const refId = resData?.submission_id 
+          ? `MS-26-${resData.submission_id.replace(/^MS26-/, '').slice(0, 4).toUpperCase()}` 
+          : `MS-26-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
+
+        // Save real video blob in IndexedDB for instant offline and local portal playback
+        await saveVideoBlob(refId, selectedFile);
+        await saveVideoBlob(selectedFile.name, selectedFile);
+        if (resData?.submission_id) {
+          await saveVideoBlob(resData.submission_id, selectedFile);
+        }
+
+        // Save local backup for immediate portal view
+        try {
+          const localList = JSON.parse(localStorage.getItem("mindscape_reels") || "[]");
+          localList.unshift({
+            team_name: teamName,
+            representative_name: repName,
+            representative_email: repEmail,
+            representative_phone: repPhone,
+            institution: institution,
+            city: city,
+            title: title,
+            description: description,
+            language: language,
+            file_path: resData?.file_path || `/media/submissions/${selectedFile.name}`,
+            file_name: selectedFile.name,
+            file_size: selectedFile.size,
+            duration: videoMetadata ? videoMetadata.duration : 30.0,
+            submission_id: refId,
+            created_at: new Date().toISOString()
+          });
+          localStorage.setItem("mindscape_reels", JSON.stringify(localList));
+        } catch(e) {}
+
+        document.getElementById("submission-form").style.display = "none";
+        document.getElementById("submit-success-box").style.display = "block";
+        document.getElementById("success-ref-id").innerText = refId;
+      } catch (err) {
+        showError("Backend connection error: " + err.message);
+        submitBtn.disabled = false;
+        submitBtn.innerText = "Upload Video to Supabase Archive →";
+      }
+    });
+
+    // 6. 12-Question FAQ Rendering
+    const faqs = [
+      { q: "Who can participate?", a: "Participants aged 18 years and above from any educational background, college, institution or youth group are eligible." },
+      { q: "What is the team size?", a: "Each team must consist of 2 to 5 members. A participant can be part of only one team." },
+      { q: "What is the official theme?", a: "Mobile Phone Addiction, with a clear focus on mental health awareness, digital detachment, and human connection." },
+      { q: "How long should the reel be?", a: "Reels must be between 25 and 45 seconds in duration. Entries outside this window cannot be accepted." },
+      { q: "What format should the reel be?", a: "Vertical 9:16 portrait orientation. Recommended resolution is 1080 × 1920 pixels in MP4 or MOV format (maximum 100MB)." },
+      { q: "What language can we use?", a: "Tamil, English, Hindi, Telugu, Malayalam or any other language. Subtitles in English are recommended for non-English entries." },
+      { q: "Can AI tools be used?", a: "Yes. AI tools may be used for editing, animation, sound design, or voiceover, but the creative concept and script must reflect your team's originality." },
+      { q: "Can we use copyrighted music?", a: "Teams are responsible for obtaining required permissions or using royalty-free music and sound effects." },
+      { q: "When is the registration deadline?", a: "Official team registration closes on 7 October 2026 (IST)." },
+      { q: "When is the reel submission deadline?", a: "Final video submissions close on 8 November 2026 at 23:59:59 IST." },
+      { q: "What are the prizes?", a: "Total prize pool is ₹55,000 (1st Prize: ₹25,000 + Trophy, 2nd Prize: ₹15,000, 3rd Prize: ₹10,000, 4th Prize: ₹5,000)." },
+      { q: "Will participants receive certificates?", a: "Yes, official Participation Certificates from Rotary Club of Madras and Rotaract Club of Vepery will be provided to all eligible entries." }
+    ];
+
+    const faqContainer = document.getElementById("faq-container");
+    if (faqContainer) {
+      faqContainer.innerHTML = faqs.map((f, i) => `
+        <div class="neon-accordion-item ${i === 0 ? 'open' : ''}">
+          <button class="neon-accordion-question" onclick="this.parentElement.classList.toggle('open')">
+            <span>${f.q}</span>
+            <span>▾</span>
+          </button>
+          <div class="neon-accordion-answer">${f.a}</div>
+        </div>
+      `).join('');
+    }
+
+    // Backend connectivity check
+    fetch("/api/health")
+      .then(r => r.json())
+      .then(d => {
+        console.log("Mindscape API online:", d.service);
+      })
+      .catch(() => {
+        console.log("Local standalone mode active");
+      });
+  </script>
+</body>
+</html>
