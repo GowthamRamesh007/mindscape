@@ -498,6 +498,35 @@
 
   <!-- Client-side Interactive Script -->
   <script>
+    // 0. Path-Based Navigation Router (/about, /register, /submit, /prize-pool, /prizes, /faq)
+    function handlePathRouting() {
+      const path = window.location.pathname.toLowerCase().replace(/\/$/, "");
+      const map = {
+        "/about": "#about",
+        "/submit": "#submit",
+        "/register": "#submit",
+        "/prize-pool": "#prizes",
+        "/prizes": "#prizes",
+        "/faq": "#faq",
+        "/leadership": "#leadership",
+        "/partners": "#partners"
+      };
+      const hash = map[path];
+      if (hash) {
+        setTimeout(() => {
+          const target = document.querySelector(hash);
+          if (target) {
+            target.scrollIntoView({ behavior: "smooth" });
+          }
+        }, 150);
+      }
+    }
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", handlePathRouting);
+    } else {
+      handlePathRouting();
+    }
+
     // 1. Mouse Parallax on 3D Hero
     const siteRoot = document.getElementById("site-root");
     window.addEventListener("mousemove", (e) => {

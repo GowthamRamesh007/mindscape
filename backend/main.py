@@ -66,6 +66,8 @@ app.include_router(teams_router)
 app.include_router(submissions_router)
 app.include_router(admin_router)
 
+@app.get("/api")
+@app.get("/api/")
 @app.get("/api/health")
 @app.get("/health")
 def health_check():
@@ -85,7 +87,8 @@ client_src = os.path.join(client_dir, "src")
 candidates_media = [
     os.path.join(project_root, "media"),
     os.path.join(client_dir, "media"),
-    os.path.join(client_public, "media")
+    os.path.join(client_public, "media"),
+    os.path.join(project_root, "mindscape", "media")
 ]
 media_dir = next((p for p in candidates_media if os.path.exists(p)), None)
 if media_dir:
@@ -94,7 +97,8 @@ if media_dir:
 candidates_fonts = [
     os.path.join(project_root, "fonts"),
     os.path.join(client_dir, "fonts"),
-    os.path.join(client_public, "fonts")
+    os.path.join(client_public, "fonts"),
+    os.path.join(project_root, "mindscape", "fonts")
 ]
 fonts_dir = next((p for p in candidates_fonts if os.path.exists(p)), None)
 if fonts_dir:
@@ -102,7 +106,8 @@ if fonts_dir:
 
 candidates_src = [
     os.path.join(project_root, "src"),
-    client_src
+    client_src,
+    os.path.join(project_root, "mindscape", "src")
 ]
 src_dir = next((p for p in candidates_src if os.path.exists(p)), None)
 if src_dir:
@@ -114,26 +119,35 @@ if src_dir:
 @app.get("/admin")
 def serve_portal():
     candidates_portal = [
-        os.path.join(project_root, "portal.html"),
-        os.path.join(client_dir, "portal.html")
+        os.path.join(str(current_file.parent), "portal.html"),
+        os.path.join(str(project_root), "portal.html"),
+        os.path.join(str(client_dir), "portal.html"),
+        os.path.join(str(project_root), "mindscape", "portal.html")
     ]
     portal_file = next((p for p in candidates_portal if os.path.exists(p)), None)
     if portal_file:
         return FileResponse(portal_file)
-    return FileResponse(os.path.join(client_dir, "index.html"))
+    return FileResponse(os.path.join(str(client_dir), "portal.html"))
 
-# Serve index.html at root
+# Serve index.html for frontend routes
 @app.get("/")
 @app.get("/submit")
+@app.get("/about")
+@app.get("/register")
+@app.get("/prize-pool")
+@app.get("/prizes")
+@app.get("/faq")
 def serve_index():
     candidates_index = [
-        os.path.join(project_root, "index.html"),
-        os.path.join(client_dir, "index.html")
+        os.path.join(str(current_file.parent), "index.html"),
+        os.path.join(str(project_root), "index.html"),
+        os.path.join(str(client_dir), "index.html"),
+        os.path.join(str(project_root), "mindscape", "index.html")
     ]
     index_file = next((p for p in candidates_index if os.path.exists(p)), None)
     if index_file:
         return FileResponse(index_file)
-    return {"message": "MINDSCAPE Reel Contest API online"}
+    return FileResponse(os.path.join(str(client_dir), "index.html"))
 
 if __name__ == "__main__":
     import uvicorn

@@ -7,6 +7,10 @@
       "destination": "/api/index.py"
     },
     {
+      "source": "/api",
+      "destination": "/api/index.py"
+    },
+    {
       "source": "/portal",
       "destination": "/portal.html"
     },
@@ -15,7 +19,27 @@
       "destination": "/portal.html"
     },
     {
+      "source": "/about",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/register",
+      "destination": "/index.html"
+    },
+    {
       "source": "/submit",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/prize-pool",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/prizes",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/faq",
       "destination": "/index.html"
     }
   ]
