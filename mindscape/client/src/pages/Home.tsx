@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "wouter";
 import { fetchCompetitionStatus } from "@/lib/supabase";
 
-const GOOGLE_FORM_URL = "https://forms.gle/b1mhwgSJBNsi8zPb8";
+const GOOGLE_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLScE4OXgmGns_catCz_TLUGF7SGN5ZOxMErQW4f08dEPdXV82Q/viewform?usp=dialog";
 
 const partners = [
   { short: "RCM", name: "Rotary Club\nof Madras", logo: "/media/logo/rotary club of madras.png", mark: "✦" },

@@ -35,7 +35,7 @@
         <a href="#leadership">Leadership</a>
         <a href="#partners">Partners</a>
         <a href="#prizes">Prizes</a>
-        <a href="https://forms.gle/b1mhwgSJBNsi8zPb8" target="_blank" rel="noreferrer" style="color: #c8fa60; font-weight: 700;">Register (Google Form) ↗</a>
+        <a href="https://docs.google.com/forms/d/e/1FAIpQLScE4OXgmGns_catCz_TLUGF7SGN5ZOxMErQW4f08dEPdXV82Q/viewform?usp=dialog" target="_blank" rel="noreferrer" style="color: #c8fa60; font-weight: 700;">Register (Google Form) ↗</a>
         <a href="#submit">Submit Reel</a>
         <a href="#faq">FAQ</a>
         <a href="/portal" style="color: #ff9eee; font-weight: 600;">Organizer Portal 🔒</a>
@@ -74,7 +74,7 @@
             </p>
             
             <div class="neon-hero-actions">
-              <a class="neon-button neon-button-primary" href="https://forms.gle/b1mhwgSJBNsi8zPb8" target="_blank" rel="noreferrer">
+              <a class="neon-button neon-button-primary" href="https://docs.google.com/forms/d/e/1FAIpQLScE4OXgmGns_catCz_TLUGF7SGN5ZOxMErQW4f08dEPdXV82Q/viewform?usp=dialog" target="_blank" rel="noreferrer">
                 Register Your Team (Google Form) ↗
               </a>
               <a class="neon-text-button" href="#submit">
@@ -216,7 +216,7 @@
               <div class="partner-orbit-line" style="top: 55%;"></div>
               
               <div id="leader-cards" class="movie-carousel-deck" style="height: 100%;">
-                <!-- 1 Chairperson, 1 Secretary, 5 Co-Chairpersons rendered dynamically in 3D -->
+                <!-- 1 Chairperson, 1 Secretary, 4 Co-Chairpersons rendered dynamically in 3D -->
               </div>
 
               <button class="circle-arrow" id="leader-next" aria-label="Next committee member">›</button>
@@ -331,7 +331,7 @@
               Already registered on Google Form? Upload your 25–45 second vertical reel video here to store it securely in our Supabase backend archive.
             </p>
             <div style="margin-bottom: 28px;">
-              <a href="https://forms.gle/b1mhwgSJBNsi8zPb8" target="_blank" rel="noreferrer" class="neon-button neon-button-primary" style="display: inline-flex; padding: 12px 28px; font-size: 14px; text-decoration: none; border-radius: 99px;">
+              <a href="https://docs.google.com/forms/d/e/1FAIpQLScE4OXgmGns_catCz_TLUGF7SGN5ZOxMErQW4f08dEPdXV82Q/viewform?usp=dialog" target="_blank" rel="noreferrer" class="neon-button neon-button-primary" style="display: inline-flex; padding: 12px 28px; font-size: 14px; text-decoration: none; border-radius: 99px;">
                 📝 Step 1: Complete Team Registration on Google Form ↗
               </a>
             </div>
@@ -557,9 +557,12 @@
       if (now < regDeadline) {
         if (titleEl) titleEl.innerText = "Registration Closes In";
         diff = Math.max(0, Math.floor((regDeadline - now) / 1000));
-      } else {
+      } else if (now < subDeadline) {
         if (titleEl) titleEl.innerText = "Reel Submissions Close In";
         diff = Math.max(0, Math.floor((subDeadline - now) / 1000));
+      } else {
+        if (titleEl) titleEl.innerText = "Contest Submissions Closed";
+        diff = 0;
       }
 
       const days = Math.floor(diff / 86400);
@@ -567,13 +570,20 @@
       const minutes = Math.floor((diff % 3600) / 60);
       const seconds = diff % 60;
 
-      document.getElementById("timer-days").innerText = String(days).padStart(2, "0");
-      document.getElementById("timer-hours").innerText = String(hours).padStart(2, "0");
-      document.getElementById("timer-minutes").innerText = String(minutes).padStart(2, "0");
-      document.getElementById("timer-seconds").innerText = String(seconds).padStart(2, "0");
+      const daysEl = document.getElementById("timer-days");
+      const hoursEl = document.getElementById("timer-hours");
+      const minsEl = document.getElementById("timer-minutes");
+      const secsEl = document.getElementById("timer-seconds");
+
+      if (daysEl) daysEl.innerText = String(days).padStart(2, "0");
+      if (hoursEl) hoursEl.innerText = String(hours).padStart(2, "0");
+      if (minsEl) minsEl.innerText = String(minutes).padStart(2, "0");
+      if (secsEl) secsEl.innerText = String(seconds).padStart(2, "0");
     }
     updateCountdown();
-    // 3.5 3D Movie Carousel - Leadership Committee (1 Chairperson, 1 Secretary, 5 Co-Chairpersons)
+    setInterval(updateCountdown, 1000);
+
+    // 3.5 3D Movie Carousel - Leadership Committee (1 Chairperson, 1 Secretary, 4 Co-Chairpersons)
     const leaders = [
       {
         role: "Chairperson",
@@ -610,18 +620,6 @@
         fallback: "/media/committee/placeholder-cochairperson.svg",
         objectPosition: "50% 6%",
         desc: "Coordinating inter-collegiate student outreach and submission curation."
-      },
-      {
-        role: "Co-Chairperson",
-        org: "Rotaract Club of Jeppiaar University",
-        badge: "CO-CHAIRPERSON",
-        badgeClass: "badge-cochair",
-        roleClass: "role-cochair",
-        img: "/media/committee/co-chairperson-2.jpg",
-        altImg: "/media/committee/placeholder-cochairperson.svg",
-        fallback: "/media/committee/placeholder-cochairperson.svg",
-        objectPosition: "50% 50%",
-        desc: "Facilitating university-level partnerships and delegate participation."
       },
       {
         role: "Co-Chairperson",
