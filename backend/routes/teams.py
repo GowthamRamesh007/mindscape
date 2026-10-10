@@ -121,3 +121,14 @@ def register_team(payload: TeamRegisterRequest, authorization: Optional[str] = H
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Registration error: {str(e)}")
+
+@router.get("/registered")
+def get_registered_teams():
+    """Returns list of registered teams directly from Google Form response sheet."""
+    try:
+        from backend.services.google_sheets_service import fetch_registered_teams_from_sheet
+    except ModuleNotFoundError:
+        from services.google_sheets_service import fetch_registered_teams_from_sheet
+    teams = fetch_registered_teams_from_sheet()
+    return {"teams": teams, "count": len(teams)}
+

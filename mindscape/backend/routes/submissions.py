@@ -16,6 +16,7 @@ try:
     from backend.services.deadline_service import is_submission_open
     from backend.services.video_service import validate_video_metadata
     from backend.services.supabase_service import get_supabase_admin, get_supabase_anon
+    from backend.services.google_sheets_service import is_team_registered, get_team_registration
 except ModuleNotFoundError:
     from models.schemas import (
         VideoVerificationRequest,
@@ -25,6 +26,7 @@ except ModuleNotFoundError:
     from services.deadline_service import is_submission_open
     from services.video_service import validate_video_metadata
     from services.supabase_service import get_supabase_admin, get_supabase_anon
+    from services.google_sheets_service import is_team_registered, get_team_registration
 
 router = APIRouter(prefix="/api/submissions", tags=["Submissions"])
 
@@ -196,17 +198,31 @@ def direct_submit_reel(payload: DirectReelUploadRequest):
     ):
         raise HTTPException(status_code=400, detail="All legal and ethical confirmations must be accepted.")
 
+    # Verify team is registered on Google Form
+    if not is_team_registered(payload.team_name):
+        raise HTTPException(
+            status_code=400,
+            detail=f"Team '{payload.team_name}' is not registered on the Google Form. Only registered teams can submit reels."
+        )
+
+    reg = get_team_registration(payload.team_name)
+    rep_name = (payload.representative_name or (reg.get("representative_name") if reg else "") or "Registered Team").strip()
+    rep_email = (payload.representative_email or (reg.get("email") if reg else "") or "participant@mindscape.org").strip().lower()
+    rep_phone = (payload.representative_phone or (reg.get("phone") if reg else "") or "").strip()
+    inst = (payload.institution or (reg.get("institution") if reg else "") or "College / Institution").strip()
+    loc_city = (payload.city or (reg.get("city") if reg else "") or "Chennai").strip()
+
     submission_id = f"MS26-{uuid.uuid4().hex[:6].upper()}"
 
     sub_data = {
         "id": submission_id,
         "submission_id": submission_id,
         "team_name": payload.team_name.strip(),
-        "representative_name": (payload.representative_name or "Registered Team").strip(),
-        "representative_email": (payload.representative_email or "participant@mindscape.org").strip().lower(),
-        "representative_phone": (payload.representative_phone or "").strip(),
-        "institution": (payload.institution or "College / Institution").strip(),
-        "city": (payload.city or "Chennai").strip(),
+        "representative_name": rep_name,
+        "representative_email": rep_email,
+        "representative_phone": rep_phone,
+        "institution": inst,
+        "city": loc_city,
         "title": payload.title.strip(),
         "description": (payload.description or "Reel video submission for Mindscape 2026").strip(),
         "language": payload.language.strip(),
@@ -272,6 +288,20 @@ async def direct_submit_upload(
     if not is_submission_open():
         raise HTTPException(status_code=400, detail="Reel submission deadline has passed (8 November 2026).")
 
+    # Verify team is registered on Google Form
+    if not is_team_registered(team_name):
+        raise HTTPException(
+            status_code=400,
+            detail=f"Team '{team_name}' is not registered on the Google Form. Only registered teams can submit reels."
+        )
+
+    reg = get_team_registration(team_name)
+    rep_name = (representative_name if (representative_name and representative_name != "Registered Team") else (reg.get("representative_name") if reg else "") or "Registered Team").strip()
+    rep_email = (representative_email if (representative_email and representative_email != "participant@mindscape.org") else (reg.get("email") if reg else "") or "participant@mindscape.org").strip().lower()
+    rep_phone = (representative_phone or (reg.get("phone") if reg else "") or "").strip()
+    inst = (institution if (institution and institution != "College / Institution") else (reg.get("institution") if reg else "") or "College / Institution").strip()
+    loc_city = (city if (city and city != "Chennai") else (reg.get("city") if reg else "") or "Chennai").strip()
+
     orig_name = Path(video_file.filename).name if video_file.filename else "reel.mp4"
     safe_name = re.sub(r'[^a-zA-Z0-9_\.-]', '_', orig_name)
     file_id = uuid.uuid4().hex[:8]
@@ -293,11 +323,11 @@ async def direct_submit_upload(
         "id": submission_id,
         "submission_id": submission_id,
         "team_name": team_name.strip(),
-        "representative_name": (representative_name or "Registered Team").strip(),
-        "representative_email": (representative_email or "participant@mindscape.org").strip().lower(),
-        "representative_phone": (representative_phone or "").strip(),
-        "institution": (institution or "College / Institution").strip(),
-        "city": (city or "Chennai").strip(),
+        "representative_name": rep_name,
+        "representative_email": rep_email,
+        "representative_phone": rep_phone,
+        "institution": inst,
+        "city": loc_city,
         "title": title.strip(),
         "description": (description or "Reel video submission for Mindscape 2026").strip(),
         "language": language.strip(),

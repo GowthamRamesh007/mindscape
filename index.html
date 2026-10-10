@@ -349,9 +349,27 @@
               </div>
 
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 18px;">
-                <div>
-                  <label style="display: block; font: 500 11px monospace; color: #cbd5e1; margin-bottom: 6px;">REGISTERED TEAM NAME *</label>
-                  <input type="text" id="sub-team-name" required placeholder="Team Name as registered on Google Form" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: rgba(0,0,0,0.3); color: #fff;">
+                <div style="position: relative;">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <label style="font: 500 11px monospace; color: #cbd5e1;">REGISTERED TEAM NAME *</label>
+                    <span id="team-status-pill" style="display: none; font: 600 10px monospace; padding: 2px 8px; border-radius: 99px;"></span>
+                  </div>
+                  <input type="text" id="sub-team-name" required autocomplete="off" placeholder="Type your registered team name..." style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: rgba(0,0,0,0.3); color: #fff; transition: border-color 0.2s ease;">
+                  
+                  <!-- Autocomplete suggestions dropdown -->
+                  <div id="team-autocomplete-dropdown" style="display: none; position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: #0e0728; border: 1px solid rgba(255, 68, 213, 0.4); border-radius: 10px; max-height: 220px; overflow-y: auto; box-shadow: 0 12px 36px rgba(0, 0, 0, 0.85); z-index: 1000; backdrop-filter: blur(12px);"></div>
+                  
+                  <!-- Verification status message below -->
+                  <div id="team-verification-msg" style="margin-top: 6px; font-size: 11px; font-family: 'DM Mono', monospace; color: #94a3b8;">
+                    ⚡ Connected to Google Form responses. Only registered teams can submit.
+                  </div>
+                  
+                  <!-- Hidden inputs to store auto-filled response data -->
+                  <input type="hidden" id="sub-rep-name">
+                  <input type="hidden" id="sub-rep-email">
+                  <input type="hidden" id="sub-rep-phone">
+                  <input type="hidden" id="sub-institution">
+                  <input type="hidden" id="sub-city">
                 </div>
                 <div>
                   <label style="display: block; font: 500 11px monospace; color: #cbd5e1; margin-bottom: 6px;">REEL TITLE *</label>
@@ -1192,6 +1210,225 @@
       }
     });
 
+    function escapeHtml(str) {
+      if (!str) return "";
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    // 5.5 Live Google Sheets Registered Teams Connector & Autocomplete
+    let registeredTeamsList = [];
+    let selectedTeamData = null;
+
+    async function fetchRegisteredTeams() {
+      try {
+        const res = await fetch("/api/teams/registered");
+        if (res.ok) {
+          const data = await res.json();
+          if (data && Array.isArray(data.teams) && data.teams.length > 0) {
+            registeredTeamsList = data.teams;
+            updateTeamVerificationStatus();
+            return;
+          }
+        }
+      } catch (err) {
+        console.warn("Backend teams fetch note:", err);
+      }
+      
+      // Fallback: Direct Google Visualization JSONP query
+      try {
+        window.__mindscapeGSheetCallback = function(json) {
+          try {
+            const cols = json.table?.cols || [];
+            let teamIdx = cols.findIndex(c => c && c.label && c.label.toLowerCase().includes("team name"));
+            if (teamIdx === -1) teamIdx = 7;
+            const rows = json.table?.rows || [];
+            registeredTeamsList = rows.map(r => {
+              const c = r.c || [];
+              return {
+                team_name: String(c[teamIdx]?.v || "").trim(),
+                representative_name: String(c[1]?.v || "").trim(),
+                phone: String(c[2]?.v || "").trim(),
+                email: String(c[3]?.v || "").trim(),
+                institution: String(c[5]?.v || "").trim(),
+                city: String(c[6]?.v || "").trim(),
+                title: String(c[11]?.v || "").trim(),
+                language: String(c[12]?.v || "Tamil").trim()
+              };
+            }).filter(t => t.team_name.length > 0);
+            updateTeamVerificationStatus();
+          } catch(e) {
+            console.warn("JSONP parse note:", e);
+          }
+        };
+        const s = document.createElement("script");
+        s.src = "https://docs.google.com/spreadsheets/d/11Kw2JYF4mztp71KQw_Y3A6FZ_bTtxE-2LWxxVYVhSUE/gviz/tq?tqx=responseHandler:__mindscapeGSheetCallback";
+        document.body.appendChild(s);
+      } catch (err) {}
+    }
+
+    const teamInput = document.getElementById("sub-team-name");
+    const teamDropdown = document.getElementById("team-autocomplete-dropdown");
+    const teamStatusPill = document.getElementById("team-status-pill");
+    const teamVerifMsg = document.getElementById("team-verification-msg");
+
+    function renderTeamSuggestions(query) {
+      if (!teamDropdown) return;
+      const clean = (query || "").trim().toLowerCase();
+      if (!clean) {
+        teamDropdown.style.display = "none";
+        return;
+      }
+
+      const matches = registeredTeamsList.filter(t => 
+        t.team_name.toLowerCase().includes(clean) ||
+        (t.institution && t.institution.toLowerCase().includes(clean)) ||
+        (t.representative_name && t.representative_name.toLowerCase().includes(clean))
+      );
+
+      if (!matches.length) {
+        teamDropdown.innerHTML = `
+          <div style="padding: 12px 14px; font-size: 12px; color: #f87171; font-family: 'DM Mono', monospace;">
+            ❌ No registered team matches "<strong>${escapeHtml(query)}</strong>"
+            <div style="margin-top: 6px;">
+              <a href="https://docs.google.com/forms/d/e/1FAIpQLScE4OXgmGns_catCz_TLUGF7SGN5ZOxMErQW4f08dEPdXV82Q/viewform?usp=dialog" target="_blank" rel="noreferrer" style="color: #c8fa60; text-decoration: underline; font-weight: 600;">
+                Click here to Register on Google Form ↗
+              </a>
+            </div>
+          </div>
+        `;
+        teamDropdown.style.display = "block";
+        return;
+      }
+
+      teamDropdown.innerHTML = matches.map((t, idx) => `
+        <div class="team-suggest-item" data-idx="${idx}" style="padding: 10px 14px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.08); transition: background 0.15s ease;" onmouseover="this.style.background='rgba(255, 68, 213, 0.18)'" onmouseout="this.style.background='transparent'">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
+            <strong style="color: #c8fa60; font-size: 14px; font-family: 'Space Grotesk', sans-serif;">${escapeHtml(t.team_name)}</strong>
+            <span style="font-size: 10px; font-family: 'DM Mono', monospace; color: #a5b4fc; background: rgba(165,180,252,0.12); padding: 2px 6px; border-radius: 4px;">Registered ✓</span>
+          </div>
+          <div style="font-size: 11px; color: #94a3b8; font-family: 'DM Mono', monospace;">
+            ${t.representative_name ? `Rep: <span style="color: #e2e8f0;">${escapeHtml(t.representative_name)}</span>` : ''} 
+            ${t.institution ? `• <span style="color: #cbd5e1;">${escapeHtml(t.institution)}</span>` : ''}
+          </div>
+        </div>
+      `).join('');
+
+      teamDropdown.style.display = "block";
+
+      teamDropdown.querySelectorAll(".team-suggest-item").forEach((el, i) => {
+        el.addEventListener("click", () => {
+          selectRegisteredTeam(matches[i]);
+        });
+      });
+    }
+
+    function selectRegisteredTeam(t) {
+      if (!t) return;
+      selectedTeamData = t;
+      if (teamInput) {
+        teamInput.value = t.team_name;
+        teamInput.style.borderColor = "#2ecc71";
+      }
+      if (teamDropdown) teamDropdown.style.display = "none";
+
+      const titleInput = document.getElementById("sub-title");
+      if (titleInput && t.title && !titleInput.value) {
+        titleInput.value = t.title;
+      }
+      const langInput = document.getElementById("sub-language");
+      if (langInput && t.language) {
+        Array.from(langInput.options).forEach(opt => {
+          if (opt.value.toLowerCase() === t.language.toLowerCase()) {
+            langInput.value = opt.value;
+          }
+        });
+      }
+
+      if (document.getElementById("sub-rep-name")) document.getElementById("sub-rep-name").value = t.representative_name || "";
+      if (document.getElementById("sub-rep-email")) document.getElementById("sub-rep-email").value = t.email || "";
+      if (document.getElementById("sub-rep-phone")) document.getElementById("sub-rep-phone").value = t.phone || "";
+      if (document.getElementById("sub-institution")) document.getElementById("sub-institution").value = t.institution || "";
+      if (document.getElementById("sub-city")) document.getElementById("sub-city").value = t.city || "";
+
+      updateTeamVerificationStatus();
+    }
+
+    function updateTeamVerificationStatus() {
+      const val = (teamInput?.value || "").trim();
+      if (!val) {
+        if (teamStatusPill) teamStatusPill.style.display = "none";
+        if (teamVerifMsg) {
+          teamVerifMsg.innerHTML = "⚡ Connected to Google Form responses. Only registered teams can submit.";
+          teamVerifMsg.style.color = "#94a3b8";
+        }
+        if (teamInput) teamInput.style.borderColor = "rgba(255,255,255,0.15)";
+        selectedTeamData = null;
+        return;
+      }
+
+      const matched = registeredTeamsList.find(t => t.team_name.toLowerCase() === val.toLowerCase());
+      if (matched) {
+        selectedTeamData = matched;
+        if (teamInput) teamInput.style.borderColor = "#2ecc71";
+        if (teamStatusPill) {
+          teamStatusPill.style.display = "inline-block";
+          teamStatusPill.style.background = "rgba(46, 204, 113, 0.18)";
+          teamStatusPill.style.color = "#2ecc71";
+          teamStatusPill.style.border = "1px solid #2ecc71";
+          teamStatusPill.innerText = "✓ VERIFIED TEAM";
+        }
+        if (teamVerifMsg) {
+          const repInfo = matched.representative_name ? ` · Rep: ${escapeHtml(matched.representative_name)}` : '';
+          const instInfo = matched.institution ? ` (${escapeHtml(matched.institution)})` : '';
+          teamVerifMsg.innerHTML = `<span style="color: #2ecc71; font-weight: 600;">✓ Verified Registered Team</span>${repInfo}${instInfo}`;
+          teamVerifMsg.style.color = "#a7f3d0";
+        }
+      } else {
+        selectedTeamData = null;
+        if (teamInput) teamInput.style.borderColor = "#ef4444";
+        if (teamStatusPill) {
+          teamStatusPill.style.display = "inline-block";
+          teamStatusPill.style.background = "rgba(239, 68, 68, 0.18)";
+          teamStatusPill.style.color = "#f87171";
+          teamStatusPill.style.border = "1px solid #ef4444";
+          teamStatusPill.innerText = "NOT REGISTERED";
+        }
+        if (teamVerifMsg) {
+          teamVerifMsg.innerHTML = `
+            <span style="color: #f87171;">⚠️ Team not found in Google Form records.</span> 
+            <a href="https://docs.google.com/forms/d/e/1FAIpQLScE4OXgmGns_catCz_TLUGF7SGN5ZOxMErQW4f08dEPdXV82Q/viewform?usp=dialog" target="_blank" rel="noreferrer" style="color: #c8fa60; text-decoration: underline; margin-left: 4px; font-weight: 600;">
+              Register Your Team Now ↗
+            </a>
+          `;
+          teamVerifMsg.style.color = "#fca5a5";
+        }
+      }
+    }
+
+    teamInput?.addEventListener("input", (e) => {
+      renderTeamSuggestions(e.target.value);
+      updateTeamVerificationStatus();
+    });
+
+    teamInput?.addEventListener("focus", (e) => {
+      if (e.target.value.trim()) {
+        renderTeamSuggestions(e.target.value);
+      }
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!teamInput?.contains(e.target) && !teamDropdown?.contains(e.target)) {
+        if (teamDropdown) teamDropdown.style.display = "none";
+      }
+    });
+
+    fetchRegisteredTeams();
+
     // 6. Direct Submission Handler (Supabase & FastAPI)
     document.getElementById("submission-form")?.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -1201,6 +1438,15 @@
       }
       if (videoMetadata && (!videoMetadata.durationOk || !videoMetadata.isPortrait)) {
         showError("Please ensure video is between 25 and 45 seconds and in vertical 9:16 portrait mode.");
+        return;
+      }
+
+      // Check registered team verification
+      const enteredTeamName = (teamInput?.value || "").trim();
+      const verifiedTeam = registeredTeamsList.find(t => t.team_name.toLowerCase() === enteredTeamName.toLowerCase());
+      if (registeredTeamsList.length > 0 && !verifiedTeam) {
+        showError(`Team "${enteredTeamName}" is not registered on the Google Form. Only registered teams can submit reels. Please complete Step 1: Register on Google Form first.`);
+        teamInput?.focus();
         return;
       }
 
@@ -1221,14 +1467,14 @@
         await new Promise(r => setTimeout(r, 150));
       }
 
-      const teamName = document.getElementById("sub-team-name")?.value.trim() || "Registered Team";
-      const repName = document.getElementById("sub-rep-name")?.value?.trim() || teamName;
-      const repEmail = document.getElementById("sub-rep-email")?.value?.trim() || "participant@mindscape.org";
-      const repPhone = document.getElementById("sub-rep-phone")?.value?.trim() || "";
-      const institution = document.getElementById("sub-institution")?.value?.trim() || "College / Institution";
-      const city = document.getElementById("sub-city")?.value?.trim() || "Chennai";
-      const title = document.getElementById("sub-title")?.value.trim() || "Mindscape Reel";
-      const language = document.getElementById("sub-language")?.value || "Tamil";
+      const teamName = verifiedTeam ? verifiedTeam.team_name : enteredTeamName;
+      const repName = document.getElementById("sub-rep-name")?.value?.trim() || verifiedTeam?.representative_name || teamName;
+      const repEmail = document.getElementById("sub-rep-email")?.value?.trim() || verifiedTeam?.email || "participant@mindscape.org";
+      const repPhone = document.getElementById("sub-rep-phone")?.value?.trim() || verifiedTeam?.phone || "";
+      const institution = document.getElementById("sub-institution")?.value?.trim() || verifiedTeam?.institution || "College / Institution";
+      const city = document.getElementById("sub-city")?.value?.trim() || verifiedTeam?.city || "Chennai";
+      const title = document.getElementById("sub-title")?.value.trim() || verifiedTeam?.title || "Mindscape Reel";
+      const language = document.getElementById("sub-language")?.value || verifiedTeam?.language || "Tamil";
       const description = document.getElementById("sub-desc")?.value?.trim() || `Reel submission for team ${teamName}`;
 
       const DB_NAME = "MindscapeDB";
@@ -1358,7 +1604,7 @@
       } catch (err) {
         showError("Backend connection error: " + err.message);
         submitBtn.disabled = false;
-        submitBtn.innerText = "Upload Video to Supabase Archive →";
+        submitBtn.innerText = "Upload Video to Storehouse Archive →";
       }
     });
 
