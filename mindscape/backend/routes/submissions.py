@@ -201,8 +201,8 @@ def direct_submit_reel(payload: DirectReelUploadRequest):
     # Verify team is registered on Google Form
     if not is_team_registered(payload.team_name):
         raise HTTPException(
-            status_code=400,
-            detail=f"Team '{payload.team_name}' is not registered on the Google Form. Only registered teams can submit reels."
+            status_code=403,
+            detail=f"Registration required: Team '{payload.team_name}' is not registered on the official Google Form. Only registered teams can submit reels."
         )
 
     reg = get_team_registration(payload.team_name)
@@ -291,8 +291,8 @@ async def direct_submit_upload(
     # Verify team is registered on Google Form
     if not is_team_registered(team_name):
         raise HTTPException(
-            status_code=400,
-            detail=f"Team '{team_name}' is not registered on the Google Form. Only registered teams can submit reels."
+            status_code=403,
+            detail=f"Registration required: Team '{team_name}' is not registered on the official Google Form. Only registered teams can submit reels."
         )
 
     reg = get_team_registration(team_name)

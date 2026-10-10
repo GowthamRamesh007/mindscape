@@ -86,13 +86,12 @@ def fetch_registered_teams_from_sheet(force_refresh: bool = False) -> List[Dict[
         return _teams_cache["data"]
 
 def is_team_registered(team_name: str) -> bool:
-    """Checks if the given team name exists in the registered teams list (case-insensitive)."""
+    """Checks if the given team name exists in the registered teams list (case-insensitive). Only registered teams are allowed."""
     if not team_name:
         return False
     teams = fetch_registered_teams_from_sheet()
     if not teams:
-        # If sheet fetch failed, don't hard-block valid users
-        return True
+        return False
     target = team_name.strip().lower()
     return any(t["team_name"].strip().lower() == target for t in teams)
 
