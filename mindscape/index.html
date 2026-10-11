@@ -20,6 +20,8 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
+  <!-- Fixed Neon Laser Scroll Progress Bar -->
+  <div id="neon-scroll-progress" role="progressbar" aria-label="Page reading progress"></div>
 
   <div class="neon-site" id="site-root">
     
@@ -87,7 +89,7 @@
             </div>
 
             <!-- Live IST Countdown Timer -->
-            <div class="countdown-box">
+            <div class="countdown-box reveal-on-scroll delay-1">
               <div class="countdown-title" id="timer-title">Registration Closes In</div>
               <div class="countdown-grid">
                 <div class="timer-unit">
@@ -148,7 +150,7 @@
       <section class="neon-about" id="about">
         <div class="neon-grid-lines"></div>
         <div class="neon-section-inner">
-          <div class="neon-about-copy">
+          <div class="neon-about-copy reveal-on-scroll reveal-left">
             <p class="neon-section-label">ABOUT THE INITIATIVE</p>
             <h2>Behind Every Screen<br><span>is a Human Story</span></h2>
             <p class="neon-body-copy">
@@ -162,7 +164,7 @@
             </div>
           </div>
 
-          <div class="neon-about-art">
+          <div class="neon-about-art reveal-on-scroll reveal-right">
             <div class="phone-scene" aria-label="3D reel cards preview">
               <div class="phone-ring ring-one"></div>
               <div class="phone-ring ring-two"></div>
@@ -200,7 +202,7 @@
       <section class="neon-about" id="leadership" style="background: radial-gradient(ellipse at 50% 40%, rgba(139, 48, 255, 0.18), transparent 45%), #090522; padding: 90px clamp(22px, 8.8vw, 140px); border-top: 1px solid rgba(255,255,255,0.06); overflow: hidden;">
         <div class="neon-grid-lines"></div>
         <div style="max-width: 1200px; margin: auto; position: relative; z-index: 2;">
-          <div class="neon-centered-heading" style="text-align: center; margin-bottom: 32px;">
+          <div class="neon-centered-heading reveal-on-scroll" style="text-align: center; margin-bottom: 32px;">
             <p class="neon-section-label">MINDSCAPE LEADERSHIP</p>
             <h2>Organizing <span>Committee</span></h2>
             <p style="color: #c7bcdb; max-width: 650px; margin: 14px auto 0; font-size: 15px; line-height: 1.6;">
@@ -208,7 +210,7 @@
             </p>
           </div>
 
-          <div class="movie-carousel-container" id="leader-carousel-wrapper">
+          <div class="movie-carousel-container reveal-on-scroll reveal-scale delay-1" id="leader-carousel-wrapper">
             <div class="film-strip-sprockets"></div>
 
             <div class="partner-carousel-stage" id="leader-carousel-stage" style="height: 440px;">
@@ -231,13 +233,13 @@
 
       <!-- ===================== 3. MOVIE CAROUSEL - PARTNER CLUBS ===================== -->
       <section class="neon-partners" id="partners">
-        <div class="neon-centered-heading">
+        <div class="neon-centered-heading reveal-on-scroll">
           <p class="neon-section-label">IN COLLABORATION WITH</p>
           <h2>Host & Supporting <span>Institutions</span></h2>
           <p style="color: #c7bcdb; font-size: 14px; margin-top: 8px;">Rotary Club of Madras, Rotaract Club of Vepery & Supporting Partner Colleges</p>
         </div>
 
-        <div class="movie-carousel-container" id="movie-carousel-wrapper">
+        <div class="movie-carousel-container reveal-on-scroll reveal-scale delay-1" id="movie-carousel-wrapper">
           <div class="film-strip-sprockets"></div>
 
           <div class="partner-carousel-stage" id="partner-carousel-stage">
@@ -261,7 +263,7 @@
       <section class="neon-about" id="prizes" style="background: radial-gradient(ellipse at 50% 30%, rgba(139, 48, 255, 0.22), transparent 45%), #08041d;">
         <div class="neon-grid-lines"></div>
         <div style="max-width: 1240px; margin: auto; padding: 90px clamp(22px, 8.8vw, 140px);">
-          <div class="neon-centered-heading">
+          <div class="neon-centered-heading reveal-on-scroll">
             <p class="neon-section-label">GRAND AWARDS</p>
             <h2>₹55,000 <span>Prize Pool</span></h2>
             <p style="color: #c7bcdb; max-width: 540px; margin: 14px auto 0; font-size: 16px;">
@@ -270,7 +272,7 @@
           </div>
 
           <div class="prize-poster-grid">
-            <div class="award-poster-tile tile-spotlight-1st">
+            <div class="award-poster-tile tile-spotlight-1st reveal-on-scroll reveal-scale delay-1">
               <div class="tile-number">01</div>
               <div class="tile-rank-title">1ST PRIZE</div>
               <div class="tile-headline">The One That Changed The Mind</div>
@@ -280,7 +282,7 @@
               </div>
             </div>
 
-            <div class="award-poster-tile">
+            <div class="award-poster-tile reveal-on-scroll delay-2">
               <div class="tile-number">02</div>
               <div class="tile-rank-title">2ND PRIZE</div>
               <div class="tile-headline">Runner-Up Excellence</div>
@@ -290,7 +292,7 @@
               </div>
             </div>
 
-            <div class="award-poster-tile">
+            <div class="award-poster-tile reveal-on-scroll delay-3">
               <div class="tile-number">03</div>
               <div class="tile-rank-title">3RD PRIZE</div>
               <div class="tile-headline">Creative Visionary</div>
@@ -300,7 +302,7 @@
               </div>
             </div>
 
-            <div class="award-poster-tile">
+            <div class="award-poster-tile reveal-on-scroll delay-4">
               <div class="tile-number">04</div>
               <div class="tile-rank-title">4TH PRIZE</div>
               <div class="tile-headline">Special Recognition Award</div>
@@ -311,7 +313,7 @@
             </div>
           </div>
 
-          <div style="text-align: center; margin-top: 36px;">
+          <div style="text-align: center; margin-top: 36px;" class="reveal-on-scroll delay-2">
             <span class="meta-badge badge-valid" style="font-size: 12px; padding: 10px 24px;">
               ✓ Participation certificates will be provided to all eligible participating teams.
             </span>
@@ -324,7 +326,7 @@
         <div class="neon-grid-lines"></div>
         <div style="max-width: 860px; margin: auto; padding: 90px clamp(22px, 8.8vw, 140px);">
           
-          <div class="neon-centered-heading">
+          <div class="neon-centered-heading reveal-on-scroll">
             <p class="neon-section-label">VIDEO REPOSITORY</p>
             <h2>Upload Reel to <span>the StoreHouse</span></h2>
             <p style="color: #c7bcdb; max-width: 580px; margin: 14px auto 20px; font-size: 15px;">
@@ -337,7 +339,7 @@
             </div>
           </div>
 
-          <div id="submission-box-shell" class="submission-box-shell" style="background: rgba(18, 8, 48, 0.85); border: 1px solid rgba(255, 68, 213, 0.35); border-radius: 20px; padding: 36px 30px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);">
+          <div id="submission-box-shell" class="submission-box-shell reveal-on-scroll reveal-scale" style="background: rgba(18, 8, 48, 0.85); border: 1px solid rgba(255, 68, 213, 0.35); border-radius: 20px; padding: 36px 30px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);">
             <div class="drop-anywhere-banner" id="drop-anywhere-banner">
               🎬 Release to drop your Reel video anywhere here!
             </div>
@@ -482,13 +484,13 @@
 
       <!-- ===================== 7. FAQ ACCORDION ===================== -->
       <section class="neon-faq" id="faq">
-        <div class="neon-centered-heading">
+        <div class="neon-centered-heading reveal-on-scroll">
           <p class="neon-section-label">COMMON QUESTIONS</p>
           <h2>Frequently Asked <span>Questions</span></h2>
           <p class="faq-copy">Everything you need to know about participating in MINDSCAPE 2026.</p>
         </div>
 
-        <div class="neon-accordion" id="faq-container">
+        <div class="neon-accordion reveal-on-scroll delay-1" id="faq-container">
           <!-- 12 official questions rendered dynamically -->
         </div>
       </section>
@@ -498,11 +500,11 @@
 
     <!-- ===================== FOOTER ===================== -->
     <footer class="neon-footer">
-      <div class="footer-brand-lockup">
+      <div class="footer-brand-lockup reveal-on-scroll">
         <span class="neon-brand-word font-oblisk">Mind<span>scape</span></span>
         <small>REEL MAKING CONTEST</small>
       </div>
-      <p>
+      <p class="reveal-on-scroll delay-1">
         A Mental Health Awareness Initiative by <strong>Rotary Club of Madras</strong><br>
         Hosted by <strong>Rotaract Club of Vepery</strong> and supporting college clubs across Chennai.
       </p>
@@ -513,6 +515,12 @@
     </footer>
 
   </div>
+
+  <!-- Floating Hologram Back to Top Capsule -->
+  <button id="back-to-top" class="neon-back-to-top" aria-label="Scroll back to top">
+    <span>↑</span>
+    <small>TOP</small>
+  </button>
 
   <!-- Client-side Interactive Script -->
   <script>
@@ -1814,6 +1822,129 @@
       `).join('');
     }
 
+    // 7. Scroll Animation System: Progress Laser, Header Blur, Spy Nav, Back-To-Top & Reveals
+    (function initScrollAnimations() {
+      // 7.1 IntersectionObserver for high-performance scroll entrance animations
+      const revealElements = document.querySelectorAll(".reveal-on-scroll");
+      if ("IntersectionObserver" in window) {
+        const revealObserver = new IntersectionObserver((entries, observer) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("is-revealed");
+              observer.unobserve(entry.target);
+            }
+          });
+        }, {
+          root: null,
+          rootMargin: "0px 0px -50px 0px",
+          threshold: 0.12
+        });
+
+        revealElements.forEach(el => revealObserver.observe(el));
+      } else {
+        // Fallback for browsers without IntersectionObserver
+        revealElements.forEach(el => el.classList.add("is-revealed"));
+      }
+
+      // 7.2 Scroll Event Manager (Laser Progress Bar, Header Glassmorphism, Parallax, Nav Spy, Back to Top)
+      const progressBar = document.getElementById("neon-scroll-progress");
+      const backToTopBtn = document.getElementById("back-to-top");
+      const siteHeader = document.querySelector(".neon-header");
+      const navLinks = document.querySelectorAll(".neon-nav a[href^='#']");
+      const sectionElements = document.querySelectorAll("section[id]");
+      const phoneScene = document.querySelector(".phone-scene");
+      const heroClouds = document.querySelectorAll(".neon-bg-cloud");
+
+      let ticking = false;
+
+      function updateScrollEffects() {
+        const scrollY = window.scrollY || window.pageYOffset;
+        const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+        const progressPct = totalHeight > 0 ? (scrollY / totalHeight) * 100 : 0;
+
+        // 1. Neon Progress Laser
+        if (progressBar) {
+          progressBar.style.width = `${Math.min(100, Math.max(0, progressPct))}%`;
+        }
+
+        // 2. Header Glassmorphism State
+        if (siteHeader) {
+          if (scrollY > 50) {
+            siteHeader.classList.add("is-scrolled");
+          } else {
+            siteHeader.classList.remove("is-scrolled");
+          }
+        }
+
+        // 3. Back to Top Capsule Visibility
+        if (backToTopBtn) {
+          if (scrollY > 420) {
+            backToTopBtn.classList.add("visible");
+          } else {
+            backToTopBtn.classList.remove("visible");
+          }
+        }
+
+        // 4. Subtle Parallax Micro-Animations
+        if (heroClouds.length && scrollY < window.innerHeight) {
+          heroClouds.forEach((cloud, idx) => {
+            const factor = 0.09 * (idx + 1);
+            cloud.style.transform = `translateY(${scrollY * factor}px)`;
+          });
+        }
+
+        if (phoneScene) {
+          const aboutSection = document.getElementById("about");
+          if (aboutSection) {
+            const rect = aboutSection.getBoundingClientRect();
+            if (rect.top < window.innerHeight && rect.bottom > 0) {
+              const relativeY = (window.innerHeight - rect.top) / (window.innerHeight + rect.height);
+              const tilt = (relativeY - 0.5) * 8;
+              phoneScene.style.transform = `translateY(${-(relativeY - 0.5) * 24}px) rotateZ(${tilt * 0.4}deg)`;
+            }
+          }
+        }
+
+        // 5. Active Nav Spy
+        let currentSectionId = "";
+        sectionElements.forEach(sec => {
+          const top = sec.offsetTop - 140;
+          const height = sec.offsetHeight;
+          if (scrollY >= top && scrollY < top + height) {
+            currentSectionId = sec.getAttribute("id");
+          }
+        });
+
+        if (currentSectionId) {
+          navLinks.forEach(link => {
+            const href = link.getAttribute("href");
+            if (href === `#${currentSectionId}`) {
+              link.classList.add("active");
+            } else {
+              link.classList.remove("active");
+            }
+          });
+        }
+
+        ticking = false;
+      }
+
+      window.addEventListener("scroll", () => {
+        if (!ticking) {
+          window.requestAnimationFrame(updateScrollEffects);
+          ticking = true;
+        }
+      }, { passive: true });
+
+      // Back to top click handler
+      backToTopBtn?.addEventListener("click", () => {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
+
+      // Initial run on page load
+      updateScrollEffects();
+    })();
+
     // Backend connectivity check
     fetch("/api/health")
       .then(r => r.json())
@@ -1824,5 +1955,6 @@
         console.log("Local standalone mode active");
       });
   </script>
+
 </body>
 </html>

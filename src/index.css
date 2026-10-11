@@ -528,4 +528,185 @@ h1, h2, h3, p { margin: 0; }.hero-copy h1 { font: 600 clamp(56px, 7.5vw, 110px)/
   }
 }
 
+/* ========================================================
+   SCROLL SYSTEM & ANIMATIONS
+   ======================================================== */
+
+/* Fixed Glowing Neon Scroll Progress Laser Bar */
+#neon-scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 0%;
+  height: 3.5px;
+  background: linear-gradient(90deg, #2ad8ff 0%, #8b30ff 30%, #ff2bb8 68%, #c8fa60 100%);
+  box-shadow: 0 0 10px rgba(255, 43, 184, 0.9), 0 0 22px rgba(42, 216, 255, 0.7);
+  z-index: 99999;
+  pointer-events: none;
+  transition: width 0.08s ease-out;
+}
+
+#neon-scroll-progress::after {
+  content: '';
+  position: absolute;
+  right: -2px;
+  top: -3px;
+  width: 9.5px;
+  height: 9.5px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 0 8px #c8fa60, 0 0 16px #ff2bb8;
+}
+
+/* Header Sticky Scrolled State with Glassmorphism */
+.neon-header {
+  transition: background 0.35s ease, backdrop-filter 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease, height 0.35s ease;
+}
+
+.neon-header.is-scrolled {
+  position: fixed;
+  height: 74px;
+  background: rgba(8, 5, 29, 0.9) !important;
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid rgba(255, 43, 184, 0.28) !important;
+  box-shadow: 0 10px 35px rgba(4, 2, 18, 0.65), 0 0 20px rgba(139, 48, 255, 0.15);
+}
+
+/* Scroll Reveal System */
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(38px);
+  filter: blur(4px);
+  transition: opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.85s cubic-bezier(0.16, 1, 0.3, 1),
+              filter 0.85s ease;
+  will-change: opacity, transform, filter;
+}
+
+.reveal-on-scroll.reveal-left {
+  transform: translateX(-45px);
+}
+
+.reveal-on-scroll.reveal-right {
+  transform: translateX(45px);
+}
+
+.reveal-on-scroll.reveal-scale {
+  transform: scale(0.92) translateY(24px);
+}
+
+.reveal-on-scroll.is-revealed {
+  opacity: 1;
+  transform: translate(0, 0) scale(1);
+  filter: blur(0);
+}
+
+/* Stagger Delay Utility Classes */
+.delay-1 { transition-delay: 100ms !important; }
+.delay-2 { transition-delay: 200ms !important; }
+.delay-3 { transition-delay: 300ms !important; }
+.delay-4 { transition-delay: 400ms !important; }
+.delay-5 { transition-delay: 500ms !important; }
+
+/* Subtle Glow Pulse for Spotlight cards on reveal */
+.award-poster-tile.tile-spotlight-1st.is-revealed {
+  animation: spotlightGlowPulse 4s ease-in-out infinite alternate;
+}
+
+@keyframes spotlightGlowPulse {
+  0% { box-shadow: 0 15px 45px rgba(255, 43, 184, 0.3), inset 0 0 20px rgba(255, 43, 184, 0.15); }
+  100% { box-shadow: 0 20px 60px rgba(255, 43, 184, 0.6), inset 0 0 35px rgba(255, 43, 184, 0.3); }
+}
+
+/* Phone scene parallax smoothing */
+.phone-scene {
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+
+/* Back to Top Floating Hologram Capsule */
+.neon-back-to-top {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(18, 8, 54, 0.88);
+  border: 1px solid rgba(255, 43, 184, 0.45);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  cursor: pointer;
+  z-index: 9999;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.55), 0 0 18px rgba(139, 48, 255, 0.35);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(20px) scale(0.85);
+  transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              visibility 0.35s ease,
+              border-color 0.25s ease,
+              box-shadow 0.25s ease;
+}
+
+.neon-back-to-top.visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+}
+
+.neon-back-to-top:hover {
+  background: rgba(30, 12, 85, 0.95);
+  border-color: #c8fa60;
+  box-shadow: 0 10px 35px rgba(200, 250, 96, 0.45), 0 0 25px rgba(255, 43, 184, 0.55);
+  transform: translateY(-3px) scale(1.06);
+}
+
+.neon-back-to-top span {
+  font-size: 17px;
+  line-height: 1;
+  color: #c8fa60;
+  transition: transform 0.2s ease;
+}
+
+.neon-back-to-top:hover span {
+  transform: translateY(-2px);
+}
+
+.neon-back-to-top small {
+  font-family: 'DM Mono', monospace;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #ff9eee;
+}
+
+section[id] {
+  scroll-margin-top: 84px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-on-scroll {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+    transition: none !important;
+  }
+  #neon-scroll-progress {
+    display: none !important;
+  }
+  .neon-back-to-top {
+    transition: none !important;
+  }
+}
+
+
+
 
