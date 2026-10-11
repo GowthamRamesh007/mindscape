@@ -15,7 +15,7 @@ try:
     )
     from backend.services.deadline_service import is_submission_open
     from backend.services.video_service import validate_video_metadata
-    from backend.services.supabase_service import get_supabase_admin, get_supabase_anon
+    from backend.services.supabase_service import get_supabase_admin, get_supabase_anon, upload_file_to_supabase_storage
     from backend.services.google_sheets_service import is_team_registered, get_team_registration
 except ModuleNotFoundError:
     from models.schemas import (
@@ -25,24 +25,26 @@ except ModuleNotFoundError:
     )
     from services.deadline_service import is_submission_open
     from services.video_service import validate_video_metadata
-    from services.supabase_service import get_supabase_admin, get_supabase_anon
+    from services.supabase_service import get_supabase_admin, get_supabase_anon, upload_file_to_supabase_storage
     from services.google_sheets_service import is_team_registered, get_team_registration
 
 router = APIRouter(prefix="/api/submissions", tags=["Submissions"])
 
-ARCHIVE_DIR = Path(__file__).resolve().parent.parent.parent / "data"
+_project_root = Path(__file__).resolve().parent.parent.parent
+ARCHIVE_DIR = _project_root / "data"
 ARCHIVE_FILE = ARCHIVE_DIR / "submissions_archive.json"
-CLIENT_PUBLIC_MEDIA = Path(__file__).resolve().parent.parent.parent / "client" / "public" / "media" / "submissions"
 
-# Safe initialization for read-only serverless environments
-try:
-    CLIENT_PUBLIC_MEDIA.mkdir(parents=True, exist_ok=True)
-except Exception:
-    CLIENT_PUBLIC_MEDIA = Path("/tmp") / "media" / "submissions"
+# Both root media and client media locations
+MEDIA_DIRS = [
+    _project_root / "media" / "submissions",
+    _project_root / "client" / "public" / "media" / "submissions"
+]
+for md in MEDIA_DIRS:
     try:
-        CLIENT_PUBLIC_MEDIA.mkdir(parents=True, exist_ok=True)
+        md.mkdir(parents=True, exist_ok=True)
     except Exception:
         pass
+CLIENT_PUBLIC_MEDIA = MEDIA_DIRS[0]
 
 try:
     ARCHIVE_DIR.mkdir(parents=True, exist_ok=True)
@@ -315,15 +317,40 @@ async def direct_submit_upload(
     stored_filename = f"{file_id}_{safe_name}"
 
     file_size = 0
+    raw_bytes = None
     try:
-        CLIENT_PUBLIC_MEDIA.mkdir(parents=True, exist_ok=True)
         file_dest = CLIENT_PUBLIC_MEDIA / stored_filename
         with open(file_dest, "wb") as buffer:
             shutil.copyfileobj(video_file.file, buffer)
         file_size = file_dest.stat().st_size
+        with open(file_dest, "rb") as buffer:
+            raw_bytes = buffer.read()
+        # Mirror to all media dirs
+        for md in MEDIA_DIRS:
+            if md != CLIENT_PUBLIC_MEDIA:
+                try:
+                    shutil.copy2(file_dest, md / stored_filename)
+                except Exception:
+                    pass
     except Exception as e:
         print(f"Local file write note: {e}")
+
     relative_url = f"/media/submissions/{stored_filename}"
+
+    # Upload video binary to Supabase Storage if configured
+    supabase_public_url = None
+    if raw_bytes:
+        try:
+            supabase_public_url = upload_file_to_supabase_storage(
+                file_bytes=raw_bytes,
+                file_name=f"{team_name[:20].lower().replace(' ', '_')}_{stored_filename}",
+                content_type=video_file.content_type or "video/mp4"
+            )
+            if supabase_public_url:
+                relative_url = supabase_public_url
+        except Exception as se:
+            print(f"Supabase storage upload error in route: {se}")
+
     submission_id = f"MS26-{uuid.uuid4().hex[:6].upper()}"
 
     sub_data = {
@@ -372,5 +399,6 @@ async def direct_submit_upload(
         "success": True,
         "message": "Reel successfully uploaded and stored in Supabase archive!",
         "submission_id": submission_id,
-        "file_path": relative_url
+        "file_path": relative_url,
+        "supabase_url": supabase_public_url
     }

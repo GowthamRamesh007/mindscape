@@ -93,6 +93,7 @@
         <a href="#prizes">Prizes</a>
         <a href="https://docs.google.com/forms/d/e/1FAIpQLScE4OXgmGns_catCz_TLUGF7SGN5ZOxMErQW4f08dEPdXV82Q/viewform?usp=dialog" target="_blank" rel="noreferrer" style="color: #c8fa60; font-weight: 700;">Register (Google Form) ↗</a>
         <a href="#submit">Submit Reel</a>
+        <a href="#live-reels" style="color: #c8fa60; font-weight: 700;">Live Reels 🎬</a>
         <a href="#faq">FAQ</a>
         <a href="javascript:void(0)" onclick="window.replayCinematicIntro?.()" style="color: #6cccf2; font-size: 12px; font-weight: 600;">▶ Intro</a>
         <a href="/portal" style="color: #ff9eee; font-weight: 600;">Organizer Portal 🔒</a>
@@ -398,6 +399,17 @@
             <div class="drop-anywhere-banner" id="drop-anywhere-banner">
               🎬 Release to drop your Reel video anywhere here!
             </div>
+
+            <!-- Supabase Cloud Connection Status Pill -->
+            <div id="supabase-status-pill" style="display: flex; align-items: center; justify-content: space-between; background: rgba(10, 4, 30, 0.7); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 99px; padding: 7px 16px; margin-bottom: 20px; font-size: 12px; backdrop-filter: blur(8px);">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span id="supabase-status-dot" style="width: 8px; height: 8px; border-radius: 50%; background: #ffad32; display: inline-block;"></span>
+                <span id="supabase-status-text" style="color: #cbd5e1; font-family: 'DM Mono', monospace; font-size: 11px;">Supabase Cloud: Connecting...</span>
+              </div>
+              <button type="button" onclick="openSupabaseModal()" style="background: rgba(200, 250, 96, 0.15); border: 1px solid #c8fa60; color: #c8fa60; padding: 3px 12px; border-radius: 99px; font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.2s ease;">
+                ⚡ Connect Supabase
+              </button>
+            </div>
             
             <form id="submission-form">
               <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
@@ -518,21 +530,75 @@
               </button>
             </form>
 
-            <!-- Success Confirmation Box -->
-            <div id="submit-success-box" style="display: none; text-align: center; padding: 30px 10px;">
-              <div style="width: 60px; height: 60px; border-radius: 50%; background: rgba(46, 204, 113, 0.2); border: 2px solid #2ecc71; color: #2ecc71; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 28px;">✓</div>
-              <h3 style="font: 600 28px 'Space Grotesk', sans-serif; color: #fff; margin-bottom: 10px;">Reel Successfully Uploaded!</h3>
-              <p style="color: #cbd5e1; font-size: 15px; max-width: 460px; margin: 0 auto 20px;">
-                Your video has been securely stored in the Storehouse archive. Authorized committee members can view all submissions through the Organizer Portal.
+            <!-- Success Confirmation Box with LIVE VIDEO PLAYER -->
+            <div id="submit-success-box" style="display: none; text-align: center; padding: 25px 10px;">
+              <div style="width: 56px; height: 56px; border-radius: 50%; background: rgba(46, 204, 113, 0.2); border: 2px solid #2ecc71; color: #2ecc71; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; font-size: 26px;">✓</div>
+              <h3 style="font: 700 28px 'Space Grotesk', sans-serif; color: #fff; margin-bottom: 6px;">Reel Successfully Uploaded!</h3>
+              <p style="color: #cbd5e1; font-size: 14px; max-width: 480px; margin: 0 auto 16px;">
+                Your reel is playing lively below and has been securely stored in Supabase Cloud Storage.
               </p>
-              <div style="background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; padding: 16px; max-width: 380px; margin: 0 auto 24px;">
-                <span style="font: 500 10px monospace; letter-spacing: 0.15em; color: #a79cb8;">SUBMISSION REFERENCE ID</span>
-                <div id="success-ref-id" style="font: 700 22px 'Space Grotesk', sans-serif; color: #2ecc71; margin-top: 4px;">MS-2026-SUBMISSION</div>
+
+              <!-- Lively 9:16 Vertical Video Player -->
+              <div class="success-preview-wrapper" id="success-preview-container">
+                <video id="success-reel-video" autoplay loop playsinline muted controls></video>
+                <button id="success-sound-btn" onclick="toggleSuccessSound()" class="sound-toggle-badge">
+                  🔇 Unmute Sound
+                </button>
+                <div style="position: absolute; bottom: 0; inset-inline: 0; background: linear-gradient(0deg, rgba(8,5,29,0.92) 0%, transparent 100%); padding: 18px 14px; text-align: left; pointer-events: none;">
+                  <span id="success-video-team" style="font-weight: 700; color: #c8fa60; font-size: 15px; display: block; text-shadow: 0 2px 4px rgba(0,0,0,0.8);"></span>
+                  <span id="success-video-title" style="color: #fff; font-size: 12px; opacity: 0.95; display: block; margin-top: 2px;"></span>
+                </div>
               </div>
-              <a href="/portal" class="neon-button neon-button-outline" style="margin-right: 12px;">Organizer Portal 🔒</a>
-              <button onclick="location.reload()" class="neon-button neon-button-primary">Submit Another Reel</button>
+
+              <div style="background: rgba(0,0,0,0.45); border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; padding: 14px 18px; max-width: 420px; margin: 16px auto 22px;">
+                <span style="font: 500 10px monospace; letter-spacing: 0.15em; color: #a79cb8; display: block;">SUBMISSION REFERENCE ID</span>
+                <div id="success-ref-id" style="font: 700 22px 'Space Grotesk', sans-serif; color: #2ecc71; margin-top: 3px;">MS-2026-SUBMISSION</div>
+                <div id="success-supabase-link-box" style="margin-top: 8px; font-size: 11px; color: #9f91ba; word-break: break-all;">
+                  <span id="success-storage-label">Supabase Cloud:</span> 
+                  <a id="success-supabase-url" href="#" target="_blank" style="color: #6cccf2; text-decoration: underline; margin-left: 4px;">Viewing Cloud Reel ↗</a>
+                </div>
+              </div>
+
+              <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+                <button onclick="scrollToLiveReels()" class="neon-button neon-button-primary">🎬 View in Live Showcase</button>
+                <a href="/portal" class="neon-button neon-button-outline">Organizer Portal 🔒</a>
+                <button onclick="resetSubmissionForm()" class="neon-button neon-button-ghost">Submit Another Reel</button>
+              </div>
             </div>
 
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================== 6.5 LIVE SUBMITTED REELS SHOWCASE ===================== -->
+      <section class="neon-about" id="live-reels" style="padding: 100px clamp(22px, 8.8vw, 140px); background: radial-gradient(circle at 50% 10%, rgba(141, 53, 255, 0.18), transparent 70%), #08051d; border-top: 1px solid rgba(255, 255, 255, 0.08);">
+        <div class="neon-centered-heading reveal-on-scroll">
+          <p class="neon-section-label">OFFICIAL ENTRIES STREAM</p>
+          <h2 class="font-anton" style="font-size: clamp(38px, 6vw, 68px);">Live Submitted <span>Reels</span></h2>
+          <p style="color: #c7bce0; font-size: 16px; max-width: 650px; margin: 12px auto 0;">
+            Watch official contest entries submitted by verified teams across Tamil Nadu. Submissions stream lively in real-time.
+          </p>
+        </div>
+
+        <!-- Stream controls -->
+        <div style="display: flex; justify-content: space-between; align-items: center; max-width: 1240px; margin: 40px auto 28px; flex-wrap: wrap; gap: 16px;">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <span style="font-family: 'DM Mono', monospace; font-size: 12px; color: #cbd5e1; background: rgba(255,255,255,0.08); padding: 8px 16px; border-radius: 99px; border: 1px solid rgba(255,255,255,0.1);">
+              Total Live Reels: <strong id="live-reels-count" style="color: #c8fa60; font-size: 14px;">0</strong>
+            </span>
+            <button onclick="loadLiveReels(true)" style="background: rgba(200, 250, 96, 0.12); border: 1px solid rgba(200, 250, 96, 0.4); color: #c8fa60; border-radius: 99px; padding: 8px 16px; font-size: 11px; font-family: 'DM Mono', monospace; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s ease;">
+              🔄 Refresh Stream
+            </button>
+          </div>
+          <input type="text" id="live-reels-search" oninput="filterLiveReels(this.value)" placeholder="Search by team or institution..." style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.18); border-radius: 99px; padding: 10px 20px; color: #fff; font-size: 13px; outline: none; width: 300px; max-width: 100%; transition: border-color 0.2s ease;" />
+        </div>
+
+        <!-- Dynamic Grid of Live Reel Players -->
+        <div id="live-reels-grid" class="live-reels-grid">
+          <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: #9f91ba;">
+            <span style="font-size: 42px; display: block; margin-bottom: 12px;">📱</span>
+            <h4 style="color: #fff; font-size: 18px; margin-bottom: 8px;">Loading Live Reel Stream...</h4>
+            <p style="font-size: 13px; max-width: 400px; margin: 0 auto;">Connecting to Supabase archive and local storehouse...</p>
           </div>
         </div>
       </section>
@@ -1352,8 +1418,25 @@
     // 5.4 Supabase Client Initializer (Direct Browser Storage & Database Sync)
     let SUPABASE_URL = localStorage.getItem("MINDSCAPE_SUPABASE_URL") || "";
     let SUPABASE_ANON_KEY = localStorage.getItem("MINDSCAPE_SUPABASE_ANON_KEY") || "";
-    let SUPABASE_BUCKET = "mindscape-reels";
+    let SUPABASE_BUCKET = localStorage.getItem("MINDSCAPE_SUPABASE_BUCKET") || "mindscape-reels";
     let supabaseClient = null;
+
+    function updateSupabaseStatusUI() {
+      const dot = document.getElementById("supabase-status-dot");
+      const txt = document.getElementById("supabase-status-text");
+      if (!dot || !txt) return;
+
+      if (supabaseClient && SUPABASE_URL) {
+        dot.style.background = "#2ecc71";
+        dot.style.boxShadow = "0 0 10px #2ecc71";
+        const shortUrl = SUPABASE_URL.replace(/^https?:\/\//, '').split('.')[0];
+        txt.innerHTML = `Supabase Cloud: <strong style="color: #2ecc71;">Active</strong> (${shortUrl} &bull; bucket: ${SUPABASE_BUCKET})`;
+      } else {
+        dot.style.background = "#ffad32";
+        dot.style.boxShadow = "none";
+        txt.innerHTML = `Supabase Storage: <span style="color: #ffad32;">Not Connected</span> (Click 'Connect' to enable direct cloud uploads)`;
+      }
+    }
 
     async function initSupabaseClient() {
       if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
@@ -1365,6 +1448,8 @@
               SUPABASE_URL = cfg.supabase_url;
               SUPABASE_ANON_KEY = cfg.supabase_anon_key;
               if (cfg.storage_bucket) SUPABASE_BUCKET = cfg.storage_bucket;
+              localStorage.setItem("MINDSCAPE_SUPABASE_URL", SUPABASE_URL);
+              localStorage.setItem("MINDSCAPE_SUPABASE_ANON_KEY", SUPABASE_ANON_KEY);
             }
           }
         } catch(e) {}
@@ -1376,10 +1461,97 @@
           console.log("[Mindscape] Supabase Client active:", SUPABASE_URL);
         } catch (err) {
           console.warn("[Mindscape] Supabase init error:", err);
+          supabaseClient = null;
         }
       }
+      updateSupabaseStatusUI();
     }
     initSupabaseClient();
+
+    // Modal functions for Supabase Setup
+    function openSupabaseModal() {
+      const m = document.getElementById("supabase-modal");
+      if (!m) return;
+      document.getElementById("modal-supa-url").value = SUPABASE_URL || "";
+      document.getElementById("modal-supa-key").value = SUPABASE_ANON_KEY || "";
+      document.getElementById("modal-supa-bucket").value = SUPABASE_BUCKET || "mindscape-reels";
+      const statusDiv = document.getElementById("modal-supa-status");
+      if (statusDiv) statusDiv.style.display = "none";
+      m.style.display = "flex";
+    }
+
+    function closeSupabaseModal() {
+      const m = document.getElementById("supabase-modal");
+      if (m) m.style.display = "none";
+    }
+
+    async function saveSupabaseSettingsFromModal() {
+      const url = (document.getElementById("modal-supa-url").value || "").trim();
+      const key = (document.getElementById("modal-supa-key").value || "").trim();
+      const bucket = (document.getElementById("modal-supa-bucket").value || "mindscape-reels").trim() || "mindscape-reels";
+      const statusDiv = document.getElementById("modal-supa-status");
+
+      if (!url.startsWith("https://") || url.includes("your-project-id")) {
+        statusDiv.style.display = "block";
+        statusDiv.style.background = "rgba(231,76,60,0.2)";
+        statusDiv.style.border = "1px solid #e74c3c";
+        statusDiv.style.color = "#ff8f82";
+        statusDiv.innerText = "Please enter a valid Supabase Project URL starting with https://";
+        return;
+      }
+      if (!key || key.length < 20) {
+        statusDiv.style.display = "block";
+        statusDiv.style.background = "rgba(231,76,60,0.2)";
+        statusDiv.style.border = "1px solid #e74c3c";
+        statusDiv.style.color = "#ff8f82";
+        statusDiv.innerText = "Please enter a valid Supabase Anon Public Key.";
+        return;
+      }
+
+      statusDiv.style.display = "block";
+      statusDiv.style.background = "rgba(46,204,113,0.15)";
+      statusDiv.style.border = "1px solid #2ecc71";
+      statusDiv.style.color = "#2ecc71";
+      statusDiv.innerText = "Testing connection and saving...";
+
+      try {
+        // Save to backend
+        await fetch("/api/config/supabase", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            supabase_url: url,
+            supabase_anon_key: key,
+            storage_bucket: bucket
+          })
+        });
+
+        // Save to local storage
+        SUPABASE_URL = url;
+        SUPABASE_ANON_KEY = key;
+        SUPABASE_BUCKET = bucket;
+        localStorage.setItem("MINDSCAPE_SUPABASE_URL", url);
+        localStorage.setItem("MINDSCAPE_SUPABASE_ANON_KEY", key);
+        localStorage.setItem("MINDSCAPE_SUPABASE_BUCKET", bucket);
+
+        // Initialize client
+        if (window.supabase) {
+          supabaseClient = window.supabase.createClient(url, key);
+        }
+
+        updateSupabaseStatusUI();
+        statusDiv.innerText = "✅ Supabase Connected! Reloading Live Reels...";
+        setTimeout(() => {
+          closeSupabaseModal();
+          loadLiveReels(true);
+        }, 1000);
+      } catch (err) {
+        statusDiv.style.background = "rgba(231,76,60,0.2)";
+        statusDiv.style.border = "1px solid #e74c3c";
+        statusDiv.style.color = "#ff8f82";
+        statusDiv.innerText = "Error: " + err.message;
+      }
+    }
 
     // 5.5 Live Google Sheets Registered Teams Connector & Autocomplete
     let registeredTeamsList = [];
@@ -1868,9 +2040,47 @@
           console.warn("Backend metadata sync note:", apiErr);
         }
 
+        // Mirror upload to backend server storage (saves to media/submissions and pushes to Supabase if configured)
+        try {
+          const fd = new FormData();
+          fd.append("video_file", selectedFile);
+          fd.append("team_name", teamName);
+          fd.append("title", title);
+          fd.append("language", language);
+          fd.append("representative_name", repName);
+          fd.append("representative_email", repEmail);
+          fd.append("representative_phone", repPhone);
+          fd.append("institution", institution);
+          fd.append("city", city);
+          fd.append("description", description);
+          fd.append("duration", videoMetadata ? videoMetadata.duration : 30.0);
+          fd.append("width", videoMetadata ? videoMetadata.width : 1080);
+          fd.append("height", videoMetadata ? videoMetadata.height : 1920);
+
+          const upRes = await fetch("/api/submissions/direct-submit-upload", {
+            method: "POST",
+            body: fd
+          });
+          if (upRes.ok) {
+            const upData = await upRes.json().catch(() => null);
+            if (upData?.supabase_url) {
+              publicVideoUrl = upData.supabase_url;
+            } else if (!publicVideoUrl && upData?.file_path) {
+              publicVideoUrl = upData.file_path;
+            }
+            if (upData?.submission_id) {
+              refId = `MS-26-${upData.submission_id.replace(/^MS26-/, '').slice(0, 4).toUpperCase()}`;
+            }
+          }
+        } catch (serverUpErr) {
+          console.warn("Backend direct-submit-upload note:", serverUpErr);
+        }
+
         // Save real video blob in IndexedDB for instant offline and local portal playback
         await saveVideoBlob(refId, selectedFile);
         await saveVideoBlob(selectedFile.name, selectedFile);
+
+        const localBlobUrl = URL.createObjectURL(selectedFile);
 
         // Save local backup for immediate portal view
         try {
@@ -1886,6 +2096,7 @@
             description: description,
             language: language,
             file_path: publicVideoUrl || `/media/submissions/${selectedFile.name}`,
+            local_blob_url: localBlobUrl,
             file_name: selectedFile.name,
             file_size: selectedFile.size,
             duration: videoMetadata ? videoMetadata.duration : 30.0,
@@ -1899,9 +2110,49 @@
         progressPct.innerText = "100%";
         if (progressLabel) progressLabel.innerText = "Reel Upload Complete!";
 
+        // Show live video preview in success box
+        const successVideo = document.getElementById("success-reel-video");
+        if (successVideo) {
+          successVideo.src = localBlobUrl || publicVideoUrl;
+          successVideo.muted = true;
+          successVideo.play().catch(() => {});
+        }
+        document.getElementById("success-video-team").innerText = teamName;
+        document.getElementById("success-video-title").innerText = `"${title}" (${language})`;
+        document.getElementById("success-ref-id").innerText = refId;
+
+        const supaLink = document.getElementById("success-supabase-url");
+        const supaBox = document.getElementById("success-supabase-link-box");
+        const supaLabel = document.getElementById("success-storage-label");
+        if (publicVideoUrl && publicVideoUrl.startsWith("http")) {
+          supaLink.href = publicVideoUrl;
+          supaLink.innerText = "View Cloud Reel on Supabase CDN ↗";
+          supaLabel.innerText = "Supabase Cloud CDN:";
+          supaBox.style.display = "block";
+        } else {
+          supaLink.href = localBlobUrl || "#";
+          supaLink.innerText = "Archived in Storehouse & Local Cache";
+          supaLabel.innerText = "Storehouse Archive:";
+          supaBox.style.display = "block";
+        }
+
         document.getElementById("submission-form").style.display = "none";
         document.getElementById("submit-success-box").style.display = "block";
-        document.getElementById("success-ref-id").innerText = refId;
+
+        // Prepend immediately to Live Submitted Reels Stream
+        addLiveReelItem({
+          team_name: teamName,
+          institution: institution,
+          title: title,
+          description: description,
+          language: language,
+          duration: videoMetadata ? videoMetadata.duration : 30.0,
+          submission_id: refId,
+          file_path: publicVideoUrl || localBlobUrl,
+          local_blob_url: localBlobUrl,
+          is_new: true,
+          created_at: new Date().toISOString()
+        });
       } catch (err) {
         if (progressBox) progressBox.style.display = "none";
         if (progressBar) progressBar.style.width = "0%";
@@ -1913,6 +2164,298 @@
         submitBtn.innerText = "Upload Video to Supabase Archive →";
       }
     });
+
+    // 5.6 Live Reel Success & Stream Helpers
+    function toggleSuccessSound() {
+      const v = document.getElementById("success-reel-video");
+      const btn = document.getElementById("success-sound-btn");
+      if (!v) return;
+      v.muted = !v.muted;
+      if (btn) btn.innerHTML = v.muted ? "🔇 Unmute Sound" : "🔊 Sound On";
+    }
+
+    function scrollToLiveReels() {
+      const el = document.getElementById("live-reels");
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+
+    function resetSubmissionForm() {
+      const successBox = document.getElementById("submit-success-box");
+      const form = document.getElementById("submission-form");
+      const successVideo = document.getElementById("success-reel-video");
+      if (successVideo) {
+        successVideo.pause();
+        successVideo.src = "";
+      }
+      if (successBox) successBox.style.display = "none";
+      if (form) {
+        form.style.display = "block";
+        form.reset();
+      }
+      selectedFile = null;
+      document.getElementById("inspector-card").style.display = "none";
+      document.getElementById("dropzone-content").style.display = "block";
+      updateTeamVerificationStatus();
+    }
+
+    // 5.7 Live Submitted Reels Stream Manager
+    let liveReelsList = [];
+
+    async function getVideoBlob(id) {
+      return new Promise((resolve) => {
+        try {
+          const DB_NAME = "MindscapeDB";
+          const STORE_NAME = "reels_videos";
+          const req = indexedDB.open(DB_NAME, 1);
+          req.onsuccess = (e) => {
+            const db = e.target.result;
+            if (!db.objectStoreNames.contains(STORE_NAME)) return resolve(null);
+            const tx = db.transaction(STORE_NAME, "readonly");
+            const getReq = tx.objectStore(STORE_NAME).get(id);
+            getReq.onsuccess = () => resolve(getReq.result ? getReq.result.file : null);
+            getReq.onerror = () => resolve(null);
+          };
+          req.onerror = () => resolve(null);
+        } catch(e) {
+          resolve(null);
+        }
+      });
+    }
+
+    function resolveLiveVideoUrl(item) {
+      if (item.local_blob_url) return item.local_blob_url;
+      let fp = item.file_path || "";
+      if (fp.startsWith("http://") || fp.startsWith("https://") || fp.startsWith("blob:")) {
+        return fp;
+      }
+      if (supabaseClient && (fp.startsWith("reels/") || fp.startsWith("submissions/"))) {
+        const pub = supabaseClient.storage.from(SUPABASE_BUCKET).getPublicUrl(fp);
+        if (pub?.data?.publicUrl) return pub.data.publicUrl;
+      }
+      const fname = fp.split("/").pop() || item.file_name || "reel.mp4";
+      return `/media/submissions/${fname}`;
+    }
+
+    async function loadLiveReels(forceRefresh = false) {
+      const grid = document.getElementById("live-reels-grid");
+      if (!grid) return;
+
+      const seen = new Set();
+      const combined = [];
+
+      // 1. Direct Supabase Query
+      if (supabaseClient) {
+        try {
+          const { data: supaRows, error: sErr } = await supabaseClient
+            .from("submissions")
+            .select("*")
+            .order("created_at", { ascending: false });
+          if (!sErr && Array.isArray(supaRows)) {
+            supaRows.forEach(row => {
+              const id = row.submission_id || row.id;
+              if (id && !seen.has(id)) {
+                seen.add(id);
+                combined.push(row);
+              }
+            });
+          }
+        } catch(e) {
+          console.warn("Supabase live reels fetch note:", e);
+        }
+      }
+
+      // 2. Fetch from Backend Archive
+      try {
+        const res = await fetch("/api/submissions");
+        if (res.ok) {
+          const data = await res.json().catch(() => null);
+          const backendRows = data?.submissions || (Array.isArray(data) ? data : []);
+          backendRows.forEach(row => {
+            const id = row.submission_id || row.id;
+            if (id && !seen.has(id)) {
+              seen.add(id);
+              combined.push(row);
+            }
+          });
+        }
+      } catch(e) {}
+
+      // 3. Local browser submissions
+      try {
+        const localList = JSON.parse(localStorage.getItem("mindscape_reels") || "[]");
+        if (Array.isArray(localList)) {
+          localList.forEach(row => {
+            const id = row.submission_id || row.id;
+            if (id && !seen.has(id)) {
+              seen.add(id);
+              combined.push(row);
+            }
+          });
+        }
+      } catch(e) {}
+
+      // 4. Resolve IndexedDB local video blobs
+      for (const item of combined) {
+        if (!item.local_blob_url) {
+          const refId = item.submission_id || item.id || item.file_name;
+          if (refId) {
+            const blob = await getVideoBlob(refId);
+            if (blob) {
+              item.local_blob_url = URL.createObjectURL(blob);
+            }
+          }
+        }
+      }
+
+      liveReelsList = combined;
+      renderLiveReels(liveReelsList);
+      const countEl = document.getElementById("live-reels-count");
+      if (countEl) countEl.innerText = liveReelsList.length;
+    }
+
+    function renderLiveReels(list) {
+      const grid = document.getElementById("live-reels-grid");
+      if (!grid) return;
+
+      if (!list || list.length === 0) {
+        grid.innerHTML = `
+          <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px; background: rgba(18,8,54,0.4); border: 1px dashed rgba(255,255,255,0.15); border-radius: 16px;">
+            <span style="font-size: 40px; display: block; margin-bottom: 12px;">📱</span>
+            <h4 style="color: #fff; font-size: 18px; margin-bottom: 8px;">No Live Reels Displayed Yet</h4>
+            <p style="color: #cbd5e1; font-size: 14px; max-width: 440px; margin: 0 auto 20px;">
+              Be the first registered team to upload your video! Once uploaded, it plays lively here in real-time.
+            </p>
+            <a href="#submit" class="neon-button neon-button-primary">Upload Your Reel Now ↑</a>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = list.map((item, idx) => {
+        const team = item.team_name || item.teamName || `Team #${idx + 1}`;
+        const inst = item.institution || "College / Institution";
+        const title = item.title || "Untitled Contest Reel";
+        const desc = item.description || "No concept description provided.";
+        const lang = item.language || "Tamil";
+        const dur = item.duration ? `${item.duration}s` : "30s";
+        const refId = item.submission_id || item.id || `MS-26-${(idx + 1).toString().padStart(4, '0')}`;
+        const videoSrc = resolveLiveVideoUrl(item);
+        const isNewClass = item.is_new ? "new-submission" : "";
+
+        return `
+          <div class="live-reel-card ${isNewClass}" id="live-card-${idx}">
+            <div class="live-reel-video-container">
+              <span class="live-reel-floating-status">
+                <span style="width:6px;height:6px;border-radius:50%;background:#2ecc71;display:inline-block;"></span> LIVE ENTRY
+              </span>
+
+              <video 
+                id="live-vid-${idx}" 
+                src="${videoSrc}" 
+                playsinline 
+                loop 
+                muted 
+                preload="metadata"
+                onclick="toggleVideoPlayback('live-vid-${idx}')"
+                style="cursor: pointer;"
+              ></video>
+
+              <button 
+                type="button" 
+                class="sound-toggle-badge" 
+                onclick="toggleCardSound('live-vid-${idx}', this)"
+                title="Toggle Sound"
+              >
+                🔇 Unmute
+              </button>
+            </div>
+
+            <div class="live-reel-info-body">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
+                <div>
+                  <h3 class="live-reel-team-title">${escapeHtml(team)}</h3>
+                  <p class="live-reel-inst">${escapeHtml(inst)}</p>
+                </div>
+                <span style="font-family:'DM Mono',monospace;font-size:10px;color:#c8fa60;background:rgba(200,250,96,0.12);padding:2px 8px;border-radius:99px;border:1px solid rgba(200,250,96,0.3);white-space:nowrap;">
+                  ${escapeHtml(refId)}
+                </span>
+              </div>
+
+              <div class="live-reel-title-txt">${escapeHtml(title)}</div>
+              <p class="live-reel-desc">${escapeHtml(desc)}</p>
+
+              <div class="live-reel-tags">
+                <span class="live-tag-pill">🗣 ${escapeHtml(lang)}</span>
+                <span class="live-tag-pill">⏱ ${escapeHtml(dur)}</span>
+                <span class="live-tag-pill">9:16 Vertical</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // Auto-play videos when they enter viewport using IntersectionObserver
+      if ('IntersectionObserver' in window) {
+        const videoObserver = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            const vid = entry.target;
+            if (entry.isIntersecting) {
+              vid.play().catch(() => {});
+            } else {
+              vid.pause();
+            }
+          });
+        }, { threshold: 0.45 });
+
+        document.querySelectorAll(".live-reel-video-container video").forEach(v => videoObserver.observe(v));
+      }
+    }
+
+    function toggleVideoPlayback(vidId) {
+      const v = document.getElementById(vidId);
+      if (!v) return;
+      if (v.paused) {
+        v.play().catch(() => {});
+      } else {
+        v.pause();
+      }
+    }
+
+    function toggleCardSound(vidId, btn) {
+      const v = document.getElementById(vidId);
+      if (!v) return;
+      v.muted = !v.muted;
+      if (btn) {
+        btn.innerHTML = v.muted ? "🔇 Unmute" : "🔊 Sound On";
+      }
+    }
+
+    function filterLiveReels(q) {
+      const query = (q || "").toLowerCase().trim();
+      if (!query) {
+        renderLiveReels(liveReelsList);
+        return;
+      }
+      const filtered = liveReelsList.filter(item => {
+        const t = (item.team_name || item.teamName || "").toLowerCase();
+        const inst = (item.institution || "").toLowerCase();
+        const title = (item.title || "").toLowerCase();
+        return t.includes(query) || inst.includes(query) || title.includes(query);
+      });
+      renderLiveReels(filtered);
+    }
+
+    function addLiveReelItem(newItem) {
+      liveReelsList.unshift(newItem);
+      renderLiveReels(liveReelsList);
+      const countEl = document.getElementById("live-reels-count");
+      if (countEl) countEl.innerText = liveReelsList.length;
+    }
+
+    // Load Live Reels on page load
+    loadLiveReels();
 
     // 6. 12-Question FAQ Rendering
     const faqs = [
@@ -2076,6 +2619,50 @@
         console.log("Local standalone mode active");
       });
   </script>
+
+  <!-- ===================== SUPABASE STORAGE CONFIG MODAL ===================== -->
+  <div id="supabase-modal" class="supabase-modal-backdrop" style="display: none;">
+    <div class="supabase-modal-card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h3 style="font: 700 22px 'Space Grotesk', sans-serif; color: #fff; margin: 0; display: flex; align-items: center; gap: 8px;">
+          ⚡ <span>Supabase Storage Setup</span>
+        </h3>
+        <button type="button" onclick="closeSupabaseModal()" style="background: transparent; border: 0; color: #cbd5e1; font-size: 24px; cursor: pointer;">✕</button>
+      </div>
+      <p style="font-size: 13px; color: #bfaecf; margin-bottom: 20px; line-height: 1.5;">
+        Connect your Supabase project so that participant videos upload directly into your cloud Supabase Storage bucket (<code style="color: #c8fa60;">mindscape-reels</code>) and save to your database tables.
+      </p>
+      <div style="display: flex; flex-direction: column; gap: 14px;">
+        <div>
+          <label style="font: 500 11px 'DM Mono', monospace; color: #cbd5e1; display: block; margin-bottom: 6px;">
+            SUPABASE PROJECT URL <span style="color: #ff2bb8;">*</span>
+          </label>
+          <input type="text" id="modal-supa-url" placeholder="https://your-project.supabase.co" style="width: 100%; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 10px 14px; color: #fff; font-size: 13px; outline: none;" />
+        </div>
+        <div>
+          <label style="font: 500 11px 'DM Mono', monospace; color: #cbd5e1; display: block; margin-bottom: 6px;">
+            SUPABASE ANON PUBLIC KEY <span style="color: #ff2bb8;">*</span>
+          </label>
+          <input type="text" id="modal-supa-key" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." style="width: 100%; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 10px 14px; color: #fff; font-size: 13px; outline: none;" />
+        </div>
+        <div>
+          <label style="font: 500 11px 'DM Mono', monospace; color: #cbd5e1; display: block; margin-bottom: 6px;">
+            STORAGE BUCKET NAME (DEFAULT: mindscape-reels)
+          </label>
+          <input type="text" id="modal-supa-bucket" placeholder="mindscape-reels" value="mindscape-reels" style="width: 100%; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 10px 14px; color: #fff; font-size: 13px; outline: none;" />
+        </div>
+        <div id="modal-supa-status" style="display: none; padding: 10px; border-radius: 8px; font-size: 12px; font-family: 'DM Mono', monospace;"></div>
+        <div style="display: flex; gap: 10px; margin-top: 10px;">
+          <button type="button" onclick="saveSupabaseSettingsFromModal()" class="neon-button neon-button-primary" style="flex: 1; justify-content: center;">
+            Save & Connect Supabase
+          </button>
+          <button type="button" onclick="closeSupabaseModal()" class="neon-button neon-button-ghost">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 
 </body>
 </html>

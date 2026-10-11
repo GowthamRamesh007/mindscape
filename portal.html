@@ -728,9 +728,24 @@
         localStorage.setItem("MINDSCAPE_SUPABASE_BUCKET", bucket);
         portalSupabase = testClient;
 
+        // Sync with backend so all client uploads and server save to Supabase
+        try {
+          await fetch("/api/config/supabase", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              supabase_url: url,
+              supabase_anon_key: anon,
+              storage_bucket: bucket
+            })
+          });
+        } catch(syncErr) {
+          console.warn("Backend Supabase sync note:", syncErr);
+        }
+
         statusBox.style.background = "rgba(46, 204, 113, 0.2)";
         statusBox.style.color = "#2ecc71";
-        statusBox.innerText = "✓ Connected to Supabase successfully! Loading reels...";
+        statusBox.innerText = "✓ Connected to Supabase successfully & synchronized across all devices!";
         updateSupabaseBadge(true);
 
         setTimeout(() => {

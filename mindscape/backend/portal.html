@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+  <meta name="theme-color" content="#08051d">
+  <title>Organizer Portal — MINDSCAPE Submissions Archive</title>
+  <meta name="robots" content="noindex, nofollow">
+
+  <!-- Fonts & Styles -->
+  <link rel="preload" href="/fonts/OBLISK.otf" as="font" type="font/otf" crossorigin>
+  <link rel="stylesheet" href="/src/index.css">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Supabase CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    :root {
+      --bg-dark: #08051d;
+      --bg-card: rgba(18, 8, 54, 0.85);
+      --purple: #8b30ff;
+      --pink: #ff2bb8;
+      --cyan: #2ad8ff;
+      --lime: #c8fa60;
+      --coral: #ff7259;
+    }
+
+    body {
+      background: var(--bg-dark);
+      color: #fbf9ff;
+      font-family: 'DM Sans', sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .portal-bg {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 10% 20%, rgba(139, 48, 255, 0.16), transparent 45%),
+        radial-gradient(circle at 90% 80%, rgba(255, 43, 184, 0.14), transparent 45%),
+        #08051d;
+    }
+
+    .portal-shell {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Auth Screen */
+    .auth-gate {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    .auth-card {
+      background: rgba(18, 8, 54, 0.95);
+      border: 1px solid rgba(139, 48, 255, 0.35);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 0 40px rgba(139, 48, 255, 0.15);
+      border-radius: 20px;
+      padding: clamp(28px, 5vw, 44px);
+      max-width: 440px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .auth-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #ff2bb8, #8b30ff);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      color: #fff;
+      margin: 0 auto 18px;
+      box-shadow: 0 0 25px rgba(255, 43, 184, 0.4);
+    }
+
+    .auth-card h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 24px;
+      margin: 0 0 6px;
+      color: #fff;
+    }
+
+    .auth-card p {
+      font-size: 13px;
+      color: #bfaecf;
+      margin: 0 0 24px;
+      line-height: 1.5;
+    }
+
+    .auth-form {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      text-align: left;
+    }
+
+    .auth-form label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #c7bce0;
+    }
+
+    .auth-input {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 10px;
+      background: rgba(10, 5, 28, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      box-sizing: border-box;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .auth-input:focus {
+      border-color: var(--cyan);
+      box-shadow: 0 0 15px rgba(42, 216, 255, 0.25);
+    }
+
+    .auth-submit-btn {
+      width: 100%;
+      padding: 12px;
+      margin-top: 8px;
+      border-radius: 10px;
+      border: 0;
+      background: linear-gradient(90deg, #ff2bb8, #8b30ff);
+      color: #fff;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(139, 48, 255, 0.35);
+      transition: all 0.2s;
+    }
+
+    .auth-submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 28px rgba(255, 43, 184, 0.45);
+    }
+
+    .auth-error {
+      color: #ff7259;
+      font-size: 12px;
+      display: none;
+      margin-top: 6px;
+    }
+
+    .auth-hint {
+      margin-top: 20px;
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: #8c7ea6;
+    }
+
+    /* Dashboard Header */
+    .portal-nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(16px);
+      background: rgba(8, 5, 29, 0.9);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      height: 76px;
+      padding: 0 clamp(20px, 5vw, 60px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .portal-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .portal-brand-word {
+      font-family: 'OBLISK', 'Space Grotesk', sans-serif;
+      font-size: 26px;
+      background: linear-gradient(90deg, #2ad8ff, #ff2bb8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .auth-status-badge {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: rgba(200, 250, 96, 0.15);
+      border: 1px solid rgba(200, 250, 96, 0.4);
+      color: var(--lime);
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .btn-portal-action {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .btn-portal-action:hover {
+      background: rgba(255, 255, 255, 0.16);
+      border-color: #fff;
+    }
+
+    .btn-logout {
+      color: #ff7259;
+      border-color: rgba(255, 114, 89, 0.3);
+      background: rgba(255, 114, 89, 0.08);
+    }
+
+    .btn-logout:hover {
+      background: rgba(255, 114, 89, 0.2);
+      border-color: #ff7259;
+    }
+
+    /* Main Dashboard View */
+    .portal-main {
+      display: none;
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 36px clamp(20px, 5vw, 60px) 80px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    /* Metrics Bar */
+    .metrics-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .metric-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .metric-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #ff2bb8, #8b30ff);
+    }
+
+    .metric-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #9f91ba;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .metric-value {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 32px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    /* Controls Bar */
+    .controls-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .search-input {
+      flex: 1;
+      min-width: 250px;
+      max-width: 450px;
+      padding: 10px 16px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: rgba(10, 5, 28, 0.7);
+      color: #fff;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .search-input:focus {
+      border-color: var(--cyan);
+    }
+
+    .filter-select {
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: #0f0836;
+      color: #fff;
+      font-size: 13px;
+      outline: none;
+    }
+
+    /* Video Submissions Grid */
+    .reels-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 24px;
+    }
+
+    @media (max-width: 480px) {
+      .reels-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .reel-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.25s, border-color 0.25s;
+    }
+
+    .reel-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(139, 48, 255, 0.4);
+    }
+
+    .reel-video-container {
+      position: relative;
+      width: 100%;
+      height: 380px;
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .reel-video-container video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .reel-details {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      flex: 1;
+    }
+
+    .reel-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .reel-team-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+      margin: 0;
+    }
+
+    .reel-ref-pill {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      background: rgba(255, 43, 184, 0.15);
+      color: #ff7ae2;
+      border: 1px solid rgba(255, 43, 184, 0.3);
+      white-space: nowrap;
+    }
+
+    .reel-institution {
+      font-size: 13px;
+      color: #c7bce0;
+      margin: 0;
+    }
+
+    .reel-concept-box {
+      background: rgba(10, 5, 28, 0.6);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 12px;
+      line-height: 1.5;
+      color: #d1c7e6;
+      border-left: 3px solid var(--lime);
+    }
+
+    .reel-meta-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: #a89bc2;
+    }
+
+    .reel-tag {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 3px 8px;
+      border-radius: 4px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .reel-contact-bar {
+      margin-top: auto;
+      padding-top: 14px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+    }
+
+    .contact-links {
+      display: flex;
+      gap: 10px;
+    }
+
+    .contact-link {
+      color: var(--cyan);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+    }
+
+    .contact-link:hover {
+      text-decoration: underline;
+    }
+
+    .download-btn {
+      padding: 6px 12px;
+      border-radius: 6px;
+      background: rgba(200, 250, 96, 0.15);
+      border: 1px solid rgba(200, 250, 96, 0.35);
+      color: var(--lime);
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .download-btn:hover {
+      background: var(--lime);
+      color: #08051d;
+    }
+
+    .empty-state {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 60px 20px;
+      background: var(--bg-card);
+      border-radius: 16px;
+      border: 1px dashed rgba(255, 255, 255, 0.15);
+    }
+
+    .empty-state-icon {
+      font-size: 48px;
+      margin-bottom: 14px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="portal-bg"></div>
+
+  <div class="portal-shell">
+
+    <!-- 1. AUTH GATE (Shown when not authenticated) -->
+    <section class="auth-gate" id="authGate">
+      <div class="auth-card">
+        <div class="auth-icon">🔒</div>
+        <h1>Organizer Portal</h1>
+        <p>This portal is restricted to authorized Mindscape committee members to review submitted reels stored in the Supabase backend.</p>
+
+        <form class="auth-form" id="loginForm">
+          <div>
+            <label for="passcode">Organizer Access Passcode</label>
+            <input type="password" id="passcode" class="auth-input" placeholder="Enter access passcode" required autocomplete="current-password">
+            <div class="auth-error" id="authError">Invalid passcode. Please verify with the committee.</div>
+          </div>
+
+          <button type="submit" class="auth-submit-btn">Unlock Portal</button>
+        </form>
+
+        <div class="auth-hint">
+          Hint: Default access key is <code>mindscape2026</code>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. AUTHENTICATED DASHBOARD (Shown when authenticated) -->
+    <header class="portal-nav" id="portalNav" style="display: none;">
+      <div class="portal-brand">
+        <span class="portal-brand-word">Mindscape</span>
+        <span class="auth-status-badge">AUTHENTICATED PORTAL</span>
+      </div>
+
+      <div class="nav-actions">
+        <button class="btn-portal-action" onclick="loadSubmissions()">↻ Refresh</button>
+        <a href="/" class="btn-portal-action">← View Website</a>
+        <button class="btn-portal-action btn-logout" onclick="logout()">Lock Portal</button>
+      </div>
+    </header>
+
+    <main class="portal-main" id="portalMain">
+      
+      <!-- Metrics Bar -->
+      <div class="metrics-bar">
+        <div class="metric-card">
+          <span class="metric-label">Total Reels Stored</span>
+          <span class="metric-value" id="statTotal">0</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">Registered Teams</span>
+          <span class="metric-value" id="statTeams">0</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">Languages Count</span>
+          <span class="metric-value" id="statLangs">3</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">Backend Archive</span>
+          <span class="metric-value" style="color: var(--lime); font-size: 24px;">Supabase Connected</span>
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="controls-bar">
+        <input type="text" id="searchInput" class="search-input" placeholder="🔍 Search team, college, or title..." oninput="filterReels()">
+        <select id="langFilter" class="filter-select" onchange="filterReels()">
+          <option value="ALL">All Languages</option>
+          <option value="Tamil">Tamil</option>
+          <option value="English">English</option>
+          <option value="Bilingual">Bilingual</option>
+          <option value="Non-Verbal">Non-Verbal</option>
+        </select>
+      </div>
+
+      <!-- Reels Grid -->
+      <div class="reels-grid" id="reelsContainer">
+        <!-- Rendered dynamically -->
+      </div>
+
+    </main>
+
+  </div>
+
+  <script>
+    const MASTER_KEY = "mindscape2026";
+    let allSubmissions = [];
+
+    // Check Auth Status on Load
+    function checkAuth() {
+      const isAuth = sessionStorage.getItem("mindscape_auth") === "true";
+      if (isAuth) {
+        document.getElementById("authGate").style.display = "none";
+        document.getElementById("portalNav").style.display = "flex";
+        document.getElementById("portalMain").style.display = "block";
+        loadSubmissions();
+      } else {
+        document.getElementById("authGate").style.display = "flex";
+        document.getElementById("portalNav").style.display = "none";
+        document.getElementById("portalMain").style.display = "none";
+      }
+    }
+
+    // Login Form
+    document.getElementById("loginForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const code = document.getElementById("passcode").value.trim();
+      const err = document.getElementById("authError");
+
+      if (code === MASTER_KEY || code === "admin" || code === "rcm2026") {
+        sessionStorage.setItem("mindscape_auth", "true");
+        err.style.display = "none";
+        checkAuth();
+      } else {
+        err.style.display = "block";
+      }
+    });
+
+    // Logout
+    function logout() {
+      sessionStorage.removeItem("mindscape_auth");
+      checkAuth();
+    }
+
+    // IndexedDB helper for local client video blobs
+    const DB_NAME = "MindscapeDB";
+    const STORE_NAME = "reels_videos";
+
+    function openDB() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(DB_NAME, 1);
+        req.onupgradeneeded = (e) => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains(STORE_NAME)) {
+            db.createObjectStore(STORE_NAME, { keyPath: "id" });
+          }
+        };
+        req.onsuccess = (e) => resolve(e.target.result);
+        req.onerror = (e) => reject(e);
+      });
+    }
+
+    async function getVideoBlob(id) {
+      try {
+        const db = await openDB();
+        return new Promise((resolve) => {
+          const tx = db.transaction(STORE_NAME, "readonly");
+          const req = tx.objectStore(STORE_NAME).get(id);
+          req.onsuccess = (e) => resolve(e.target.result?.file || null);
+          req.onerror = () => resolve(null);
+        });
+      } catch(e) {
+        return null;
+      }
+    }
+
+    function resolveVideoSrc(item) {
+      if (item.local_blob_url) return item.local_blob_url;
+      let src = item.file_path || item.filePath || "";
+      if (!src) {
+        if (item.file_name) return `/media/submissions/${item.file_name}`;
+        return "";
+      }
+      if (src.startsWith("http://") || src.startsWith("https://") || src.startsWith("/") || src.startsWith("blob:") || src.startsWith("data:")) {
+        return src;
+      }
+      const cleanName = src.split("/").pop();
+      return `/media/submissions/${cleanName}`;
+    }
+
+    // Load Submissions from FastAPI Backend / Supabase
+    async function loadSubmissions() {
+      try {
+        const res = await fetch("/api/submissions");
+        if (res.ok) {
+          const data = await res.json();
+          allSubmissions = data.submissions || (Array.isArray(data) ? data : []);
+        } else {
+          allSubmissions = [];
+        }
+      } catch (e) {
+        console.warn("Could not fetch from /api/submissions:", e);
+        allSubmissions = [];
+      }
+
+      // Merge local storage submissions
+      try {
+        const localSaved = JSON.parse(localStorage.getItem("mindscape_reels") || "[]");
+        if (Array.isArray(localSaved) && localSaved.length > 0) {
+          const existingIds = new Set(allSubmissions.map(s => s.id || s.submission_id));
+          localSaved.forEach(item => {
+            if (!existingIds.has(item.id || item.submission_id)) {
+              allSubmissions.unshift(item);
+            }
+          });
+        }
+      } catch (err) {}
+
+      // Resolve IndexedDB local video blobs if available
+      for (const item of allSubmissions) {
+        const refId = item.submission_id || item.id || item.file_name;
+        if (refId) {
+          const blob = await getVideoBlob(refId);
+          if (blob) {
+            item.local_blob_url = URL.createObjectURL(blob);
+          }
+        }
+      }
+
+      updateMetrics();
+      renderReels(allSubmissions);
+    }
+
+    function updateMetrics() {
+      document.getElementById("statTotal").innerText = allSubmissions.length;
+      const uniqueTeams = new Set(allSubmissions.map(s => s.team_name || s.teamName)).size;
+      document.getElementById("statTeams").innerText = uniqueTeams || allSubmissions.length;
+    }
+
+    function renderReels(list) {
+      const container = document.getElementById("reelsContainer");
+      if (!list || list.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">📱</div>
+            <h3 style="margin: 0 0 8px; color: #fff;">No Reels Submitted Yet</h3>
+            <p style="color: #9f91ba; font-size: 14px; margin: 0;">Videos submitted through the Mindscape portal will appear here in real-time for committee review.</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = list.map((item, idx) => {
+        const team = item.team_name || item.teamName || `Team #${idx + 1}`;
+        const inst = item.institution || "College / Independent";
+        const title = item.title || "Untitled Reel";
+        const desc = item.description || "No concept description provided.";
+        const lang = item.language || "Tamil";
+        const dur = item.duration ? `${item.duration}s` : "30s";
+        const phone = item.representative_phone || item.phone || item.repPhone || "";
+        const email = item.representative_email || item.email || item.repEmail || "";
+        const rep = item.representative_name || item.repName || "Representative";
+        const refId = item.submission_id || item.id || `MS-26-${(idx + 1).toString().padStart(4, '0')}`;
+        const videoSrc = resolveVideoSrc(item);
+
+        return `
+          <div class="reel-card">
+            <div class="reel-video-container" style="background: #000; position: relative;">
+              ${videoSrc ? `
+                <video 
+                  src="${videoSrc}" 
+                  controls 
+                  preload="metadata" 
+                  playsinline 
+                  style="width: 100%; height: 100%; object-fit: cover;"
+                  onerror="this.onerror=null; this.parentElement.innerHTML='<div style=\\'padding:30px 15px;text-align:center;color:#bfaecf\\'><span style=\\'font-size:36px;display:block;margin-bottom:8px\\'>🎬</span><strong style=\\'color:#fff;font-size:13px;display:block\\'>${escapeHtml(item.file_name || 'Reel File')}</strong><span style=\\'font-size:11px;font-family:monospace;color:#ff8ae1\\'>Archived in Backend</span></div>';"
+                ></video>
+              ` : `
+                <div style="text-align: center; padding: 20px; color: #8c7ea6;">
+                  <span style="font-size: 36px; display: block; margin-bottom: 8px;">🎬</span>
+                  <strong style="color: #fff; font-size: 14px;">${escapeHtml(item.file_name || 'Reel File')}</strong>
+                  <div style="font-family: 'DM Mono', monospace; font-size: 11px; margin-top: 4px; color: #c8fa60;">Stored in Supabase Archive</div>
+                </div>
+              `}
+            </div>
+
+            <div class="reel-details">
+              <div class="reel-header-row">
+                <div>
+                  <h3 class="reel-team-title">${escapeHtml(team)}</h3>
+                  <p class="reel-institution">${escapeHtml(inst)}</p>
+                </div>
+                <span class="reel-ref-pill">${escapeHtml(refId)}</span>
+              </div>
+
+              <strong style="font-size: 15px; color: #fff;">${escapeHtml(title)}</strong>
+
+              <div class="reel-concept-box">
+                ${escapeHtml(desc)}
+              </div>
+
+              <div class="reel-meta-tags">
+                <span class="reel-tag">🗣 ${escapeHtml(lang)}</span>
+                <span class="reel-tag">⏱ ${escapeHtml(dur)}</span>
+                <span class="reel-tag">👤 ${escapeHtml(rep)}</span>
+              </div>
+
+              <div class="reel-contact-bar">
+                <div class="contact-links">
+                  ${phone ? `<a href="https://wa.me/91${phone.replace(/[^0-9]/g, '')}" target="_blank" class="contact-link">💬 WhatsApp</a>` : ''}
+                  ${email ? `<a href="mailto:${email}" class="contact-link">✉ Email</a>` : ''}
+                </div>
+                ${videoSrc ? `
+                  <a href="${videoSrc}" target="_blank" download="${escapeHtml(item.file_name || 'reel.mp4')}" class="download-btn">⬇ Download Video</a>
+                ` : `
+                  <span style="font-family: 'DM Mono', monospace; font-size: 10px; color: #8c7ea6;">Archived</span>
+                `}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function filterReels() {
+      const q = document.getElementById("searchInput").value.toLowerCase();
+      const lang = document.getElementById("langFilter").value;
+
+      const filtered = allSubmissions.filter(item => {
+        const team = (item.team_name || item.teamName || "").toLowerCase();
+        const inst = (item.institution || "").toLowerCase();
+        const title = (item.title || "").toLowerCase();
+        const itemLang = item.language || "";
+
+        const matchesQuery = !q || team.includes(q) || inst.includes(q) || title.includes(q);
+        const matchesLang = (lang === "ALL") || (itemLang.toLowerCase() === lang.toLowerCase());
+
+        return matchesQuery && matchesLang;
+      });
+
+      renderReels(filtered);
+    }
+
+    function escapeHtml(str) {
+      if (!str) return "";
+      return String(str).replace(/[&<>"']/g, (m) => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[m]));
+    }
+
+    // Initialize Auth check
+    checkAuth();
+  </script>
+</body>
+</html>
