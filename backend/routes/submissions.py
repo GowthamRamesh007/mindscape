@@ -116,11 +116,18 @@ def list_submissions():
 @router.post("")
 def create_submission(payload: dict):
     """Stores video reel submission into Supabase backend archive."""
+    team_name = (payload.get("team_name") or "").strip()
+    if not is_team_registered(team_name):
+        raise HTTPException(
+            status_code=403,
+            detail=f"Registration required: Team '{team_name}' is not registered on the official Google Form. Only registered teams can submit reels."
+        )
+
     sub_id = f"MS26-{uuid.uuid4().hex[:6].upper()}"
     sub_data = {
         "id": sub_id,
         "submission_id": sub_id,
-        "team_name": payload.get("team_name", "").strip(),
+        "team_name": team_name,
         "representative_name": payload.get("representative_name", "Registered Participant").strip(),
         "representative_email": payload.get("email", "").strip().lower(),
         "representative_phone": payload.get("phone", "").strip(),

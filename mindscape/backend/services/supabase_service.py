@@ -19,9 +19,17 @@ for _env_path in [
         load_dotenv(_env_path)
 load_dotenv()
 
-SUPABASE_URL = os.getenv("SUPABASE_URL", "")
-SUPABASE_ANON_KEY = os.getenv("SUPABASE_ANON_KEY", "")
-SUPABASE_SERVICE_ROLE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
+SUPABASE_URL = os.getenv("SUPABASE_URL", "").strip()
+SUPABASE_ANON_KEY = os.getenv("SUPABASE_ANON_KEY", "").strip()
+SUPABASE_SERVICE_ROLE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "").strip()
+
+def is_valid_supabase_config() -> bool:
+    """Checks if valid non-placeholder Supabase credentials are configured."""
+    return bool(
+        SUPABASE_URL 
+        and "your-project-id" not in SUPABASE_URL 
+        and SUPABASE_URL.startswith("https://")
+    )
 
 _supabase_admin_client: Optional[Client] = None
 _supabase_anon_client: Optional[Client] = None
@@ -29,7 +37,9 @@ _supabase_anon_client: Optional[Client] = None
 def get_supabase_admin() -> Optional[Client]:
     """Returns the administrative Supabase client using the Service Role Key."""
     global _supabase_admin_client
-    if _supabase_admin_client is None and SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY:
+    if not is_valid_supabase_config() or not SUPABASE_SERVICE_ROLE_KEY or "dummy" in SUPABASE_SERVICE_ROLE_KEY:
+        return None
+    if _supabase_admin_client is None:
         try:
             _supabase_admin_client = create_client(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
         except Exception as e:
@@ -40,7 +50,9 @@ def get_supabase_admin() -> Optional[Client]:
 def get_supabase_anon() -> Optional[Client]:
     """Returns the public anonymous Supabase client."""
     global _supabase_anon_client
-    if _supabase_anon_client is None and SUPABASE_URL and SUPABASE_ANON_KEY:
+    if not is_valid_supabase_config() or not SUPABASE_ANON_KEY or "dummy" in SUPABASE_ANON_KEY:
+        return None
+    if _supabase_anon_client is None:
         try:
             _supabase_anon_client = create_client(SUPABASE_URL, SUPABASE_ANON_KEY)
         except Exception as e:

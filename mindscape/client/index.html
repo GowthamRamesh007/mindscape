@@ -1220,6 +1220,38 @@
         .replace(/'/g, "&#039;");
     }
 
+    // 5.4 Supabase Client Initializer (Direct Browser Storage & Database Sync)
+    let SUPABASE_URL = localStorage.getItem("MINDSCAPE_SUPABASE_URL") || "";
+    let SUPABASE_ANON_KEY = localStorage.getItem("MINDSCAPE_SUPABASE_ANON_KEY") || "";
+    let SUPABASE_BUCKET = "mindscape-reels";
+    let supabaseClient = null;
+
+    async function initSupabaseClient() {
+      if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+        try {
+          const cfgRes = await fetch("/api/config/supabase");
+          if (cfgRes.ok) {
+            const cfg = await cfgRes.json();
+            if (cfg.configured && cfg.supabase_url && cfg.supabase_anon_key) {
+              SUPABASE_URL = cfg.supabase_url;
+              SUPABASE_ANON_KEY = cfg.supabase_anon_key;
+              if (cfg.storage_bucket) SUPABASE_BUCKET = cfg.storage_bucket;
+            }
+          }
+        } catch(e) {}
+      }
+
+      if (SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase) {
+        try {
+          supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+          console.log("[Mindscape] Supabase Client active:", SUPABASE_URL);
+        } catch (err) {
+          console.warn("[Mindscape] Supabase init error:", err);
+        }
+      }
+    }
+    initSupabaseClient();
+
     // 5.5 Live Google Sheets Registered Teams Connector & Autocomplete
     let registeredTeamsList = [];
     let selectedTeamData = null;
@@ -1359,10 +1391,11 @@
     }
 
     function updateTeamVerificationStatus() {
-      const val = (teamInput?.value || "").trim();
+      const rawVal = (teamInput?.value || "").trim();
+      const cleanVal = rawVal.toLowerCase().replace(/\s+/g, ' ');
       const submitBtn = document.getElementById("submit-btn");
 
-      if (!val) {
+      if (!cleanVal) {
         if (teamStatusPill) teamStatusPill.style.display = "none";
         if (teamVerifMsg) {
           teamVerifMsg.innerHTML = "⚡ Connected to Google Form responses. Only registered teams can submit.";
@@ -1379,7 +1412,10 @@
         return;
       }
 
-      const matched = registeredTeamsList.find(t => t.team_name.toLowerCase() === val.toLowerCase());
+      const matched = registeredTeamsList.find(t => 
+        (t.team_name || "").trim().toLowerCase().replace(/\s+/g, ' ') === cleanVal
+      );
+
       if (matched) {
         selectedTeamData = matched;
         if (teamInput) teamInput.style.borderColor = "#2ecc71";
@@ -1437,6 +1473,11 @@
       updateTeamVerificationStatus();
     });
 
+    teamInput?.addEventListener("change", updateTeamVerificationStatus);
+    teamInput?.addEventListener("blur", updateTeamVerificationStatus);
+    teamInput?.addEventListener("keyup", updateTeamVerificationStatus);
+    teamInput?.addEventListener("paste", () => setTimeout(updateTeamVerificationStatus, 50));
+
     teamInput?.addEventListener("focus", (e) => {
       if (e.target.value.trim()) {
         renderTeamSuggestions(e.target.value);
@@ -1454,6 +1495,8 @@
     // 6. Direct Submission Handler (Supabase & FastAPI)
     document.getElementById("submission-form")?.addEventListener("submit", async (e) => {
       e.preventDefault();
+      const submitBtn = document.getElementById("submit-btn");
+
       if (!selectedFile) {
         showError("Please select a video file to upload.");
         return;
@@ -1465,10 +1508,39 @@
 
       // Check registered team verification (STRICT BLOCK)
       const enteredTeamName = (teamInput?.value || "").trim();
-      const verifiedTeam = registeredTeamsList.find(t => t.team_name.toLowerCase() === enteredTeamName.toLowerCase());
-      if (!verifiedTeam) {
-        showError(`🚫 Submission Blocked: Team "${enteredTeamName || 'Unknown'}" is not registered on the official Google Form. Only registered teams can submit videos. Please complete Step 1: Register on Google Form first.`);
+      if (!enteredTeamName) {
+        showError("Please enter your registered team name.");
         teamInput?.focus();
+        return;
+      }
+
+      // If registered teams list hasn't loaded yet, try quick sync load
+      if (registeredTeamsList.length === 0) {
+        try {
+          const quickRes = await fetch("/api/teams/registered");
+          if (quickRes.ok) {
+            const quickData = await quickRes.json();
+            if (quickData && Array.isArray(quickData.teams) && quickData.teams.length > 0) {
+              registeredTeamsList = quickData.teams;
+            }
+          }
+        } catch(e) {}
+      }
+
+      const cleanEntered = enteredTeamName.toLowerCase().replace(/\s+/g, ' ');
+      const verifiedTeam = registeredTeamsList.find(t => 
+        (t.team_name || "").trim().toLowerCase().replace(/\s+/g, ' ') === cleanEntered
+      );
+
+      if (!verifiedTeam) {
+        showError(`🚫 Submission Blocked: Team "${enteredTeamName}" is not registered on the official Google Form. Only registered teams can submit videos. Please complete Step 1: Register on Google Form first.`);
+        teamInput?.focus();
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.style.opacity = "0.5";
+          submitBtn.style.cursor = "not-allowed";
+          submitBtn.innerText = "🚫 Unregistered Team — Cannot Submit Video";
+        }
         return;
       }
 
@@ -1476,20 +1548,16 @@
       const progressBox = document.getElementById("upload-progress-box");
       const progressBar = document.getElementById("upload-progress-bar");
       const progressPct = document.getElementById("upload-progress-pct");
-      const submitBtn = document.getElementById("submit-btn");
+      const progressLabel = document.getElementById("upload-progress-label");
 
       progressBox.style.display = "block";
       submitBtn.disabled = true;
       submitBtn.innerText = "Uploading & Locking Reel...";
+      progressBar.style.width = "15%";
+      progressPct.innerText = "15%";
+      if (progressLabel) progressLabel.innerText = "Preparing reel metadata...";
 
-      // Upload progress simulation or Supabase upload
-      for (let i = 10; i <= 90; i += 20) {
-        progressBar.style.width = i + "%";
-        progressPct.innerText = i + "%";
-        await new Promise(r => setTimeout(r, 150));
-      }
-
-      const teamName = verifiedTeam ? verifiedTeam.team_name : enteredTeamName;
+      const teamName = verifiedTeam.team_name;
       const repName = document.getElementById("sub-rep-name")?.value?.trim() || verifiedTeam?.representative_name || teamName;
       const repEmail = document.getElementById("sub-rep-email")?.value?.trim() || verifiedTeam?.email || "participant@mindscape.org";
       const repPhone = document.getElementById("sub-rep-phone")?.value?.trim() || verifiedTeam?.phone || "";
@@ -1523,79 +1591,157 @@
       }
 
       try {
-        const formData = new FormData();
-        formData.append("video_file", selectedFile);
-        formData.append("team_name", teamName);
-        formData.append("representative_name", repName);
-        formData.append("representative_email", repEmail);
-        formData.append("representative_phone", repPhone);
-        formData.append("institution", institution);
-        formData.append("city", city);
-        formData.append("title", title);
-        formData.append("description", description);
-        formData.append("language", language);
-        formData.append("duration", videoMetadata ? videoMetadata.duration : 30.0);
-        formData.append("width", videoMetadata ? videoMetadata.width : 1080);
-        formData.append("height", videoMetadata ? videoMetadata.height : 1920);
+        let publicVideoUrl = "";
+        let storageFilePath = "";
+        const ext = (selectedFile.name || "reel.mp4").split('.').pop().toLowerCase() || "mp4";
+        const cleanSlug = teamName.toLowerCase().replace(/[^a-z0-9]/g, '-').slice(0, 30) || "team";
+        const uniqueSuffix = Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 6);
+        storageFilePath = `reels/${cleanSlug}/${uniqueSuffix}.${ext}`;
 
-        let resData = null;
-        try {
-          const response = await fetch("/api/submissions/direct-submit-upload", {
-            method: "POST",
-            body: formData
-          });
-          if (response.ok) {
-            resData = await response.json();
-          }
-        } catch (uploadErr) {
-          console.warn("Direct upload error, trying fallback:", uploadErr);
+        // Ensure Supabase client is initialized
+        if (!supabaseClient) {
+          await initSupabaseClient();
         }
 
-        if (!resData) {
-          const payload = {
-            team_name: teamName,
-            representative_name: repName,
-            representative_email: repEmail,
-            representative_phone: repPhone,
-            institution: institution,
-            city: city,
-            title: title,
-            description: description,
-            language: language,
-            file_path: `/media/submissions/${selectedFile.name}`,
-            file_name: selectedFile.name,
-            file_size: selectedFile.size,
-            duration: videoMetadata ? videoMetadata.duration : 30.0,
-            width: videoMetadata ? videoMetadata.width : 1080,
-            height: videoMetadata ? videoMetadata.height : 1920,
-            originality_confirmed: true,
-            participant_consent_confirmed: true,
-            copyright_confirmed: true,
-            rules_confirmed: true,
-            final_lock_confirmed: true
-          };
+        if (supabaseClient) {
+          if (progressLabel) progressLabel.innerText = "Uploading Reel directly to Supabase Storage...";
+          progressBar.style.width = "40%";
+          progressPct.innerText = "40%";
 
-          const fallbackRes = await fetch("/api/submissions/direct-submit", {
+          // Direct browser-to-Supabase Storage upload (bypasses Vercel 4.5MB limit)
+          let uploadRes = await supabaseClient.storage
+            .from(SUPABASE_BUCKET)
+            .upload(storageFilePath, selectedFile, {
+              cacheControl: "3600",
+              upsert: true
+            });
+
+          // Fallback bucket check if 'mindscape-reels' doesn't exist
+          let activeBucket = SUPABASE_BUCKET;
+          if (uploadRes.error && uploadRes.error.message && (uploadRes.error.message.includes("Bucket not found") || uploadRes.error.message.includes("bucket"))) {
+            for (const fb of ["reels", "submissions", "videos"]) {
+              const fbRes = await supabaseClient.storage.from(fb).upload(storageFilePath, selectedFile, { upsert: true });
+              if (!fbRes.error) {
+                uploadRes = fbRes;
+                activeBucket = fb;
+                break;
+              }
+            }
+          }
+
+          if (uploadRes.error) {
+            console.error("Supabase Storage error:", uploadRes.error);
+            throw new Error(`Supabase Storage upload failed: ${uploadRes.error.message || "Ensure 'mindscape-reels' bucket exists in Supabase and is public."}`);
+          }
+
+          progressBar.style.width = "75%";
+          progressPct.innerText = "75%";
+          if (progressLabel) progressLabel.innerText = "Recording in Supabase Database...";
+
+          const { data: pubData } = supabaseClient.storage.from(activeBucket).getPublicUrl(storageFilePath);
+          publicVideoUrl = pubData?.publicUrl || storageFilePath;
+
+          // Insert directly into Supabase 'submissions' table
+          try {
+            await supabaseClient.from("submissions").insert([{
+              team_name: teamName,
+              representative_name: repName,
+              representative_email: repEmail,
+              representative_phone: repPhone,
+              institution: institution,
+              city: city,
+              title: title,
+              description: description,
+              language: language,
+              file_path: publicVideoUrl,
+              file_name: selectedFile.name,
+              file_size: selectedFile.size,
+              duration: videoMetadata ? videoMetadata.duration : 30.0,
+              width: videoMetadata ? videoMetadata.width : 1080,
+              height: videoMetadata ? videoMetadata.height : 1920,
+              aspect_ratio: "9:16",
+              submission_status: "submitted",
+              created_at: new Date().toISOString()
+            }]);
+          } catch(dbErr) {
+            console.warn("Supabase submissions insert note:", dbErr);
+          }
+
+          // Insert directly into Supabase 'teams' table
+          try {
+            await supabaseClient.from("teams").insert([{
+              team_name: teamName,
+              representative_name: repName,
+              representative_email: repEmail,
+              representative_phone: repPhone,
+              institution: institution,
+              city: city,
+              status: "submitted"
+            }]);
+          } catch(tmErr) {}
+        } else {
+          // If Supabase credentials are not configured yet, save locally
+          publicVideoUrl = `/media/submissions/${selectedFile.name}`;
+        }
+
+        progressBar.style.width = "88%";
+        progressPct.innerText = "88%";
+        if (progressLabel) progressLabel.innerText = "Synchronizing with Archive...";
+
+        // Send lightweight metadata to backend (never fails with Unexpected end of JSON input)
+        const payload = {
+          team_name: teamName,
+          representative_name: repName,
+          representative_email: repEmail,
+          representative_phone: repPhone,
+          institution: institution,
+          city: city,
+          title: title,
+          description: description,
+          language: language,
+          file_path: publicVideoUrl || `/media/submissions/${selectedFile.name}`,
+          file_name: selectedFile.name,
+          file_size: selectedFile.size,
+          duration: videoMetadata ? videoMetadata.duration : 30.0,
+          width: videoMetadata ? videoMetadata.width : 1080,
+          height: videoMetadata ? videoMetadata.height : 1920,
+          originality_confirmed: true,
+          participant_consent_confirmed: true,
+          copyright_confirmed: true,
+          rules_confirmed: true,
+          final_lock_confirmed: true
+        };
+
+        let refId = `MS-26-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
+
+        try {
+          const apiRes = await fetch("/api/submissions/direct-submit", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
           });
-          resData = await fallbackRes.json();
+
+          if (apiRes.ok) {
+            const resData = await apiRes.json().catch(() => null);
+            if (resData?.submission_id) {
+              refId = `MS-26-${resData.submission_id.replace(/^MS26-/, '').slice(0, 4).toUpperCase()}`;
+            }
+          } else {
+            const errData = await apiRes.json().catch(() => null);
+            if (apiRes.status === 403 || apiRes.status === 400) {
+              throw new Error(errData?.detail || `Submission rejected (${apiRes.status})`);
+            }
+          }
+        } catch (apiErr) {
+          if (apiErr.message && (apiErr.message.includes("Registration required") || apiErr.message.includes("not registered"))) {
+            throw apiErr;
+          }
+          console.warn("Backend metadata sync note:", apiErr);
         }
-
-        progressBar.style.width = "100%";
-        progressPct.innerText = "100%";
-
-        const refId = resData?.submission_id 
-          ? `MS-26-${resData.submission_id.replace(/^MS26-/, '').slice(0, 4).toUpperCase()}` 
-          : `MS-26-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
 
         // Save real video blob in IndexedDB for instant offline and local portal playback
         await saveVideoBlob(refId, selectedFile);
         await saveVideoBlob(selectedFile.name, selectedFile);
-        if (resData?.submission_id) {
-          await saveVideoBlob(resData.submission_id, selectedFile);
-        }
 
         // Save local backup for immediate portal view
         try {
@@ -1610,7 +1756,7 @@
             title: title,
             description: description,
             language: language,
-            file_path: resData?.file_path || `/media/submissions/${selectedFile.name}`,
+            file_path: publicVideoUrl || `/media/submissions/${selectedFile.name}`,
             file_name: selectedFile.name,
             file_size: selectedFile.size,
             duration: videoMetadata ? videoMetadata.duration : 30.0,
@@ -1620,13 +1766,22 @@
           localStorage.setItem("mindscape_reels", JSON.stringify(localList));
         } catch(e) {}
 
+        progressBar.style.width = "100%";
+        progressPct.innerText = "100%";
+        if (progressLabel) progressLabel.innerText = "Reel Upload Complete!";
+
         document.getElementById("submission-form").style.display = "none";
         document.getElementById("submit-success-box").style.display = "block";
         document.getElementById("success-ref-id").innerText = refId;
       } catch (err) {
-        showError("Backend connection error: " + err.message);
+        if (progressBox) progressBox.style.display = "none";
+        if (progressBar) progressBar.style.width = "0%";
+        if (progressPct) progressPct.innerText = "0%";
+        showError("🚫 Upload Error: " + err.message);
         submitBtn.disabled = false;
-        submitBtn.innerText = "Upload Video to Storehouse Archive →";
+        submitBtn.style.opacity = "1";
+        submitBtn.style.cursor = "pointer";
+        submitBtn.innerText = "Upload Video to Supabase Archive →";
       }
     });
 

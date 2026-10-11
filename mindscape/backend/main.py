@@ -78,6 +78,19 @@ def health_check():
         "frontend_url": frontend_url or "internal"
     }
 
+@app.get("/api/config/supabase")
+def get_supabase_config():
+    """Returns the public Supabase configuration (URL and Anon Key only) for client-side direct uploads."""
+    supa_url = os.getenv("SUPABASE_URL", "").strip()
+    supa_anon = os.getenv("SUPABASE_ANON_KEY", "").strip()
+    is_valid = bool(supa_url and "your-project-id" not in supa_url and supa_url.startswith("https://"))
+    return {
+        "configured": is_valid and bool(supa_anon and "dummy" not in supa_anon),
+        "supabase_url": supa_url if is_valid else "",
+        "supabase_anon_key": supa_anon if (is_valid and "dummy" not in supa_anon) else "",
+        "storage_bucket": "mindscape-reels"
+    }
+
 # Frontend paths
 client_dir = os.path.join(project_root, "client")
 client_public = os.path.join(client_dir, "public")
@@ -148,6 +161,25 @@ def serve_index():
     if index_file:
         return FileResponse(index_file)
     return FileResponse(os.path.join(str(client_dir), "index.html"))
+
+# Serve 404 error page for unmatched frontend routes
+from starlette.exceptions import HTTPException as StarletteHTTPException
+
+@app.exception_handler(StarletteHTTPException)
+async def custom_http_exception_handler(request: Request, exc: StarletteHTTPException):
+    if exc.status_code == 404:
+        if request.url.path.startswith("/api"):
+            return JSONResponse(status_code=404, content={"detail": exc.detail or "Not Found"})
+        candidates_404 = [
+            os.path.join(str(project_root), "404.html"),
+            os.path.join(str(current_file.parent), "404.html"),
+            os.path.join(str(client_dir), "404.html"),
+            os.path.join(str(project_root), "mindscape", "404.html")
+        ]
+        page_404 = next((p for p in candidates_404 if os.path.exists(p)), None)
+        if page_404:
+            return FileResponse(page_404, status_code=404)
+    return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail})
 
 if __name__ == "__main__":
     import uvicorn

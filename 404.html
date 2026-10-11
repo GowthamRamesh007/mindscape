@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+  <meta name="theme-color" content="#08051d">
+  <title>404 — Page Not Found | MINDSCAPE</title>
+  <meta name="description" content="404 — Page not found. The coordinates you are looking for do not exist in the Mindscape reel contest portal.">
+
+  <!-- Fonts Preload & Google Fonts -->
+  <link rel="preload" href="/fonts/OBLISK.otf" as="font" type="font/otf" crossorigin>
+  <link rel="stylesheet" href="/src/index.css">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-dark: #08051d;
+      --bg-card: rgba(18, 8, 54, 0.85);
+      --purple: #8b30ff;
+      --pink: #ff2bb8;
+      --cyan: #2ad8ff;
+      --lime: #c8fa60;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg-dark);
+      color: #fbf9ff;
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Ambient Space Glow */
+    .space-bg {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      background:
+        radial-gradient(circle at 20% 30%, rgba(139, 48, 255, 0.22), transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(255, 43, 184, 0.18), transparent 50%),
+        radial-gradient(circle at 50% 90%, rgba(200, 250, 96, 0.08), transparent 40%),
+        #08051d;
+    }
+
+    .stars-layer {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      background-image: 
+        radial-gradient(1px 1px at 25px 35px, #fff, rgba(0,0,0,0)),
+        radial-gradient(1.5px 1.5px at 120px 80px, #ff8ae1, rgba(0,0,0,0)),
+        radial-gradient(1px 1px at 210px 190px, #a5b4fc, rgba(0,0,0,0)),
+        radial-gradient(2px 2px at 320px 240px, #c8fa60, rgba(0,0,0,0)),
+        radial-gradient(1px 1px at 450px 70px, #fff, rgba(0,0,0,0)),
+        radial-gradient(1.5px 1.5px at 580px 310px, #2ad8ff, rgba(0,0,0,0));
+      background-repeat: repeat;
+      background-size: 600px 400px;
+      opacity: 0.55;
+    }
+
+    /* Header */
+    .neon-header {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 24px 32px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(12px);
+    }
+
+    .neon-brand {
+      display: flex;
+      flex-direction: column;
+      text-decoration: none;
+      color: #fff;
+    }
+
+    .neon-brand-word {
+      font-size: 26px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+    }
+
+    .neon-brand-word span {
+      color: #ff3ecb;
+      text-shadow: 0 0 14px rgba(255, 62, 203, 0.7);
+    }
+
+    .neon-brand small {
+      font-size: 9px;
+      letter-spacing: 0.28em;
+      color: #a79cb8;
+      font-family: 'DM Mono', monospace;
+      margin-top: -2px;
+    }
+
+    .neon-nav {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .neon-nav a {
+      color: #cbd5e1;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      transition: color 0.2s ease;
+    }
+
+    .neon-nav a:hover {
+      color: #ff8ae1;
+    }
+
+    /* Main Container */
+    .error-container {
+      position: relative;
+      z-index: 2;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 60px 24px;
+      max-width: 820px;
+      margin: 0 auto;
+    }
+
+    .error-glitch-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 62, 203, 0.12);
+      border: 1px solid rgba(255, 62, 203, 0.4);
+      color: #ff8ae1;
+      font-size: 11px;
+      font-family: 'DM Mono', monospace;
+      letter-spacing: 0.2em;
+      padding: 6px 14px;
+      border-radius: 99px;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+      box-shadow: 0 0 20px rgba(255, 62, 203, 0.25);
+    }
+
+    .error-code {
+      font-size: clamp(90px, 18vw, 170px);
+      font-weight: 900;
+      line-height: 0.9;
+      font-family: 'Space Grotesk', sans-serif;
+      background: linear-gradient(135deg, #fff 0%, #ff54d9 45%, #8b30ff 80%, #2ad8ff 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 45px rgba(255, 62, 203, 0.45);
+      margin-bottom: 16px;
+      letter-spacing: -0.04em;
+    }
+
+    .error-title {
+      font-size: clamp(24px, 4vw, 36px);
+      font-weight: 700;
+      font-family: 'Space Grotesk', sans-serif;
+      color: #fff;
+      margin-bottom: 14px;
+      letter-spacing: -0.02em;
+    }
+
+    .error-title span {
+      color: #c8fa60;
+      text-shadow: 0 0 14px rgba(200, 250, 96, 0.5);
+    }
+
+    .error-desc {
+      font-size: clamp(14px, 2vw, 17px);
+      color: #a79cb8;
+      max-width: 580px;
+      line-height: 1.6;
+      margin-bottom: 36px;
+    }
+
+    .error-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 48px;
+    }
+
+    .neon-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 13px 26px;
+      border-radius: 99px;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: 'Space Grotesk', sans-serif;
+      text-decoration: none;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+    }
+
+    .neon-btn-primary {
+      background: linear-gradient(135deg, #ff3ecb, #8b30ff);
+      color: #fff;
+      border: none;
+      box-shadow: 0 8px 24px rgba(255, 62, 203, 0.35);
+    }
+
+    .neon-btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(255, 62, 203, 0.55);
+    }
+
+    .neon-btn-outline {
+      background: rgba(255, 255, 255, 0.04);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .neon-btn-outline:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: #ff8ae1;
+      color: #ff8ae1;
+      transform: translateY(-2px);
+    }
+
+    .neon-btn-secondary {
+      background: rgba(200, 250, 96, 0.1);
+      color: #c8fa60;
+      border: 1px solid rgba(200, 250, 96, 0.35);
+    }
+
+    .neon-btn-secondary:hover {
+      background: rgba(200, 250, 96, 0.2);
+      transform: translateY(-2px);
+    }
+
+    /* Sector Navigation Links */
+    .sector-box {
+      background: rgba(14, 7, 40, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 22px 28px;
+      width: 100%;
+      max-width: 680px;
+      backdrop-filter: blur(12px);
+    }
+
+    .sector-header {
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      color: #a79cb8;
+      font-family: 'DM Mono', monospace;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+
+    .sector-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 10px;
+    }
+
+    .sector-link {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 8px;
+      padding: 10px 12px;
+      color: #cbd5e1;
+      text-decoration: none;
+      font-size: 12px;
+      font-family: 'DM Mono', monospace;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.2s ease;
+    }
+
+    .sector-link:hover {
+      background: rgba(255, 62, 203, 0.12);
+      border-color: rgba(255, 62, 203, 0.4);
+      color: #ff8ae1;
+    }
+
+    /* Footer */
+    .neon-footer {
+      position: relative;
+      z-index: 10;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 24px 32px;
+      text-align: center;
+      font-size: 12px;
+      color: #64748b;
+      font-family: 'DM Mono', monospace;
+    }
+
+    .neon-footer strong {
+      color: #cbd5e1;
+    }
+
+    @media (max-width: 640px) {
+      .neon-header {
+        padding: 18px 20px;
+      }
+      .neon-nav {
+        display: none;
+      }
+      .error-actions {
+        flex-direction: column;
+        width: 100%;
+      }
+      .neon-btn {
+        width: 100%;
+        justify-content: center;
+      }
+      .sector-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="space-bg"></div>
+  <div class="stars-layer"></div>
+
+  <!-- Header -->
+  <header class="neon-header">
+    <a href="/" class="neon-brand" aria-label="Mindscape home">
+      <span class="neon-brand-word">Mind<span>scape</span></span>
+      <small>REEL MAKING CONTEST</small>
+    </a>
+    <nav class="neon-nav">
+      <a href="/">Home</a>
+      <a href="/about">About</a>
+      <a href="/prizes">Prizes</a>
+      <a href="https://docs.google.com/forms/d/e/1FAIpQLScE4OXgmGns_catCz_TLUGF7SGN5ZOxMErQW4f08dEPdXV82Q/viewform?usp=dialog" target="_blank" rel="noreferrer" style="color: #c8fa60; font-weight: 600;">Register ↗</a>
+      <a href="/submit">Submit Reel</a>
+      <a href="/faq">FAQ</a>
+      <a href="/portal" style="color: #ff9eee;">Organizer Portal 🔒</a>
+    </nav>
+  </header>
+
+  <!-- Error Presentation -->
+  <main class="error-container">
+    <div class="error-glitch-badge">
+      <span>⚡ SIGNAL DISCONNECTED</span>
+      <span>•</span>
+      <span>ERROR 404</span>
+    </div>
+
+    <div class="error-code">404</div>
+    <h1 class="error-title">Lost in the <span>Digital Void</span></h1>
+    <p class="error-desc">
+      The coordinates you are trying to reach do not exist in the Mindscape reel archive. The transmission may have expired, drifted into deep space, or been moved.
+    </p>
+
+    <!-- Call to Actions -->
+    <div class="error-actions">
+      <a href="/" class="neon-btn neon-btn-primary">
+        ← Return to Mindscape Home
+      </a>
+      <a href="/submit" class="neon-btn neon-btn-outline">
+        🎬 Submit Reel
+      </a>
+      <a href="https://docs.google.com/forms/d/e/1FAIpQLScE4OXgmGns_catCz_TLUGF7SGN5ZOxMErQW4f08dEPdXV82Q/viewform?usp=dialog" target="_blank" rel="noreferrer" class="neon-btn neon-btn-secondary">
+        📝 Register on Google Form ↗
+      </a>
+      <a href="/portal" class="neon-btn neon-btn-outline">
+        🔒 Portal
+      </a>
+    </div>
+
+    <!-- Quick Sector Jump -->
+    <div class="sector-box">
+      <div class="sector-header">TRANSMISSION DIRECTORY</div>
+      <div class="sector-grid">
+        <a href="/" class="sector-link"><span>Home</span> <span>→</span></a>
+        <a href="/about" class="sector-link"><span>About</span> <span>→</span></a>
+        <a href="/prizes" class="sector-link"><span>Prize Pool</span> <span>→</span></a>
+        <a href="/submit" class="sector-link"><span>Submit</span> <span>→</span></a>
+        <a href="/faq" class="sector-link"><span>FAQ</span> <span>→</span></a>
+        <a href="/portal" class="sector-link"><span>Portal</span> <span>→</span></a>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="neon-footer">
+    A Mental Health Awareness Initiative by <strong>Rotary Club of Madras</strong> & <strong>Rotaract Club of Vepery</strong>
+  </footer>
+
+</body>
+</html>

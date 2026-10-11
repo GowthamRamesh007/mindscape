@@ -86,22 +86,22 @@ def fetch_registered_teams_from_sheet(force_refresh: bool = False) -> List[Dict[
         return _teams_cache["data"]
 
 def is_team_registered(team_name: str) -> bool:
-    """Checks if the given team name exists in the registered teams list (case-insensitive). Only registered teams are allowed."""
+    """Checks if the given team name exists in the registered teams list (case-insensitive, whitespace normalized). Only registered teams are allowed."""
     if not team_name:
         return False
     teams = fetch_registered_teams_from_sheet()
     if not teams:
         return False
-    target = team_name.strip().lower()
-    return any(t["team_name"].strip().lower() == target for t in teams)
+    target = " ".join(team_name.strip().lower().split())
+    return any(" ".join(t["team_name"].strip().lower().split()) == target for t in teams)
 
 def get_team_registration(team_name: str) -> Optional[Dict[str, str]]:
     """Returns registration details for a team name, if found."""
     if not team_name:
         return None
     teams = fetch_registered_teams_from_sheet()
-    target = team_name.strip().lower()
+    target = " ".join(team_name.strip().lower().split())
     for t in teams:
-        if t["team_name"].strip().lower() == target:
+        if " ".join(t["team_name"].strip().lower().split()) == target:
             return t
     return None
