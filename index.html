@@ -23,6 +23,58 @@
   <!-- Fixed Neon Laser Scroll Progress Bar -->
   <div id="neon-scroll-progress" role="progressbar" aria-label="Page reading progress"></div>
 
+  <!-- ===================== CINEMATIC OPENING INTRO ===================== -->
+  <div id="cinematic-intro" class="cinematic-intro" aria-label="Cinematic opening intro">
+    <!-- Cosmic starfield and nebulae -->
+    <div class="intro-bg-canvas">
+      <div class="intro-nebula intro-nebula-blue"></div>
+      <div class="intro-nebula intro-nebula-pink"></div>
+      <div class="intro-nebula intro-nebula-violet"></div>
+      <div class="intro-grid-perspective"></div>
+      <div class="intro-particles"></div>
+      <div class="intro-scanner-line"></div>
+    </div>
+
+    <!-- Letterbox cinema bars -->
+    <div class="cinema-letterbox letterbox-top"></div>
+    <div class="cinema-letterbox letterbox-bottom"></div>
+
+    <!-- Content Sequence -->
+    <div class="intro-content">
+      <!-- Step 1: Presenter Badge -->
+      <div class="intro-presenter">
+        <span class="intro-sparkle">✦</span>
+        <p>ROTARY CLUB OF MADRAS & ROTARACT CLUB OF VEPERY</p>
+        <div class="intro-pres-line"></div>
+        <small>PRESENTS</small>
+      </div>
+
+      <!-- Step 2: Mindscape Main Title with Anamorphic Flare -->
+      <div class="intro-title-wrapper">
+        <div class="intro-flare"></div>
+        <h1 class="intro-title font-oblisk">MIND<span>SCAPE</span></h1>
+        <div class="intro-glow-pulse"></div>
+      </div>
+
+      <!-- Step 3: Contest Subtitle & Mission Tagline -->
+      <div class="intro-tagline-wrapper">
+        <p class="intro-subtitle">REEL MAKING CONTEST · 2026</p>
+        <p class="intro-quote">“What if a reel could change a mind?”</p>
+      </div>
+
+      <!-- Step 4: Countdown / Launch Status indicator -->
+      <div class="intro-status-pill">
+        <span class="intro-live-dot"></span>
+        <span>INITIALIZING DIGITAL REVOLUTION · CHENNAI</span>
+      </div>
+    </div>
+
+    <!-- Skip intro button -->
+    <button id="skip-intro-btn" class="skip-intro-btn" aria-label="Skip introductory animation">
+      <span>SKIP INTRO</span> ➔
+    </button>
+  </div>
+
   <div class="neon-site" id="site-root">
     
     <!-- ===================== HEADER ===================== -->
@@ -40,6 +92,7 @@
         <a href="https://docs.google.com/forms/d/e/1FAIpQLScE4OXgmGns_catCz_TLUGF7SGN5ZOxMErQW4f08dEPdXV82Q/viewform?usp=dialog" target="_blank" rel="noreferrer" style="color: #c8fa60; font-weight: 700;">Register (Google Form) ↗</a>
         <a href="#submit">Submit Reel</a>
         <a href="#faq">FAQ</a>
+        <a href="javascript:void(0)" onclick="window.replayCinematicIntro?.()" style="color: #6cccf2; font-size: 12px; font-weight: 600;">▶ Intro</a>
         <a href="/portal" style="color: #ff9eee; font-weight: 600;">Organizer Portal 🔒</a>
       </nav>
       <button class="neon-menu" id="menu-btn" aria-label="Toggle menu">☰</button>
@@ -510,6 +563,7 @@
       </p>
       <div class="footer-bottom-neon">
         <span>© 2026 Mindscape · Mobile Phone Addiction Reel Contest</span>
+        <button id="replay-intro-btn" style="background: transparent; border: 1px solid rgba(255, 43, 184, 0.4); border-radius: 99px; padding: 4px 14px; font-family: 'DM Mono', monospace; font-size: 10px; color: #ff9eee; cursor: pointer; transition: all 0.2s ease;">▶ Replay Cinematic Intro</button>
         <span>made by Rtr. Gowtham</span>
       </div>
     </footer>
@@ -524,6 +578,71 @@
 
   <!-- Client-side Interactive Script -->
   <script>
+    // -1. Cinematic Opening Animation Manager
+    (function initCinematicIntro() {
+      const introEl = document.getElementById("cinematic-intro");
+      const skipBtn = document.getElementById("skip-intro-btn");
+      if (!introEl) return;
+
+      let dismissed = false;
+
+      function dismissIntro() {
+        if (dismissed) return;
+        dismissed = true;
+        introEl.classList.add("intro-fade-out");
+
+        setTimeout(() => {
+          introEl.style.display = "none";
+        }, 900);
+      }
+
+      // Auto dismiss after sequence finishes (2.75 seconds)
+      let autoTimer = setTimeout(dismissIntro, 2750);
+
+      skipBtn?.addEventListener("click", (e) => {
+        e.stopPropagation();
+        clearTimeout(autoTimer);
+        dismissIntro();
+      });
+
+      // Click or tap anywhere on intro overlay skips immediately
+      introEl.addEventListener("click", () => {
+        clearTimeout(autoTimer);
+        dismissIntro();
+      });
+
+      // Keyboard escape/space skip
+      window.addEventListener("keydown", (e) => {
+        if (!dismissed && (e.key === "Escape" || e.code === "Space" || e.key === "Enter")) {
+          clearTimeout(autoTimer);
+          dismissIntro();
+        }
+      });
+
+      // Global function to replay intro anytime
+      window.replayCinematicIntro = function() {
+        clearTimeout(autoTimer);
+        dismissed = false;
+        introEl.style.display = "flex";
+        introEl.classList.remove("intro-fade-out");
+
+        // Clone/re-insert content to restart all CSS keyframe animations
+        const content = introEl.querySelector(".intro-content");
+        if (content) {
+          const clone = content.cloneNode(true);
+          content.parentNode.replaceChild(clone, content);
+        }
+
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        autoTimer = setTimeout(dismissIntro, 2750);
+      };
+
+      document.getElementById("replay-intro-btn")?.addEventListener("click", (e) => {
+        e.preventDefault();
+        window.replayCinematicIntro();
+      });
+    })();
+
     // 0. Path-Based Navigation Router (/about, /register, /submit, /prize-pool, /prizes, /faq)
     function handlePathRouting() {
       const path = window.location.pathname.toLowerCase().replace(/\/$/, "");
