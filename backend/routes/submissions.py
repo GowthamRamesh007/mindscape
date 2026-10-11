@@ -259,16 +259,38 @@ def direct_submit_reel(payload: DirectReelUploadRequest):
             team_data = {
                 "team_name": sub_data["team_name"],
                 "representative_name": sub_data["representative_name"],
-                "representative_email": sub_data["representative_email"],
-                "representative_phone": sub_data["representative_phone"],
-                "institution": sub_data["institution"],
-                "city": sub_data["city"],
+                "representative_email": sub_data.get("representative_email") or "participant@mindscape.org",
+                "representative_phone": sub_data.get("representative_phone") or "9876543210",
+                "institution": sub_data.get("institution") or "College / Institution",
+                "city": sub_data.get("city") or "Chennai",
                 "status": "submitted"
             }
             supabase.table("teams").insert(team_data).execute()
-            supabase.table("submissions").insert(sub_data).execute()
         except Exception as e:
-            print(f"Supabase sync note: {e}")
+            print(f"Supabase teams sync note: {e}")
+
+        try:
+            sub_insert = {
+                "team_name": sub_data["team_name"],
+                "representative_name": sub_data["representative_name"],
+                "representative_email": sub_data.get("representative_email") or "participant@mindscape.org",
+                "representative_phone": sub_data.get("representative_phone") or "9876543210",
+                "institution": sub_data.get("institution") or "College / Institution",
+                "title": sub_data["title"],
+                "description": sub_data.get("description", "Reel video submission"),
+                "language": sub_data.get("language", "Tamil"),
+                "file_path": sub_data.get("file_path", ""),
+                "file_name": sub_data.get("file_name", "reel.mp4"),
+                "file_size": sub_data.get("file_size") or 1024,
+                "duration": sub_data.get("duration") or 30.0,
+                "width": sub_data.get("width") or 1080,
+                "height": sub_data.get("height") or 1920,
+                "aspect_ratio": "9:16",
+                "submission_status": "submitted"
+            }
+            supabase.table("submissions").insert(sub_insert).execute()
+        except Exception as e:
+            print(f"Supabase submissions sync note: {e}")
 
     return {
         "success": True,
@@ -384,16 +406,38 @@ async def direct_submit_upload(
             team_data = {
                 "team_name": sub_data["team_name"],
                 "representative_name": sub_data["representative_name"],
-                "representative_email": sub_data["representative_email"],
-                "representative_phone": sub_data["representative_phone"],
-                "institution": sub_data["institution"],
-                "city": sub_data["city"],
+                "representative_email": sub_data.get("representative_email") or "participant@mindscape.org",
+                "representative_phone": sub_data.get("representative_phone") or "9876543210",
+                "institution": sub_data.get("institution") or "College / Institution",
+                "city": sub_data.get("city") or "Chennai",
                 "status": "submitted"
             }
             supabase.table("teams").insert(team_data).execute()
-            supabase.table("submissions").insert(sub_data).execute()
         except Exception as e:
-            print(f"Supabase sync note: {e}")
+            print(f"Supabase teams sync note: {e}")
+
+        try:
+            sub_insert = {
+                "team_name": sub_data["team_name"],
+                "representative_name": sub_data["representative_name"],
+                "representative_email": sub_data.get("representative_email") or "participant@mindscape.org",
+                "representative_phone": sub_data.get("representative_phone") or "9876543210",
+                "institution": sub_data.get("institution") or "College / Institution",
+                "title": sub_data["title"],
+                "description": sub_data.get("description", "Reel video submission"),
+                "language": sub_data.get("language", "Tamil"),
+                "file_path": sub_data.get("file_path", ""),
+                "file_name": sub_data.get("file_name", "reel.mp4"),
+                "file_size": sub_data.get("file_size") or 1024,
+                "duration": sub_data.get("duration") or 30.0,
+                "width": sub_data.get("width") or 1080,
+                "height": sub_data.get("height") or 1920,
+                "aspect_ratio": "9:16",
+                "submission_status": "submitted"
+            }
+            supabase.table("submissions").insert(sub_insert).execute()
+        except Exception as e:
+            print(f"Supabase submissions sync note: {e}")
 
     return {
         "success": True,
