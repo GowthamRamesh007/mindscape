@@ -8,9 +8,10 @@
   <meta name="robots" content="noindex, nofollow">
 
   <!-- Fonts & Styles -->
-  <link rel="preload" href="/fonts/OBLISK.otf" as="font" type="font/otf" crossorigin>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/src/index.css">
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <!-- Supabase CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -194,11 +195,14 @@
     }
 
     .portal-brand-word {
-      font-family: 'OBLISK', 'Space Grotesk', sans-serif;
-      font-size: 26px;
-      background: linear-gradient(90deg, #2ad8ff, #ff2bb8);
+      font-family: 'Anton', 'Space Grotesk', sans-serif;
+      font-size: 28px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      background: linear-gradient(90deg, #ffffff 0%, #2ad8ff 40%, #ff2bb8 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 10px rgba(42, 216, 255, 0.6));
     }
 
     .auth-status-badge {

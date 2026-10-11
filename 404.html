@@ -7,10 +7,11 @@
   <title>404 — Page Not Found | MINDSCAPE</title>
   <meta name="description" content="404 — Page not found. The coordinates you are looking for do not exist in the Mindscape reel contest portal.">
 
-  <!-- Fonts Preload & Google Fonts -->
-  <link rel="preload" href="/fonts/OBLISK.otf" as="font" type="font/otf" crossorigin>
+  <!-- Fonts & Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/src/index.css">
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
 
   <style>
     :root {
@@ -89,16 +90,19 @@
     }
 
     .neon-brand-word {
-      font-size: 26px;
-      letter-spacing: 0.08em;
+      font-size: 28px;
+      letter-spacing: 0.05em;
       text-transform: uppercase;
-      font-family: 'Space Grotesk', sans-serif;
-      font-weight: 700;
+      font-family: 'Anton', 'Space Grotesk', sans-serif;
+      font-weight: 400;
+      background: linear-gradient(90deg, #ffffff 0%, #2ad8ff 35%, #ff2aa8 72%, #ffb72e 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 12px rgba(42, 216, 255, 0.6));
     }
 
     .neon-brand-word span {
-      color: #ff3ecb;
-      text-shadow: 0 0 14px rgba(255, 62, 203, 0.7);
+      color: inherit;
     }
 
     .neon-brand small {
