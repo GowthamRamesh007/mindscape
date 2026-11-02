@@ -2,11 +2,14 @@
 **/node_modules
 .pnpm-store/
 
-# Python Cache
+# Python Cache & Virtual Environments
 __pycache__/
 *.py[cod]
 *$py.class
 *.pyc
+.venv/
+venv/
+ENV/
 
 # Build outputs
 dist/
@@ -20,6 +23,21 @@ build/
 .env.development.local
 .env.test.local
 .env.production.local
+
+# Video binaries & submission uploads
+*.mp4
+*.mov
+*.webm
+*.mkv
+*.m4v
+media/submissions/
+client/public/media/submissions/
+mindscape/media/submissions/
+mindscape/client/public/media/submissions/
+
+# Logs & temp files
+*.log
+*.tmp
 
 # IDE and OS
 .vscode/

@@ -111,7 +111,11 @@ def get_signed_url(submission_id: str, authorization: Optional[str] = Header(Non
 
         file_path = sub.data["file_path"]
         
-        # Try signed URL
+        # If it's already a full URL (Google Drive, external CDN, etc.), return directly
+        if file_path.startswith("http://") or file_path.startswith("https://"):
+            return {"signed_url": file_path}
+
+        # Try signed URL for legacy Supabase Storage bucket paths
         try:
             signed_res = supabase.storage.from_("mindscape-reels").create_signed_url(file_path, 3600)
             if signed_res:

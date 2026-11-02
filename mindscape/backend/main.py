@@ -81,14 +81,82 @@ def health_check():
 @app.get("/api/config/supabase")
 def get_supabase_config():
     """Returns the public Supabase configuration (URL and Anon Key only) for client-side direct uploads."""
-    supa_url = os.getenv("SUPABASE_URL", "").strip()
-    supa_anon = os.getenv("SUPABASE_ANON_KEY", "").strip()
+    config_file = Path(project_root) / "data" / "supabase_config.json"
+    supa_url = ""
+    supa_anon = ""
+    bucket = "mindscape-reels"
+    if config_file.is_file():
+        try:
+            with open(config_file, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                supa_url = data.get("supabase_url", "").strip()
+                supa_anon = data.get("supabase_anon_key", "").strip()
+                bucket = data.get("storage_bucket", "mindscape-reels").strip() or "mindscape-reels"
+        except Exception:
+            pass
+
+    if not supa_url:
+        supa_url = os.getenv("SUPABASE_URL", "").strip()
+    if not supa_anon:
+        supa_anon = os.getenv("SUPABASE_ANON_KEY", "").strip()
+
     is_valid = bool(supa_url and "your-project-id" not in supa_url and supa_url.startswith("https://"))
     return {
         "configured": is_valid and bool(supa_anon and "dummy" not in supa_anon),
         "supabase_url": supa_url if is_valid else "",
         "supabase_anon_key": supa_anon if (is_valid and "dummy" not in supa_anon) else "",
-        "storage_bucket": "mindscape-reels"
+        "storage_bucket": bucket
+    }
+
+@app.post("/api/config/supabase")
+def save_supabase_config(payload: dict):
+    """Saves and activates user's Supabase credentials for both frontend direct uploads and backend storage."""
+    url = (payload.get("supabase_url") or "").strip()
+    anon_key = (payload.get("supabase_anon_key") or "").strip()
+    bucket = (payload.get("storage_bucket") or "mindscape-reels").strip() or "mindscape-reels"
+    service_role_key = (payload.get("supabase_service_role_key") or "").strip()
+
+    if not url or not url.startswith("https://"):
+        raise HTTPException(status_code=400, detail="Invalid Supabase URL. Must start with https://")
+    if not anon_key or len(anon_key) < 20:
+        raise HTTPException(status_code=400, detail="Invalid Supabase Anon Key.")
+
+    from backend.services.supabase_service import update_supabase_credentials
+    update_supabase_credentials(url, anon_key, service_role_key=service_role_key if service_role_key else None, bucket=bucket)
+
+    return {
+        "success": True,
+        "message": "Supabase credentials updated and activated successfully!",
+        "configured": True,
+        "supabase_url": url,
+        "storage_bucket": bucket
+    }
+
+@app.get("/api/config/gdrive")
+def get_gdrive_config():
+    """Returns the Google Drive folder link and optional Web App bridge configuration."""
+    from backend.services.gdrive_service import GDRIVE_FOLDER_ID, GDRIVE_FOLDER_URL, get_gdrive_webapp_url
+    webapp_url = get_gdrive_webapp_url()
+    return {
+        "folder_id": GDRIVE_FOLDER_ID,
+        "folder_url": GDRIVE_FOLDER_URL,
+        "webapp_url": webapp_url or "",
+        "configured": bool(webapp_url)
+    }
+
+@app.post("/api/config/gdrive")
+def set_gdrive_config(payload: dict):
+    """Sets the Google Apps Script Web App URL for automated Google Drive uploads."""
+    webapp_url = (payload.get("webapp_url") or "").strip()
+    from backend.services.gdrive_service import set_gdrive_webapp_url, GDRIVE_FOLDER_ID, GDRIVE_FOLDER_URL
+    if webapp_url:
+        set_gdrive_webapp_url(webapp_url)
+    return {
+        "success": True,
+        "folder_id": GDRIVE_FOLDER_ID,
+        "folder_url": GDRIVE_FOLDER_URL,
+        "webapp_url": webapp_url,
+        "configured": bool(webapp_url)
     }
 
 # Frontend paths
@@ -132,8 +200,8 @@ if src_dir:
 @app.get("/admin")
 def serve_portal():
     candidates_portal = [
-        os.path.join(str(current_file.parent), "portal.html"),
         os.path.join(str(project_root), "portal.html"),
+        os.path.join(str(current_file.parent), "portal.html"),
         os.path.join(str(client_dir), "portal.html"),
         os.path.join(str(project_root), "mindscape", "portal.html")
     ]
@@ -152,8 +220,8 @@ def serve_portal():
 @app.get("/faq")
 def serve_index():
     candidates_index = [
-        os.path.join(str(current_file.parent), "index.html"),
         os.path.join(str(project_root), "index.html"),
+        os.path.join(str(current_file.parent), "index.html"),
         os.path.join(str(client_dir), "index.html"),
         os.path.join(str(project_root), "mindscape", "index.html")
     ]

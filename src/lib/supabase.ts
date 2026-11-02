@@ -80,7 +80,31 @@ export interface DirectReelSubmissionPayload {
 }
 
 /**
+ * Uploads a video file directly via backend to Google Drive.
+ * Supabase Storage receives zero video binaries.
+ */
+export async function uploadReelDirect(
+  formData: FormData,
+  onProgress?: (percent: number) => void
+): Promise<{ success: boolean; submission_id: string; gdrive_url: string; file_path: string }> {
+  if (onProgress) onProgress(40);
+  const response = await fetch(`${API_BASE_URL}/api/submissions/direct-submit-upload`, {
+    method: "POST",
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ detail: response.statusText }));
+    throw new Error(errorData.detail || "Submission request failed");
+  }
+
+  if (onProgress) onProgress(100);
+  return await response.json();
+}
+
+/**
  * Uploads a video file directly to the Supabase Storage bucket 'mindscape-reels'.
+ * @deprecated Video binaries are now stored exclusively in Google Drive via uploadReelDirect.
  */
 export async function uploadReelToSupabase(
   teamName: string,

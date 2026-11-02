@@ -4,6 +4,7 @@ import json
 import uuid
 import shutil
 import re
+import hashlib
 from pathlib import Path
 from datetime import datetime
 
@@ -15,8 +16,9 @@ try:
     )
     from backend.services.deadline_service import is_submission_open
     from backend.services.video_service import validate_video_metadata
-    from backend.services.supabase_service import get_supabase_admin, get_supabase_anon, upload_file_to_supabase_storage
+    from backend.services.supabase_service import get_supabase_admin, get_supabase_anon
     from backend.services.google_sheets_service import is_team_registered, get_team_registration
+    from backend.services.gdrive_service import upload_file_to_gdrive, GDRIVE_FOLDER_URL, GDRIVE_FOLDER_ID
 except ModuleNotFoundError:
     from models.schemas import (
         VideoVerificationRequest,
@@ -25,8 +27,9 @@ except ModuleNotFoundError:
     )
     from services.deadline_service import is_submission_open
     from services.video_service import validate_video_metadata
-    from services.supabase_service import get_supabase_admin, get_supabase_anon, upload_file_to_supabase_storage
+    from services.supabase_service import get_supabase_admin, get_supabase_anon
     from services.google_sheets_service import is_team_registered, get_team_registration
+    from services.gdrive_service import upload_file_to_gdrive, GDRIVE_FOLDER_URL, GDRIVE_FOLDER_ID
 
 router = APIRouter(prefix="/api/submissions", tags=["Submissions"])
 
@@ -313,13 +316,18 @@ async def direct_submit_upload(
     description: Optional[str] = Form("Reel video submission for Mindscape 2026"),
     duration: float = Form(30.0),
     width: int = Form(1080),
-    height: int = Form(1920)
+    height: int = Form(1920),
+    idempotency_key: Optional[str] = Form(None)
 ):
-    """Direct multipart video upload saving to public media submissions and Supabase archive."""
+    """
+    Direct multipart video upload saving video binaries EXCLUSIVELY to Google Drive,
+    and recording submission metadata in Supabase DB (teams and submissions tables).
+    Supabase Storage receives zero video binaries.
+    """
     if not is_submission_open():
         raise HTTPException(status_code=400, detail="Reel submission deadline has passed (8 November 2026).")
 
-    # Verify team is registered on Google Form
+    # 1. Verify team is registered on Google Form
     if not is_team_registered(team_name):
         raise HTTPException(
             status_code=403,
@@ -338,46 +346,185 @@ async def direct_submit_upload(
     file_id = uuid.uuid4().hex[:8]
     stored_filename = f"{file_id}_{safe_name}"
 
-    file_size = 0
-    raw_bytes = None
+    # 1. Read video binary directly into memory (NO permanent local storage)
     try:
-        file_dest = CLIENT_PUBLIC_MEDIA / stored_filename
-        with open(file_dest, "wb") as buffer:
-            shutil.copyfileobj(video_file.file, buffer)
-        file_size = file_dest.stat().st_size
-        with open(file_dest, "rb") as buffer:
-            raw_bytes = buffer.read()
-        # Mirror to all media dirs
-        for md in MEDIA_DIRS:
-            if md != CLIENT_PUBLIC_MEDIA:
-                try:
-                    shutil.copy2(file_dest, md / stored_filename)
-                except Exception:
-                    pass
-    except Exception as e:
-        print(f"Local file write note: {e}")
+        raw_bytes = await video_file.read()
+    except Exception as read_err:
+        raise HTTPException(status_code=400, detail=f"Failed to read video file: {read_err}")
 
-    relative_url = f"/media/submissions/{stored_filename}"
+    file_size = len(raw_bytes) if raw_bytes else 0
 
-    # Upload video binary to Supabase Storage if configured
-    supabase_public_url = None
+    # 2. Cryptographic SHA-256 hash & stable idempotency key
+    video_hash = hashlib.sha256(raw_bytes).hexdigest() if raw_bytes else ""
+    clean_team = re.sub(r'[^a-zA-Z0-9]', '_', team_name.strip().lower())
+    stable_idempotency_key = f"{clean_team}:{video_hash}"
+
+    # 3. Server-side Video Validation (duration 25s - 45s, 9:16 vertical orientation, file size limit)
+    validation = validate_video_metadata(
+        file_name=orig_name,
+        file_size=file_size,
+        duration=duration,
+        width=width,
+        height=height
+    )
+    if not validation.get("valid", True):
+        raise HTTPException(
+            status_code=400,
+            detail="Video validation failed: " + "; ".join(validation.get("errors", ["Invalid video"]))
+        )
+
+    # 4. Database Idempotency Check (matching team_name and SHA-256 video_hash)
+    supabase = get_supabase_admin() or get_supabase_anon()
+    if supabase and video_hash:
+        try:
+            existing = (
+                supabase.table("submissions")
+                .select("*")
+                .eq("team_name", team_name.strip())
+                .eq("video_hash", video_hash)
+                .limit(1)
+                .execute()
+            )
+            if existing.data and len(existing.data) > 0:
+                ex_row = existing.data[0]
+                existing_url = ex_row.get("gdrive_url") or ex_row.get("file_path")
+                print(f"[Submissions] Idempotent DB match found for team '{team_name}' by SHA-256 (ID: {ex_row.get('id')})")
+                return {
+                    "success": True,
+                    "message": "Reel already submitted and backed up (idempotent duplicate request).",
+                    "submission_id": str(ex_row.get("id")),
+                    "file_path": existing_url,
+                    "gdrive_url": existing_url,
+                    "gdrive_file_id": ex_row.get("gdrive_file_id"),
+                    "video_hash": video_hash,
+                    "gdrive_folder_url": GDRIVE_FOLDER_URL
+                }
+        except Exception as chk_err:
+            print(f"Idempotency DB check note: {chk_err}")
+
+    # 5. Upload file exclusively to Google Drive with idempotency key
+    # If a prior attempt uploaded to Drive but failed at DB insert, this searches Drive
+    # and reuses the existing Drive file without creating a duplicate.
+    gdrive_file_url = None
+    gdrive_file_id = None
     if raw_bytes:
         try:
-            supabase_public_url = upload_file_to_supabase_storage(
+            gdrive_file_url = upload_file_to_gdrive(
                 file_bytes=raw_bytes,
-                file_name=f"{team_name[:20].lower().replace(' ', '_')}_{stored_filename}",
-                content_type=video_file.content_type or "video/mp4"
+                file_name=f"{clean_team[:20]}_{stored_filename}",
+                mime_type=video_file.content_type or "video/mp4",
+                idempotency_key=stable_idempotency_key,
+                video_hash=video_hash
             )
-            if supabase_public_url:
-                relative_url = supabase_public_url
-        except Exception as se:
-            print(f"Supabase storage upload error in route: {se}")
+        except Exception as ge:
+            print(f"Google Drive upload exception in route: {ge}")
+
+    # Enforce Drive upload success: if Drive upload fails, do not record phantom submission
+    if not gdrive_file_url:
+        raise HTTPException(
+            status_code=502,
+            detail="Google Drive backup upload failed. Please verify Google Drive connection or try again."
+        )
+
+    # Extract Google Drive file ID from URL
+    id_match = re.search(r'/d/([a-zA-Z0-9_-]+)', gdrive_file_url) or re.search(r'id=([a-zA-Z0-9_-]+)', gdrive_file_url)
+    if id_match:
+        gdrive_file_id = id_match.group(1)
 
     submission_id = f"MS26-{uuid.uuid4().hex[:6].upper()}"
 
+    # 6. Record team in Supabase 'teams' table (reusing existing team record if already present)
+    team_id = None
+    if supabase:
+        try:
+            existing_tm = (
+                supabase.table("teams")
+                .select("id")
+                .eq("team_name", team_name.strip())
+                .limit(1)
+                .execute()
+            )
+            if existing_tm.data and len(existing_tm.data) > 0:
+                team_id = existing_tm.data[0].get("id")
+                # Update status to submitted if not already
+                supabase.table("teams").update({"status": "submitted"}).eq("id", team_id).execute()
+            else:
+                team_data = {
+                    "team_name": team_name.strip(),
+                    "representative_name": rep_name,
+                    "representative_email": rep_email,
+                    "representative_phone": rep_phone,
+                    "institution": inst,
+                    "city": loc_city,
+                    "status": "submitted"
+                }
+                tm_res = supabase.table("teams").insert(team_data).execute()
+                if tm_res.data and len(tm_res.data) > 0:
+                    team_id = tm_res.data[0].get("id")
+        except Exception as te:
+            print(f"Supabase teams record note: {te}")
+
+    # 7. Record metadata in Supabase 'submissions' table (metadata only, zero video binaries)
+    sub_insert = {
+        "team_name": team_name.strip(),
+        "representative_name": rep_name,
+        "representative_email": rep_email,
+        "representative_phone": rep_phone,
+        "institution": inst,
+        "title": title.strip(),
+        "description": (description or "Reel video submission for Mindscape 2026").strip(),
+        "language": language.strip(),
+        "file_path": gdrive_file_url,
+        "file_name": orig_name,
+        "file_size": file_size,
+        "duration": duration,
+        "width": width,
+        "height": height,
+        "aspect_ratio": "9:16",
+        "submission_status": "submitted"
+    }
+    if team_id:
+        sub_insert["team_id"] = team_id
+
+    if supabase:
+        # First attempt insert with optional gdrive_url, gdrive_file_id, and video_hash columns
+        try:
+            extended_insert = dict(sub_insert)
+            extended_insert["gdrive_url"] = gdrive_file_url
+            if gdrive_file_id:
+                extended_insert["gdrive_file_id"] = gdrive_file_id
+            if video_hash:
+                extended_insert["video_hash"] = video_hash
+            sub_res = supabase.table("submissions").insert(extended_insert).execute()
+            if sub_res.data and len(sub_res.data) > 0:
+                submission_id = str(sub_res.data[0].get("id"))
+        except Exception as ext_err:
+            err_str = str(ext_err).lower()
+            if "pgrst204" in err_str or "column" in err_str:
+                # If video_hash column is not yet migrated, fall back gracefully
+                try:
+                    fallback_insert = dict(sub_insert)
+                    fallback_insert["gdrive_url"] = gdrive_file_url
+                    if gdrive_file_id:
+                        fallback_insert["gdrive_file_id"] = gdrive_file_id
+                    sub_res = supabase.table("submissions").insert(fallback_insert).execute()
+                    if sub_res.data and len(sub_res.data) > 0:
+                        submission_id = str(sub_res.data[0].get("id"))
+                except Exception:
+                    try:
+                        sub_res = supabase.table("submissions").insert(sub_insert).execute()
+                        if sub_res.data and len(sub_res.data) > 0:
+                            submission_id = str(sub_res.data[0].get("id"))
+                    except Exception as fallback_err:
+                        print(f"Supabase submissions fallback insert note: {fallback_err}")
+            else:
+                print(f"Supabase submissions insert note: {ext_err}")
+
+    # 8. Persist to local backup archive (metadata only)
     sub_data = {
         "id": submission_id,
         "submission_id": submission_id,
+        "team_id": team_id,
         "team_name": team_name.strip(),
         "representative_name": rep_name,
         "representative_email": rep_email,
@@ -387,7 +534,10 @@ async def direct_submit_upload(
         "title": title.strip(),
         "description": (description or "Reel video submission for Mindscape 2026").strip(),
         "language": language.strip(),
-        "file_path": relative_url,
+        "file_path": gdrive_file_url,
+        "gdrive_url": gdrive_file_url,
+        "gdrive_file_id": gdrive_file_id,
+        "video_hash": video_hash,
         "file_name": orig_name,
         "file_size": file_size,
         "duration": duration,
@@ -397,52 +547,15 @@ async def direct_submit_upload(
         "submission_status": "submitted",
         "created_at": datetime.utcnow().isoformat()
     }
-
     _save_local_archive(sub_data)
-
-    supabase = get_supabase_admin() or get_supabase_anon()
-    if supabase:
-        try:
-            team_data = {
-                "team_name": sub_data["team_name"],
-                "representative_name": sub_data["representative_name"],
-                "representative_email": sub_data.get("representative_email") or "participant@mindscape.org",
-                "representative_phone": sub_data.get("representative_phone") or "9876543210",
-                "institution": sub_data.get("institution") or "College / Institution",
-                "city": sub_data.get("city") or "Chennai",
-                "status": "submitted"
-            }
-            supabase.table("teams").insert(team_data).execute()
-        except Exception as e:
-            print(f"Supabase teams sync note: {e}")
-
-        try:
-            sub_insert = {
-                "team_name": sub_data["team_name"],
-                "representative_name": sub_data["representative_name"],
-                "representative_email": sub_data.get("representative_email") or "participant@mindscape.org",
-                "representative_phone": sub_data.get("representative_phone") or "9876543210",
-                "institution": sub_data.get("institution") or "College / Institution",
-                "title": sub_data["title"],
-                "description": sub_data.get("description", "Reel video submission"),
-                "language": sub_data.get("language", "Tamil"),
-                "file_path": sub_data.get("file_path", ""),
-                "file_name": sub_data.get("file_name", "reel.mp4"),
-                "file_size": sub_data.get("file_size") or 1024,
-                "duration": sub_data.get("duration") or 30.0,
-                "width": sub_data.get("width") or 1080,
-                "height": sub_data.get("height") or 1920,
-                "aspect_ratio": "9:16",
-                "submission_status": "submitted"
-            }
-            supabase.table("submissions").insert(sub_insert).execute()
-        except Exception as e:
-            print(f"Supabase submissions sync note: {e}")
 
     return {
         "success": True,
-        "message": "Reel successfully uploaded and stored in Supabase archive!",
+        "message": "Reel successfully uploaded and backed up to Google Drive!",
         "submission_id": submission_id,
-        "file_path": relative_url,
-        "supabase_url": supabase_public_url
+        "file_path": gdrive_file_url,
+        "gdrive_url": gdrive_file_url,
+        "gdrive_file_id": gdrive_file_id,
+        "video_hash": video_hash,
+        "gdrive_folder_url": GDRIVE_FOLDER_URL
     }

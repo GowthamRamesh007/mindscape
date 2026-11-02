@@ -132,6 +132,33 @@ def save_supabase_config(payload: dict):
         "storage_bucket": bucket
     }
 
+@app.get("/api/config/gdrive")
+def get_gdrive_config():
+    """Returns the Google Drive folder link and optional Web App bridge configuration."""
+    from backend.services.gdrive_service import GDRIVE_FOLDER_ID, GDRIVE_FOLDER_URL, get_gdrive_webapp_url
+    webapp_url = get_gdrive_webapp_url()
+    return {
+        "folder_id": GDRIVE_FOLDER_ID,
+        "folder_url": GDRIVE_FOLDER_URL,
+        "webapp_url": webapp_url or "",
+        "configured": bool(webapp_url)
+    }
+
+@app.post("/api/config/gdrive")
+def set_gdrive_config(payload: dict):
+    """Sets the Google Apps Script Web App URL for automated Google Drive uploads."""
+    webapp_url = (payload.get("webapp_url") or "").strip()
+    from backend.services.gdrive_service import set_gdrive_webapp_url, GDRIVE_FOLDER_ID, GDRIVE_FOLDER_URL
+    if webapp_url:
+        set_gdrive_webapp_url(webapp_url)
+    return {
+        "success": True,
+        "folder_id": GDRIVE_FOLDER_ID,
+        "folder_url": GDRIVE_FOLDER_URL,
+        "webapp_url": webapp_url,
+        "configured": bool(webapp_url)
+    }
+
 # Frontend paths
 client_dir = os.path.join(project_root, "client")
 client_public = os.path.join(client_dir, "public")
@@ -173,8 +200,8 @@ if src_dir:
 @app.get("/admin")
 def serve_portal():
     candidates_portal = [
-        os.path.join(str(current_file.parent), "portal.html"),
         os.path.join(str(project_root), "portal.html"),
+        os.path.join(str(current_file.parent), "portal.html"),
         os.path.join(str(client_dir), "portal.html"),
         os.path.join(str(project_root), "mindscape", "portal.html")
     ]
@@ -193,8 +220,8 @@ def serve_portal():
 @app.get("/faq")
 def serve_index():
     candidates_index = [
-        os.path.join(str(current_file.parent), "index.html"),
         os.path.join(str(project_root), "index.html"),
+        os.path.join(str(current_file.parent), "index.html"),
         os.path.join(str(client_dir), "index.html"),
         os.path.join(str(project_root), "mindscape", "index.html")
     ]

@@ -1,7 +1,7 @@
 import { ArrowLeft, ArrowUpRight, Check, CloudUpload, FileVideo, Info, Loader2, ShieldCheck, AlertCircle, Play } from "lucide-react";
 import { ChangeEvent, FormEvent, useState, useRef } from "react";
 import { Link } from "wouter";
-import { uploadReelToSupabase, submitReelToBackend, type VideoMetadata } from "@/lib/supabase";
+import { uploadReelDirect, type VideoMetadata } from "@/lib/supabase";
 
 export default function Submit() {
   const [file, setFile] = useState<File | null>(null);
@@ -122,37 +122,28 @@ export default function Submit() {
     setUploadProgress(10);
 
     try {
-      // 1. Direct Supabase Storage Upload to 'mindscape-reels' bucket
-      const { filePath } = await uploadReelToSupabase(teamName, file, (progress) => {
+      const fd = new FormData();
+      fd.append("video_file", file);
+      fd.append("team_name", teamName);
+      fd.append("title", title);
+      fd.append("language", language);
+      fd.append("representative_name", repName);
+      fd.append("representative_email", repEmail);
+      fd.append("representative_phone", repPhone);
+      fd.append("institution", institution);
+      fd.append("city", city);
+      fd.append("description", description);
+      fd.append("duration", String(metadata?.duration || 30.0));
+      fd.append("width", String(metadata?.width || 1080));
+      fd.append("height", String(metadata?.height || 1920));
+
+      setUploadProgress(40);
+      const result = await uploadReelDirect(fd, (progress) => {
         setUploadProgress(progress);
       });
 
-      // 2. Submit record to backend API
-      const result = await submitReelToBackend({
-        teamName,
-        representativeName: repName,
-        representativeEmail: repEmail,
-        representativePhone: repPhone,
-        institution,
-        city,
-        title,
-        description,
-        language,
-        filePath,
-        fileName: file.name,
-        fileSize: file.size,
-        duration: metadata?.duration || 30.0,
-        width: metadata?.width || 1080,
-        height: metadata?.height || 1920,
-        originalityConfirmed: true,
-        participantConsentConfirmed: true,
-        copyrightConfirmed: true,
-        rulesConfirmed: true,
-        finalLockConfirmed: true,
-      });
-
       const refId = result.submission_id
-        ? `MS-26-${result.submission_id.slice(0, 4).toUpperCase()}`
+        ? (result.submission_id.startsWith("MS-26-") ? result.submission_id : `MS-26-${result.submission_id.slice(0, 4).toUpperCase()}`)
         : `MS-26-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
 
       setReferenceCode(refId);
