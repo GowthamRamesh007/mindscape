@@ -66,14 +66,26 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include API Routers
+# Vercel & Reverse Proxy Path Normalizer Middleware
+@app.middleware("http")
+async def handle_vercel_and_proxy_routing(request: Request, call_next):
+    forwarded_uri = request.headers.get("x-forwarded-uri") or request.headers.get("x-matched-path")
+    if forwarded_uri and forwarded_uri.startswith("/api/"):
+        request.scope["path"] = forwarded_uri.split("?")[0]
+    return await call_next(request)
+
+# Include API Routers (with both standard /api and stripped fallback prefixes)
 app.include_router(competition_router)
 app.include_router(teams_router)
+app.include_router(teams_router, prefix="/teams")
 app.include_router(submissions_router)
+app.include_router(submissions_router, prefix="/submissions")
 app.include_router(admin_router)
 
 @app.get("/api")
 @app.get("/api/")
+@app.post("/api")
+@app.post("/api/")
 @app.get("/api/health")
 @app.get("/health")
 def health_check():
@@ -219,6 +231,7 @@ def serve_portal():
 # Serve index.html for frontend routes
 @app.get("/")
 @app.get("/submit")
+@app.post("/submit")
 @app.get("/about")
 @app.get("/register")
 @app.get("/prize-pool")
