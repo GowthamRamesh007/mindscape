@@ -2,24 +2,45 @@ import csv
 import io
 import time
 import urllib.request
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Any
 
 GOOGLE_SHEET_ID = "11Kw2JYF4mztp71KQw_Y3A6FZ_bTtxE-2LWxxVYVhSUE"
-CACHE_TTL_SECONDS = 30  # 30-second TTL cache for real-time responsiveness & rate safety
+CACHE_TTL_SECONDS = 30  # 30-second cache TTL for responsive validation without hammering Google servers
+MAX_CACHE_GRACE_SECONDS = 300  # 5-minute fallback cache grace window if Google is temporarily unreachable
 
-_teams_cache = {
+class RegistrationVerificationError(Exception):
+    """Raised when Google Form registration responses cannot be fetched or verified."""
+    pass
+
+_teams_cache: Dict[str, Any] = {
     "timestamp": 0,
-    "data": []
+    "data": [],
+    "last_error": None
 }
+
+def normalize_team_name(name: Optional[str]) -> str:
+    """
+    Normalizes a team name for safe comparison:
+    - Trims leading and trailing whitespace
+    - Collapses multiple contiguous spaces into a single space
+    - Converts to lowercase
+    """
+    if not name:
+        return ""
+    return " ".join(str(name).strip().lower().split())
 
 def fetch_registered_teams_from_sheet(force_refresh: bool = False) -> List[Dict[str, str]]:
     """
-    Fetches registered teams from the official Google Form responses Google Sheet.
-    Includes team name, representative name, phone, email, college/institution,
-    city, title, and language. Cached for 30s.
+    Fetches the authoritative list of registered teams exclusively from the official
+    Google Form responses spreadsheet.
+    
+    If the fetch fails and no valid cache exists, it fails closed by raising
+    RegistrationVerificationError rather than returning an empty or fabricated list.
     """
     global _teams_cache
     now = time.time()
+    
+    # Check fresh cache
     if not force_refresh and _teams_cache["data"] and (now - _teams_cache["timestamp"]) < CACHE_TTL_SECONDS:
         return _teams_cache["data"]
 
@@ -27,25 +48,30 @@ def fetch_registered_teams_from_sheet(force_refresh: bool = False) -> List[Dict[
     try:
         req = urllib.request.Request(
             url,
-            headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) MindscapeBackend/1.0"}
+            headers={
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) MindscapeRegistrationValidator/2.0",
+                "Accept": "text/csv,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+            }
         )
-        with urllib.request.urlopen(req, timeout=12) as resp:
+        with urllib.request.urlopen(req, timeout=10) as resp:
             content = resp.read().decode("utf-8")
 
         rows = list(csv.reader(io.StringIO(content)))
         if not rows:
-            return _teams_cache["data"]
+            raise RegistrationVerificationError("Google Form responses spreadsheet returned empty content.")
 
         headers = [h.strip() for h in rows[0]]
 
-        # Find team name column (handles the exact column header or any variation containing Team Name)
+        # Find team name column (specifically matching 'team name')
         team_idx = None
         for i, h in enumerate(headers):
             if "team name" in h.lower():
                 team_idx = i
                 break
+        if team_idx is None and len(headers) > 7:
+            team_idx = 7
 
-        def find_idx(keywords):
+        def find_idx(keywords: List[str]) -> Optional[int]:
             for i, h in enumerate(headers):
                 for k in keywords:
                     if k.lower() in h.lower():
@@ -62,46 +88,101 @@ def fetch_registered_teams_from_sheet(force_refresh: bool = False) -> List[Dict[
 
         parsed = []
         seen = set()
+
         for row in rows[1:]:
             if team_idx is not None and team_idx < len(row):
-                t_name = row[team_idx].strip()
-                if t_name and t_name.lower() not in seen:
-                    seen.add(t_name.lower())
+                raw_team_name = row[team_idx].strip()
+                norm = normalize_team_name(raw_team_name)
+                if norm and norm not in seen:
+                    seen.add(norm)
                     parsed.append({
-                        "team_name": t_name,
+                        "team_name": raw_team_name,
+                        "normalized_name": norm,
                         "representative_name": row[name_idx].strip() if name_idx and name_idx < len(row) else "",
                         "phone": row[phone_idx].strip() if phone_idx and phone_idx < len(row) else "",
-                        "email": row[email_idx].strip() if email_idx and email_idx < len(row) else "",
+                        "email": row[email_idx].strip().lower() if email_idx and email_idx < len(row) else "",
                         "institution": row[inst_idx].strip() if inst_idx and inst_idx < len(row) else "",
-                        "city": row[city_idx].strip() if city_idx and city_idx < len(row) else "",
-                        "title": row[title_idx].strip() if title_idx and title_idx < len(row) else "",
+                        "city": row[city_idx].strip() if city_idx and city_idx < len(row) else "Chennai",
+                        "title": row[title_idx].strip() if title_idx and title_idx < len(row) else "Mindscape Reel",
                         "language": row[lang_idx].strip() if lang_idx and lang_idx < len(row) else "Tamil"
                     })
 
         _teams_cache["timestamp"] = now
         _teams_cache["data"] = parsed
+        _teams_cache["last_error"] = None
         return parsed
+
     except Exception as e:
-        print(f"Warning: Failed to fetch Google Sheet: {e}")
-        return _teams_cache["data"]
+        _teams_cache["last_error"] = str(e)
+        # If we have recent data within grace period and not explicitly forcing refresh, fallback to it
+        if _teams_cache["data"] and not force_refresh and (now - _teams_cache["timestamp"]) < MAX_CACHE_GRACE_SECONDS:
+            return _teams_cache["data"]
+        # Fail closed: never treat failed fetch as valid empty list
+        raise RegistrationVerificationError(f"Failed to fetch authoritative Google Form registration sheet: {e}")
 
-def is_team_registered(team_name: str) -> bool:
-    """Checks if the given team name exists in the registered teams list (case-insensitive, whitespace normalized). Only registered teams are allowed."""
-    if not team_name:
-        return False
-    teams = fetch_registered_teams_from_sheet()
-    if not teams:
-        return False
-    target = " ".join(team_name.strip().lower().split())
-    return any(" ".join(t["team_name"].strip().lower().split()) == target for t in teams)
+def verify_team_registration(team_name: Optional[str]) -> Dict[str, Any]:
+    """
+    Strict server-side verification of team name against authoritative Google Form responses.
+    Returns:
+    {
+        "is_registered": bool,
+        "team": Optional[Dict[str, str]],
+        "normalized_name": str,
+        "error": Optional[str],
+        "service_unavailable": bool
+    }
+    """
+    norm = normalize_team_name(team_name)
+    if not norm:
+        return {
+            "is_registered": False,
+            "team": None,
+            "normalized_name": "",
+            "error": "This team is not registered for Mindscape. Please complete the official registration form first.",
+            "service_unavailable": False
+        }
 
-def get_team_registration(team_name: str) -> Optional[Dict[str, str]]:
-    """Returns registration details for a team name, if found."""
-    if not team_name:
-        return None
-    teams = fetch_registered_teams_from_sheet()
-    target = " ".join(team_name.strip().lower().split())
-    for t in teams:
-        if " ".join(t["team_name"].strip().lower().split()) == target:
-            return t
-    return None
+    try:
+        registered_teams = fetch_registered_teams_from_sheet()
+    except RegistrationVerificationError as e:
+        return {
+            "is_registered": False,
+            "team": None,
+            "normalized_name": norm,
+            "error": f"Registration verification service is currently unavailable. Submissions are temporarily blocked: {e}",
+            "service_unavailable": True
+        }
+    except Exception as e:
+        return {
+            "is_registered": False,
+            "team": None,
+            "normalized_name": norm,
+            "error": f"Registration verification failed: {e}",
+            "service_unavailable": True
+        }
+
+    for t in registered_teams:
+        if normalize_team_name(t.get("team_name", "")) == norm:
+            return {
+                "is_registered": True,
+                "team": t,
+                "normalized_name": norm,
+                "error": None,
+                "service_unavailable": False
+            }
+
+    return {
+        "is_registered": False,
+        "team": None,
+        "normalized_name": norm,
+        "error": "This team is not registered for Mindscape. Please complete the official registration form first.",
+        "service_unavailable": False
+    }
+
+def is_team_registered(team_name: Optional[str]) -> bool:
+    """Checks if team_name is verified against official Google Form registrations."""
+    return verify_team_registration(team_name)["is_registered"]
+
+def get_team_registration(team_name: Optional[str]) -> Optional[Dict[str, str]]:
+    """Returns registration details for a verified team, or None."""
+    return verify_team_registration(team_name)["team"]

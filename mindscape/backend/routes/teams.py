@@ -124,11 +124,67 @@ def register_team(payload: TeamRegisterRequest, authorization: Optional[str] = H
 
 @router.get("/registered")
 def get_registered_teams():
-    """Returns list of registered teams directly from Google Form response sheet."""
+    """Returns list of registered teams strictly from the official Google Form responses sheet."""
     try:
-        from backend.services.google_sheets_service import fetch_registered_teams_from_sheet
+        from backend.services.google_sheets_service import (
+            fetch_registered_teams_from_sheet,
+            RegistrationVerificationError
+        )
     except ModuleNotFoundError:
-        from services.google_sheets_service import fetch_registered_teams_from_sheet
-    teams = fetch_registered_teams_from_sheet()
-    return {"teams": teams, "count": len(teams)}
+        from services.google_sheets_service import (
+            fetch_registered_teams_from_sheet,
+            RegistrationVerificationError
+        )
+    try:
+        teams = fetch_registered_teams_from_sheet()
+        return {"teams": teams, "count": len(teams), "source": "official_google_form"}
+    except RegistrationVerificationError as e:
+        raise HTTPException(
+            status_code=503,
+            detail=f"Unable to retrieve registered teams from Google Form service: {e}"
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error retrieving registered teams: {e}"
+        )
+
+@router.get("/check-registration")
+def check_team_registration(team_name: str):
+    """
+    Checks if a team is registered in the official Google Form responses.
+    Returns normalized status and registration details.
+    """
+    try:
+        from backend.services.google_sheets_service import verify_team_registration
+    except ModuleNotFoundError:
+        from services.google_sheets_service import verify_team_registration
+        
+    res = verify_team_registration(team_name)
+    if res.get("service_unavailable"):
+        raise HTTPException(
+            status_code=503,
+            detail=res.get("error") or "Registration verification service temporarily unavailable."
+        )
+
+    if res["is_registered"] and res["team"]:
+        t = res["team"]
+        return {
+            "registered": True,
+            "team_name": t.get("team_name"),
+            "normalized_name": res["normalized_name"],
+            "institution": t.get("institution", ""),
+            "representative_name": t.get("representative_name", ""),
+            "email": t.get("email", ""),
+            "phone": t.get("phone", ""),
+            "message": "Registered Team Verified"
+        }
+    
+    return {
+        "registered": False,
+        "team_name": team_name,
+        "normalized_name": res["normalized_name"],
+        "message": "This team is not registered for Mindscape. Please complete the official registration form first."
+    }
+
 

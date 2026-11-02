@@ -2261,23 +2261,34 @@
       prizesSection.classList.add("revealed");
     }
 
-    // 3. Team Registration Verification & Autocomplete
+    // 3. Team Registration Verification & Autocomplete (Strict Google Form Enforcement)
     let registeredTeamsList = [];
+    let registrationLoadError = false;
+
+    function normalizeName(str) {
+      return (str || "").trim().toLowerCase().replace(/\s+/g, " ");
+    }
 
     async function fetchRegisteredTeams() {
-      // 1. Try local FastAPI backend endpoint
+      registrationLoadError = false;
+      // 1. Fetch strictly from backend authoritative endpoint
       try {
         const res = await fetch("/api/teams/registered");
         if (res.ok) {
           const data = await res.json();
           if (data && Array.isArray(data.teams) && data.teams.length > 0) {
             registeredTeamsList = data.teams;
+            registrationLoadError = false;
             return;
           }
+        } else {
+          registrationLoadError = true;
         }
-      } catch (e) {}
+      } catch (e) {
+        registrationLoadError = true;
+      }
 
-      // 2. Fallback to Google Sheets JSON endpoint
+      // 2. Direct fallback to official Google Form responses if backend proxy was unavailable
       const SPREADSHEET_ID = "11Kw2JYF4mztp71KQw_Y3A6FZ_bTtxE-2LWxxVYVhSUE";
       const gvizUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json`;
       try {
@@ -2290,18 +2301,27 @@
             const rows = data.table.rows;
             registeredTeamsList = rows.map(r => {
               const c = r.c;
+              const teamName = c[7] ? String(c[7].v || "").trim() : (c[1] ? String(c[1].v || "").trim() : "");
               return {
                 timestamp: c[0] ? c[0].f || c[0].v : "",
-                team_name: c[1] ? String(c[1].v).trim() : "",
-                institution: c[2] ? String(c[2].v).trim() : "",
-                representative_name: c[3] ? String(c[3].v).trim() : "",
-                email: c[4] ? String(c[4].v).trim() : "",
-                phone: c[5] ? String(c[5].v).trim() : ""
+                team_name: teamName,
+                institution: c[5] ? String(c[5].v || "").trim() : (c[2] ? String(c[2].v || "").trim() : ""),
+                representative_name: c[1] ? String(c[1].v || "").trim() : (c[3] ? String(c[3].v || "").trim() : ""),
+                email: c[3] ? String(c[3].v || "").trim().toLowerCase() : (c[4] ? String(c[4].v || "").trim().toLowerCase() : ""),
+                phone: c[2] ? String(c[2].v || "").trim() : (c[5] ? String(c[5].v || "").trim() : "")
               };
             }).filter(t => t.team_name.length > 0);
+            registrationLoadError = false;
+            return;
           }
         }
-      } catch (e) {}
+      } catch (e) {
+        registrationLoadError = true;
+      }
+
+      if (registrationLoadError && registeredTeamsList.length === 0) {
+        showRegistrationLoadError();
+      }
     }
     fetchRegisteredTeams();
 
@@ -2311,26 +2331,65 @@
     const verifyMsg = document.getElementById("team-verification-msg");
     const submitBtn = document.getElementById("submit-btn");
 
+    function showRegistrationLoadError() {
+      if (verifyMsg) {
+        verifyMsg.innerHTML = '<span style="color: #ff8f82;">Unable to load Google Form registration responses. Submissions are temporarily blocked. Please refresh or try again later.</span>';
+      }
+      if (statusPill) {
+        statusPill.style.display = "inline-block";
+        statusPill.style.background = "rgba(231, 76, 60, 0.18)";
+        statusPill.style.color = "#ff8f82";
+        statusPill.style.border = "1px solid rgba(231, 76, 60, 0.4)";
+        statusPill.innerText = "Registrations Unavailable";
+      }
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.style.opacity = "0.5";
+        submitBtn.style.cursor = "not-allowed";
+        submitBtn.innerText = "Registrations Unavailable — Uploads Blocked";
+      }
+    }
+
     function renderTeamSuggestions(filterText) {
       if (!dropdown) return;
-      if (!filterText || filterText.length < 1) {
+      if (registrationLoadError && registeredTeamsList.length === 0) {
+        dropdown.style.display = "none";
+        showRegistrationLoadError();
+        return;
+      }
+
+      const clean = normalizeName(filterText);
+      if (!clean || clean.length < 1) {
         dropdown.style.display = "none";
         return;
       }
-      const clean = filterText.toLowerCase();
+
       const matches = registeredTeamsList.filter(t => 
-        (t.team_name || "").toLowerCase().includes(clean)
-      ).slice(0, 6);
+        normalizeName(t.team_name).includes(clean)
+      ).slice(0, 8);
 
       if (matches.length === 0) {
-        dropdown.style.display = "none";
+        dropdown.innerHTML = `
+          <div style="padding: 12px 14px; font-size: 12px; color: #ff8f82; font-family: 'DM Mono', monospace;">
+            Team not found. Please register through the official Google Form.
+            <div style="margin-top: 6px;">
+              <a href="https://docs.google.com/forms/d/e/1FAIpQLScE4OXgmGns_catCz_TLUGF7SGN5ZOxMErQW4f08dEPdXV82Q/viewform?usp=dialog" 
+                 target="_blank" 
+                 rel="noreferrer" 
+                 style="color: #c8fa60; text-decoration: underline; font-weight: 600;">
+                Register Here on Google Form ↗
+              </a>
+            </div>
+          </div>
+        `;
+        dropdown.style.display = "block";
         return;
       }
 
       dropdown.innerHTML = matches.map(t => `
         <div class="autocomplete-item" onclick="selectRegisteredTeam('${escapeHtml(t.team_name)}')">
           <div style="font-weight: 600; font-size: 13px; color: #ffffff;">${escapeHtml(t.team_name)}</div>
-          <div style="font-size: 11px; color: #94a3b8; font-family: 'DM Mono', monospace;">${escapeHtml(t.institution || "College")}</div>
+          <div style="font-size: 11px; color: #94a3b8; font-family: 'DM Mono', monospace;">${escapeHtml(t.institution || "College / Institution")}</div>
         </div>
       `).join("");
       dropdown.style.display = "block";
@@ -2351,12 +2410,12 @@
     };
 
     teamInput?.addEventListener("input", (e) => {
-      renderTeamSuggestions(e.target.value.trim());
+      renderTeamSuggestions(e.target.value);
       updateTeamVerificationStatus();
     });
 
     teamInput?.addEventListener("focus", () => {
-      if (teamInput.value.trim()) renderTeamSuggestions(teamInput.value.trim());
+      if (teamInput.value.trim()) renderTeamSuggestions(teamInput.value);
     });
 
     document.addEventListener("click", (e) => {
@@ -2366,32 +2425,36 @@
     });
 
     function updateTeamVerificationStatus() {
-      const val = (teamInput?.value || "").trim().toLowerCase();
-      if (!val) {
+      if (registrationLoadError && registeredTeamsList.length === 0) {
+        showRegistrationLoadError();
+        return;
+      }
+
+      const rawVal = teamInput?.value || "";
+      const cleanVal = normalizeName(rawVal);
+
+      if (!cleanVal) {
         if (statusPill) statusPill.style.display = "none";
         if (verifyMsg) {
-          verifyMsg.innerText = "Must match your registration on the Google Form.";
+          verifyMsg.innerHTML = "Must match your registration on the official Google Form.";
           verifyMsg.style.color = "#94a3b8";
         }
         checkCanSubmit(false);
         return;
       }
 
-      const match = registeredTeamsList.find(t => 
-        (t.team_name || "").trim().toLowerCase() === val
-      );
+      const match = registeredTeamsList.find(t => normalizeName(t.team_name) === cleanVal);
 
       if (match) {
         if (statusPill) {
           statusPill.style.display = "inline-block";
-          statusPill.style.background = "rgba(46, 204, 113, 0.15)";
+          statusPill.style.background = "rgba(46, 204, 113, 0.18)";
           statusPill.style.color = "#2ecc71";
           statusPill.style.border = "1px solid rgba(46, 204, 113, 0.4)";
-          statusPill.innerText = "✓ Registered Team";
+          statusPill.innerText = "Registered Team Verified";
         }
         if (verifyMsg) {
-          verifyMsg.innerText = `Verified: ${match.team_name} (${match.institution || "College"})`;
-          verifyMsg.style.color = "#2ecc71";
+          verifyMsg.innerHTML = `<span style="color: #2ecc71;">Registered Team Verified: <strong>${escapeHtml(match.team_name)}</strong> (${escapeHtml(match.institution || "College")})</span>`;
         }
         document.getElementById("sub-rep-name").value = match.representative_name || "";
         document.getElementById("sub-rep-email").value = match.email || "";
@@ -2401,13 +2464,13 @@
       } else {
         if (statusPill) {
           statusPill.style.display = "inline-block";
-          statusPill.style.background = "rgba(231, 76, 60, 0.15)";
+          statusPill.style.background = "rgba(231, 76, 60, 0.18)";
           statusPill.style.color = "#ff8f82";
           statusPill.style.border = "1px solid rgba(231, 76, 60, 0.4)";
-          statusPill.innerText = "Not Verified";
+          statusPill.innerText = "Not Registered";
         }
         if (verifyMsg) {
-          verifyMsg.innerText = "Team name not found in Google Form registrations.";
+          verifyMsg.innerHTML = `Team not found. Please register through the official Google Form. <a href="https://docs.google.com/forms/d/e/1FAIpQLScE4OXgmGns_catCz_TLUGF7SGN5ZOxMErQW4f08dEPdXV82Q/viewform?usp=dialog" target="_blank" rel="noreferrer" style="color: #c8fa60; text-decoration: underline; margin-left: 4px; font-weight: 600;">Register Here ↗</a>`;
           verifyMsg.style.color = "#ff8f82";
         }
         checkCanSubmit(false);
@@ -2567,7 +2630,17 @@
         return;
       }
 
-      const teamName = (teamInput?.value || "").trim();
+      const rawTeamVal = teamInput?.value || "";
+      const teamName = rawTeamVal.trim();
+      const normTeam = normalizeName(rawTeamVal);
+
+      const verifiedTeam = registeredTeamsList.find(t => normalizeName(t.team_name) === normTeam);
+      if (!verifiedTeam) {
+        showError("This team is not registered for Mindscape. Please complete the official registration form first.");
+        teamInput?.focus();
+        checkCanSubmit(false);
+        return;
+      }
       const title = document.getElementById("sub-title")?.value.trim() || "Mindscape Reel";
       const language = document.getElementById("sub-language")?.value || "Tamil";
       const repName = document.getElementById("sub-rep-name")?.value.trim() || teamName;

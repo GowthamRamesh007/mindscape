@@ -17,7 +17,7 @@ try:
     from backend.services.deadline_service import is_submission_open
     from backend.services.video_service import validate_video_metadata
     from backend.services.supabase_service import get_supabase_admin, get_supabase_anon
-    from backend.services.google_sheets_service import is_team_registered, get_team_registration
+    from backend.services.google_sheets_service import is_team_registered, get_team_registration, verify_team_registration
     from backend.services.gdrive_service import upload_file_to_gdrive, GDRIVE_FOLDER_URL, GDRIVE_FOLDER_ID
 except ModuleNotFoundError:
     from models.schemas import (
@@ -28,7 +28,7 @@ except ModuleNotFoundError:
     from services.deadline_service import is_submission_open
     from services.video_service import validate_video_metadata
     from services.supabase_service import get_supabase_admin, get_supabase_anon
-    from services.google_sheets_service import is_team_registered, get_team_registration
+    from services.google_sheets_service import is_team_registered, get_team_registration, verify_team_registration
     from services.gdrive_service import upload_file_to_gdrive, GDRIVE_FOLDER_URL, GDRIVE_FOLDER_ID
 
 router = APIRouter(prefix="/api/submissions", tags=["Submissions"])
@@ -122,10 +122,16 @@ def list_submissions():
 def create_submission(payload: dict):
     """Stores video reel submission into Supabase backend archive."""
     team_name = (payload.get("team_name") or "").strip()
-    if not is_team_registered(team_name):
+    verification = verify_team_registration(team_name)
+    if not verification["is_registered"]:
+        if verification.get("service_unavailable"):
+            raise HTTPException(
+                status_code=503,
+                detail=verification.get("error") or "Registration verification service is currently unavailable. Submissions are temporarily blocked."
+            )
         raise HTTPException(
             status_code=403,
-            detail=f"Registration required: Team '{team_name}' is not registered on the official Google Form. Only registered teams can submit reels."
+            detail="This team is not registered for Mindscape. Please complete the official registration form first."
         )
 
     sub_id = f"MS26-{uuid.uuid4().hex[:6].upper()}"
@@ -211,13 +217,19 @@ def direct_submit_reel(payload: DirectReelUploadRequest):
         raise HTTPException(status_code=400, detail="All legal and ethical confirmations must be accepted.")
 
     # Verify team is registered on Google Form
-    if not is_team_registered(payload.team_name):
+    verification = verify_team_registration(payload.team_name)
+    if not verification["is_registered"]:
+        if verification.get("service_unavailable"):
+            raise HTTPException(
+                status_code=503,
+                detail=verification.get("error") or "Registration verification service is currently unavailable. Submissions are temporarily blocked."
+            )
         raise HTTPException(
             status_code=403,
-            detail=f"Registration required: Team '{payload.team_name}' is not registered on the official Google Form. Only registered teams can submit reels."
+            detail="This team is not registered for Mindscape. Please complete the official registration form first."
         )
 
-    reg = get_team_registration(payload.team_name)
+    reg = verification["team"]
     rep_name = (payload.representative_name or (reg.get("representative_name") if reg else "") or "Registered Team").strip()
     rep_email = (payload.representative_email or (reg.get("email") if reg else "") or "participant@mindscape.org").strip().lower()
     rep_phone = (payload.representative_phone or (reg.get("phone") if reg else "") or "").strip()
@@ -327,14 +339,20 @@ async def direct_submit_upload(
     if not is_submission_open():
         raise HTTPException(status_code=400, detail="Reel submission deadline has passed (8 November 2026).")
 
-    # 1. Verify team is registered on Google Form
-    if not is_team_registered(team_name):
+    # 1. Strict Server-Side Verification against Authoritative Google Form Responses
+    verification = verify_team_registration(team_name)
+    if not verification["is_registered"]:
+        if verification.get("service_unavailable"):
+            raise HTTPException(
+                status_code=503,
+                detail=verification.get("error") or "Registration verification service is currently unavailable. Submissions are temporarily blocked."
+            )
         raise HTTPException(
             status_code=403,
-            detail=f"Registration required: Team '{team_name}' is not registered on the official Google Form. Only registered teams can submit reels."
+            detail="This team is not registered for Mindscape. Please complete the official registration form first."
         )
 
-    reg = get_team_registration(team_name)
+    reg = verification["team"]
     rep_name = (representative_name if (representative_name and representative_name != "Registered Team") else (reg.get("representative_name") if reg else "") or "Registered Team").strip()
     rep_email = (representative_email if (representative_email and representative_email != "participant@mindscape.org") else (reg.get("email") if reg else "") or "participant@mindscape.org").strip().lower()
     rep_phone = (representative_phone or (reg.get("phone") if reg else "") or "").strip()
