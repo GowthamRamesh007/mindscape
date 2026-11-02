@@ -31,7 +31,8 @@ load_dotenv()
 app = FastAPI(
     title="MINDSCAPE Reel Contest API",
     description="Backend API for MINDSCAPE — Reel Making Contest on Mobile Phone Addiction",
-    version="1.0.0"
+    version="1.0.0",
+    redirect_slashes=False
 )
 
 # CORS Configuration with Vercel Service Binding support
@@ -42,7 +43,12 @@ default_origins = [
     "http://localhost:3000",
     "http://127.0.0.1:5173",
     "http://127.0.0.1:3000",
-    "http://localhost:8000"
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+    "http://127.0.0.1:5500",
+    "http://localhost:5500",
+    "http://127.0.0.1:5501",
+    "http://localhost:5501"
 ]
 
 cors_origins_env = os.getenv("CORS_ORIGINS", "")

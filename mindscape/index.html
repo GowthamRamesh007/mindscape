@@ -2262,6 +2262,13 @@
     }
 
     // 3. Team Registration Verification & Autocomplete (Strict Google Form Enforcement)
+    // Automatically routes to FastAPI port 8000 when opened via Live Server (5500) or Vite (5173/3000),
+    // and preserves relative paths ("") when served directly by FastAPI or in production.
+    const API_BASE = window.API_BASE_URL || 
+      ((window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") && window.location.port && window.location.port !== "8000"
+        ? `${window.location.protocol}//${window.location.hostname}:8000`
+        : "");
+
     let registeredTeamsList = [];
     let registrationLoadError = false;
 
@@ -2273,7 +2280,7 @@
       registrationLoadError = false;
       // 1. Fetch strictly from backend authoritative endpoint
       try {
-        const res = await fetch("/api/teams/registered");
+        const res = await fetch(`${API_BASE}/api/teams/registered`);
         if (res.ok) {
           const data = await res.json();
           if (data && Array.isArray(data.teams) && data.teams.length > 0) {
@@ -2681,7 +2688,7 @@
         progressPct.innerText = "50%";
         if (progressLabel) progressLabel.innerText = "Backing up video to Google Drive...";
 
-        const res = await fetch("/api/submissions/direct-submit-upload", {
+        const res = await fetch(`${API_BASE}/api/submissions/direct-submit-upload`, {
           method: "POST",
           body: fd
         });

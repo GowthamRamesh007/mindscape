@@ -188,6 +188,7 @@ def verify_video(payload: VideoVerificationRequest):
     return VideoVerificationResponse(**result)
 
 @router.post("/direct-submit")
+@router.post("/direct-submit/")
 def direct_submit_reel(payload: DirectReelUploadRequest):
     """Direct reel submission after Google Form registration."""
     if not is_submission_open():
@@ -315,6 +316,7 @@ def direct_submit_reel(payload: DirectReelUploadRequest):
     }
 
 @router.post("/direct-submit-upload")
+@router.post("/direct-submit-upload/")
 async def direct_submit_upload(
     video_file: UploadFile = File(...),
     team_name: str = Form(...),
