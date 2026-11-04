@@ -1,42 +1,75 @@
 {
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "cleanUrls": true,
-  "rewrites": [
+  "version": 2,
+  "builds": [
     {
-      "source": "/portal",
-      "destination": "/portal.html"
+      "src": "backend/main.py",
+      "use": "@vercel/python"
     },
     {
-      "source": "/admin",
-      "destination": "/portal.html"
+      "src": "*.html",
+      "use": "@vercel/static"
     },
     {
-      "source": "/about",
-      "destination": "/index.html"
+      "src": "media/**",
+      "use": "@vercel/static"
     },
     {
-      "source": "/register",
-      "destination": "/index.html"
+      "src": "fonts/**",
+      "use": "@vercel/static"
     },
     {
-      "source": "/submit",
-      "destination": "/index.html"
+      "src": "src/**",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "backend/main.py"
     },
     {
-      "source": "/prize-pool",
-      "destination": "/index.html"
+      "src": "/api",
+      "dest": "backend/main.py"
     },
     {
-      "source": "/prizes",
-      "destination": "/index.html"
+      "src": "/portal",
+      "dest": "portal.html"
     },
     {
-      "source": "/rules",
-      "destination": "/index.html"
+      "src": "/admin",
+      "dest": "portal.html"
     },
     {
-      "source": "/faq",
-      "destination": "/index.html"
+      "src": "/about",
+      "dest": "index.html"
+    },
+    {
+      "src": "/register",
+      "dest": "index.html"
+    },
+    {
+      "src": "/submit",
+      "dest": "index.html"
+    },
+    {
+      "src": "/prize-pool",
+      "dest": "index.html"
+    },
+    {
+      "src": "/prizes",
+      "dest": "index.html"
+    },
+    {
+      "src": "/rules",
+      "dest": "index.html"
+    },
+    {
+      "src": "/faq",
+      "dest": "index.html"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/$1"
     }
   ]
 }
