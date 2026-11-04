@@ -69,9 +69,30 @@ app.add_middleware(
 # Vercel & Reverse Proxy Path Normalizer Middleware
 @app.middleware("http")
 async def handle_vercel_and_proxy_routing(request: Request, call_next):
-    forwarded_uri = request.headers.get("x-forwarded-uri") or request.headers.get("x-matched-path")
-    if forwarded_uri and forwarded_uri.startswith("/api/"):
-        request.scope["path"] = forwarded_uri.split("?")[0]
+    path_override = (
+        request.headers.get("x-invoke-path")
+        or request.headers.get("x-matched-path")
+        or request.headers.get("x-forwarded-uri")
+        or request.headers.get("x-original-uri")
+        or request.headers.get("x-rewrite-url")
+    )
+    if not path_override and "__path" in request.query_params:
+        sub = request.query_params["__path"].strip()
+        path_override = f"/api/{sub}" if not sub.startswith("/") else f"/api{sub}"
+
+    if path_override:
+        clean_path = path_override.split("?")[0].rstrip("/")
+        if clean_path.startswith("/api/"):
+            request.scope["path"] = clean_path
+            request.scope["raw_path"] = clean_path.encode("ascii")
+        elif clean_path == "/api":
+            request.scope["path"] = "/api"
+            request.scope["raw_path"] = b"/api"
+        elif clean_path.startswith("/submissions") or clean_path.startswith("/teams") or clean_path.startswith("/competition") or clean_path.startswith("/admin") or clean_path.startswith("/health") or clean_path.startswith("/config"):
+            normalized = f"/api{clean_path}"
+            request.scope["path"] = normalized
+            request.scope["raw_path"] = normalized.encode("ascii")
+
     return await call_next(request)
 
 # Include API Routers (with both standard /api and stripped fallback prefixes)
