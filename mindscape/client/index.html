@@ -427,70 +427,23 @@
       font-weight: 600;
     }
 
-    /* ==========================================================================
-       STOCKMARKET VISION: LOGO ROTATION WITH OSCILLATING UPS & DOWNS
+        /* ==========================================================================
+       PARTNER LOGO ANIMATION (CONTINUOUS MOTION)
        ========================================================================== */
     .market-vision-section {
       position: relative;
       background: radial-gradient(ellipse at 50% 50%, rgba(14, 8, 38, 0.95), #060315);
-      border-top: 1px solid rgba(46, 204, 113, 0.18);
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
       border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-      padding: 38px 0 46px;
+      padding: 34px 0;
       overflow: hidden;
-    }
-
-    .market-header-tape {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      max-width: 1200px;
-      margin: 0 auto 24px;
-      padding: 0 24px;
-      font-family: 'DM Mono', monospace;
-      font-size: 12px;
-      color: #94a3b8;
-      border-bottom: 1px dashed rgba(255, 255, 255, 0.09);
-      padding-bottom: 12px;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-
-    .market-indicator {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-weight: 600;
-    }
-
-    .market-indicator.bullish {
-      color: var(--bull-green);
-    }
-
-    .market-pulse-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: var(--bull-green);
-      box-shadow: 0 0 10px var(--bull-green);
-      animation: pulse-glow 1.5s infinite;
-    }
-
-    .chart-svg-bg {
-      position: absolute;
-      top: 30%;
-      left: 0;
-      width: 100%;
-      height: 120px;
-      opacity: 0.14;
-      pointer-events: none;
-      z-index: 1;
     }
 
     .market-carousel-viewport {
       position: relative;
       width: 100%;
       overflow: hidden;
-      padding: 24px 0 32px;
+      padding: 12px 0;
       z-index: 2;
     }
 
@@ -509,18 +462,19 @@
       100% { transform: translateX(-50%); }
     }
 
-    /* Stock Ticker Cards with Undulating Sine-Wave Ups and Downs */
+    /* Partner Logo Cards */
     .market-card {
       position: relative;
-      width: 200px;
+      width: 190px;
       margin: 0 14px;
       background: rgba(16, 9, 42, 0.88);
       border: 1px solid rgba(255, 255, 255, 0.12);
       border-radius: 16px;
-      padding: 16px 14px;
+      padding: 24px 16px 20px;
       display: flex;
       flex-direction: column;
       align-items: center;
+      justify-content: center;
       text-align: center;
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
       backdrop-filter: blur(12px);
@@ -529,93 +483,22 @@
     }
 
     .market-card:hover {
+      transform: translateY(-4px);
       border-color: var(--accent-neon);
-      box-shadow: 0 16px 36px rgba(200, 250, 96, 0.25);
-    }
-
-    /* Wave Ups and Downs Animations */
-    .wave-up-high {
-      animation: waveMotionUpHigh 4.5s ease-in-out infinite alternate;
-    }
-    .wave-down-low {
-      animation: waveMotionDownLow 4.2s ease-in-out infinite alternate;
-    }
-    .wave-up-mid {
-      animation: waveMotionUpMid 5s ease-in-out infinite alternate;
-    }
-    .wave-down-mid {
-      animation: waveMotionDownMid 4.8s ease-in-out infinite alternate;
-    }
-
-    @keyframes waveMotionUpHigh {
-      0% { transform: translateY(-18px); }
-      50% { transform: translateY(6px); }
-      100% { transform: translateY(-22px); }
-    }
-    @keyframes waveMotionDownLow {
-      0% { transform: translateY(16px); }
-      50% { transform: translateY(-8px); }
-      100% { transform: translateY(20px); }
-    }
-    @keyframes waveMotionUpMid {
-      0% { transform: translateY(-12px); }
-      50% { transform: translateY(8px); }
-      100% { transform: translateY(-14px); }
-    }
-    @keyframes waveMotionDownMid {
-      0% { transform: translateY(10px); }
-      50% { transform: translateY(-6px); }
-      100% { transform: translateY(12px); }
-    }
-
-    .market-card-top {
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-      font-family: 'DM Mono', monospace;
-      font-size: 10px;
-    }
-
-    .market-symbol {
-      color: #cbd5e1;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-    }
-
-    .market-trend-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 3px;
-      padding: 2px 6px;
-      border-radius: 99px;
-      font-weight: 700;
-    }
-
-    .market-trend-badge.trend-up {
-      background: rgba(46, 204, 113, 0.18);
-      color: var(--bull-green);
-      border: 1px solid rgba(46, 204, 113, 0.35);
-    }
-
-    .market-trend-badge.trend-down {
-      background: rgba(255, 82, 82, 0.18);
-      color: var(--bear-red);
-      border: 1px solid rgba(255, 82, 82, 0.35);
+      box-shadow: 0 16px 36px rgba(200, 250, 96, 0.22);
     }
 
     .market-logo-box {
-      width: 68px;
-      height: 68px;
-      border-radius: 12px;
+      width: 80px;
+      height: 80px;
+      border-radius: 14px;
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid rgba(255, 255, 255, 0.1);
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 8px;
-      margin-bottom: 10px;
+      padding: 10px;
+      margin-bottom: 14px;
     }
 
     .market-logo-box img {
@@ -626,20 +509,15 @@
 
     .market-name {
       font-family: 'Space Grotesk', sans-serif;
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 600;
       color: #ffffff;
-      line-height: 1.3;
-      margin-bottom: 6px;
-      height: 32px;
+      line-height: 1.35;
+      text-align: center;
+      min-height: 34px;
       display: flex;
       align-items: center;
-    }
-
-    .market-sparkline {
-      width: 100%;
-      height: 18px;
-      opacity: 0.75;
+      justify-content: center;
     }
 
     /* Section Foundations */
@@ -1803,262 +1681,129 @@
       </div>
     </section>
 
-    <!-- 2. Stockmarket Vision Partner Logos in Motion (Ups & Downs Sine Wave) -->
+        <!-- 2. Partner Logos in Motion -->
     <section class="market-vision-section" id="partners">
-      <!-- Background SVG Chart Line (Financial Candlestick / Pulse Wave) -->
-      <svg class="chart-svg-bg" viewBox="0 0 1200 120" preserveAspectRatio="none">
-        <path d="M 0,60 Q 150,10 300,70 T 600,20 T 900,90 T 1200,40" fill="none" stroke="rgba(46, 204, 113, 0.4)" stroke-width="2" />
-        <path d="M 0,60 Q 150,10 300,70 T 600,20 T 900,90 T 1200,40 L 1200,120 L 0,120 Z" fill="rgba(46, 204, 113, 0.03)" />
-      </svg>
-
-      <div class="market-header-tape">
-        <div class="market-indicator bullish">
-          <span class="market-pulse-dot"></span>
-          <span>MARKET VISION · PARTNER COLLABORATION INDEX</span>
-        </div>
-        <div>
-          <span>HIGH IMPACT MOMENTUM:</span> <strong style="color: var(--accent-neon);">▲ 98.4%</strong>
-          <span style="margin: 0 8px;">·</span>
-          <span>VOLUME:</span> <strong style="color: #ffffff;">8 HOST CLUBS</strong>
-        </div>
-        <div style="color: var(--bull-green);">
-          <span>TREND: BULLISH ON DIGITAL AWARENESS ▲</span>
-        </div>
-      </div>
-
       <div class="market-carousel-viewport">
         <div class="market-ticker-track">
-          <!-- Item 1: Rotary Club of Madras (High Wave Up) -->
-          <div class="market-card wave-up-high">
-            <div class="market-card-top">
-              <span class="market-symbol">RCM</span>
-              <span class="market-trend-badge trend-up">▲ +24.8%</span>
-            </div>
+          <!-- Item 1: Rotary Club of Madras -->
+          <div class="market-card">
             <div class="market-logo-box">
               <img src="/media/logo/rotary club of madras.png" alt="Rotary Club of Madras" />
             </div>
             <div class="market-name">Rotary Club of Madras</div>
-            <svg class="market-sparkline" viewBox="0 0 100 20">
-              <polyline fill="none" stroke="#2ecc71" stroke-width="2" points="0,15 20,12 40,16 60,8 80,10 100,2" />
-            </svg>
           </div>
 
-          <!-- Item 2: Rotaract Club of Vepery (Low Wave Down) -->
-          <div class="market-card wave-down-low">
-            <div class="market-card-top">
-              <span class="market-symbol">VEP</span>
-              <span class="market-trend-badge trend-up">▲ +31.5%</span>
-            </div>
+          <!-- Item 2: Rotaract Club of Vepery -->
+          <div class="market-card">
             <div class="market-logo-box">
               <img src="/media/logo/rotaract club of vepery.png" alt="Rotaract Club of Vepery" />
             </div>
             <div class="market-name">Rotaract Club of Vepery</div>
-            <svg class="market-sparkline" viewBox="0 0 100 20">
-              <polyline fill="none" stroke="#2ecc71" stroke-width="2" points="0,18 20,14 40,15 60,6 80,8 100,2" />
-            </svg>
           </div>
 
-          <!-- Item 3: Rotaract Club of VMRF (Mid Wave Up) -->
-          <div class="market-card wave-up-mid">
-            <div class="market-card-top">
-              <span class="market-symbol">VMRF</span>
-              <span class="market-trend-badge trend-up">▲ +14.2%</span>
-            </div>
+          <!-- Item 3: Rotaract Club of VMRF -->
+          <div class="market-card">
             <div class="market-logo-box">
               <img src="/media/logo/rotaract club of vmrf.jpg" alt="Rotaract Club of VMRF" />
             </div>
             <div class="market-name">Rotaract Club of VMRF</div>
-            <svg class="market-sparkline" viewBox="0 0 100 20">
-              <polyline fill="none" stroke="#2ecc71" stroke-width="2" points="0,12 25,16 50,10 75,14 100,5" />
-            </svg>
           </div>
 
-          <!-- Item 4: Jeppiaar Engineering College (Mid Wave Down) -->
-          <div class="market-card wave-down-mid">
-            <div class="market-card-top">
-              <span class="market-symbol">JEC</span>
-              <span class="market-trend-badge trend-up">▲ +19.6%</span>
-            </div>
+          <!-- Item 4: Jeppiaar Engineering College -->
+          <div class="market-card">
             <div class="market-logo-box">
               <img src="/media/logo/rotaract cub of jeppiaar enginnering college.png" alt="Jeppiaar Engineering College" />
             </div>
             <div class="market-name">Jeppiaar Eng. College</div>
-            <svg class="market-sparkline" viewBox="0 0 100 20">
-              <polyline fill="none" stroke="#2ecc71" stroke-width="2" points="0,16 20,14 45,9 70,12 100,4" />
-            </svg>
           </div>
 
-          <!-- Item 5: Jeppiaar University (High Wave Up) -->
-          <div class="market-card wave-up-high">
-            <div class="market-card-top">
-              <span class="market-symbol">JPU</span>
-              <span class="market-trend-badge trend-up">▲ +22.1%</span>
-            </div>
+          <!-- Item 5: Jeppiaar University -->
+          <div class="market-card">
             <div class="market-logo-box">
               <img src="/media/logo/rotaract club of jeppiaar universirty.jpg" alt="Jeppiaar University" />
             </div>
             <div class="market-name">Jeppiaar University</div>
-            <svg class="market-sparkline" viewBox="0 0 100 20">
-              <polyline fill="none" stroke="#2ecc71" stroke-width="2" points="0,14 25,11 50,15 75,7 100,3" />
-            </svg>
           </div>
 
-          <!-- Item 6: SDNB Vaishnav College (Low Wave Down) -->
-          <div class="market-card wave-down-low">
-            <div class="market-card-top">
-              <span class="market-symbol">SDNB</span>
-              <span class="market-trend-badge trend-up">▲ +18.4%</span>
-            </div>
+          <!-- Item 6: SDNB Vaishnav College -->
+          <div class="market-card">
             <div class="market-logo-box">
               <img src="/media/logo/rotaract club of sdnb vaishnac college.jpg" alt="SDNB Vaishnav College" />
             </div>
             <div class="market-name">SDNB Vaishnav College</div>
-            <svg class="market-sparkline" viewBox="0 0 100 20">
-              <polyline fill="none" stroke="#2ecc71" stroke-width="2" points="0,17 30,13 60,11 80,6 100,2" />
-            </svg>
           </div>
 
-          <!-- Item 7: The New College (Mid Wave Up) -->
-          <div class="market-card wave-up-mid">
-            <div class="market-card-top">
-              <span class="market-symbol">TNC</span>
-              <span class="market-trend-badge trend-up">▲ +27.9%</span>
-            </div>
+          <!-- Item 7: The New College -->
+          <div class="market-card">
             <div class="market-logo-box">
               <img src="/media/logo/rotaract club of new college.png" alt="The New College" />
             </div>
             <div class="market-name">The New College</div>
-            <svg class="market-sparkline" viewBox="0 0 100 20">
-              <polyline fill="none" stroke="#2ecc71" stroke-width="2" points="0,15 25,9 50,12 75,5 100,1" />
-            </svg>
           </div>
 
-          <!-- Item 8: Rotaract Club of Chennai (Mid Wave Down) -->
-          <div class="market-card wave-down-mid">
-            <div class="market-card-top">
-              <span class="market-symbol">CHN</span>
-              <span class="market-trend-badge trend-up">▲ +16.3%</span>
-            </div>
+          <!-- Item 8: Rotaract Club of Chennai -->
+          <div class="market-card">
             <div class="market-logo-box">
               <img src="/media/logo/rotaract club of chennai.jpg" alt="Rotaract Club of Chennai" />
             </div>
             <div class="market-name">Rotaract Club of Chennai</div>
-            <svg class="market-sparkline" viewBox="0 0 100 20">
-              <polyline fill="none" stroke="#2ecc71" stroke-width="2" points="0,14 30,16 60,8 80,11 100,4" />
-            </svg>
           </div>
 
-          <!-- DUPLICATE LOOP FOR SEAMLESS 100% INFINITE MARQUEE -->
-          <div class="market-card wave-up-high">
-            <div class="market-card-top">
-              <span class="market-symbol">RCM</span>
-              <span class="market-trend-badge trend-up">▲ +24.8%</span>
-            </div>
+          <!-- Duplicate Set for Seamless Continuous Infinite Marquee Loop -->
+          <div class="market-card">
             <div class="market-logo-box">
               <img src="/media/logo/rotary club of madras.png" alt="Rotary Club of Madras" />
             </div>
             <div class="market-name">Rotary Club of Madras</div>
-            <svg class="market-sparkline" viewBox="0 0 100 20">
-              <polyline fill="none" stroke="#2ecc71" stroke-width="2" points="0,15 20,12 40,16 60,8 80,10 100,2" />
-            </svg>
           </div>
 
-          <div class="market-card wave-down-low">
-            <div class="market-card-top">
-              <span class="market-symbol">VEP</span>
-              <span class="market-trend-badge trend-up">▲ +31.5%</span>
-            </div>
+          <div class="market-card">
             <div class="market-logo-box">
               <img src="/media/logo/rotaract club of vepery.png" alt="Rotaract Club of Vepery" />
             </div>
             <div class="market-name">Rotaract Club of Vepery</div>
-            <svg class="market-sparkline" viewBox="0 0 100 20">
-              <polyline fill="none" stroke="#2ecc71" stroke-width="2" points="0,18 20,14 40,15 60,6 80,8 100,2" />
-            </svg>
           </div>
 
-          <div class="market-card wave-up-mid">
-            <div class="market-card-top">
-              <span class="market-symbol">VMRF</span>
-              <span class="market-trend-badge trend-up">▲ +14.2%</span>
-            </div>
+          <div class="market-card">
             <div class="market-logo-box">
               <img src="/media/logo/rotaract club of vmrf.jpg" alt="Rotaract Club of VMRF" />
             </div>
             <div class="market-name">Rotaract Club of VMRF</div>
-            <svg class="market-sparkline" viewBox="0 0 100 20">
-              <polyline fill="none" stroke="#2ecc71" stroke-width="2" points="0,12 25,16 50,10 75,14 100,5" />
-            </svg>
           </div>
 
-          <div class="market-card wave-down-mid">
-            <div class="market-card-top">
-              <span class="market-symbol">JEC</span>
-              <span class="market-trend-badge trend-up">▲ +19.6%</span>
-            </div>
+          <div class="market-card">
             <div class="market-logo-box">
               <img src="/media/logo/rotaract cub of jeppiaar enginnering college.png" alt="Jeppiaar Engineering College" />
             </div>
             <div class="market-name">Jeppiaar Eng. College</div>
-            <svg class="market-sparkline" viewBox="0 0 100 20">
-              <polyline fill="none" stroke="#2ecc71" stroke-width="2" points="0,16 20,14 45,9 70,12 100,4" />
-            </svg>
           </div>
 
-          <div class="market-card wave-up-high">
-            <div class="market-card-top">
-              <span class="market-symbol">JPU</span>
-              <span class="market-trend-badge trend-up">▲ +22.1%</span>
-            </div>
+          <div class="market-card">
             <div class="market-logo-box">
               <img src="/media/logo/rotaract club of jeppiaar universirty.jpg" alt="Jeppiaar University" />
             </div>
             <div class="market-name">Jeppiaar University</div>
-            <svg class="market-sparkline" viewBox="0 0 100 20">
-              <polyline fill="none" stroke="#2ecc71" stroke-width="2" points="0,14 25,11 50,15 75,7 100,3" />
-            </svg>
           </div>
 
-          <div class="market-card wave-down-low">
-            <div class="market-card-top">
-              <span class="market-symbol">SDNB</span>
-              <span class="market-trend-badge trend-up">▲ +18.4%</span>
-            </div>
+          <div class="market-card">
             <div class="market-logo-box">
               <img src="/media/logo/rotaract club of sdnb vaishnac college.jpg" alt="SDNB Vaishnav College" />
             </div>
             <div class="market-name">SDNB Vaishnav College</div>
-            <svg class="market-sparkline" viewBox="0 0 100 20">
-              <polyline fill="none" stroke="#2ecc71" stroke-width="2" points="0,17 30,13 60,11 80,6 100,2" />
-            </svg>
           </div>
 
-          <div class="market-card wave-up-mid">
-            <div class="market-card-top">
-              <span class="market-symbol">TNC</span>
-              <span class="market-trend-badge trend-up">▲ +27.9%</span>
-            </div>
+          <div class="market-card">
             <div class="market-logo-box">
               <img src="/media/logo/rotaract club of new college.png" alt="The New College" />
             </div>
             <div class="market-name">The New College</div>
-            <svg class="market-sparkline" viewBox="0 0 100 20">
-              <polyline fill="none" stroke="#2ecc71" stroke-width="2" points="0,15 25,9 50,12 75,5 100,1" />
-            </svg>
           </div>
 
-          <div class="market-card wave-down-mid">
-            <div class="market-card-top">
-              <span class="market-symbol">CHN</span>
-              <span class="market-trend-badge trend-up">▲ +16.3%</span>
-            </div>
+          <div class="market-card">
             <div class="market-logo-box">
               <img src="/media/logo/rotaract club of chennai.jpg" alt="Rotaract Club of Chennai" />
             </div>
             <div class="market-name">Rotaract Club of Chennai</div>
-            <svg class="market-sparkline" viewBox="0 0 100 20">
-              <polyline fill="none" stroke="#2ecc71" stroke-width="2" points="0,14 30,16 60,8 80,11 100,4" />
-            </svg>
           </div>
         </div>
       </div>
