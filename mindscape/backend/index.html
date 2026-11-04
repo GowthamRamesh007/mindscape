@@ -923,6 +923,332 @@
       margin: 0 auto;
     }
 
+    /* ==========================================================================
+       RULES & REGULATIONS SECTION
+       ========================================================================== */
+    .rules-section {
+      position: relative;
+    }
+
+    .rules-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    .rule-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 18px;
+      padding: 30px 26px;
+      backdrop-filter: blur(14px);
+      transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .rule-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(56, 189, 248, 0.4);
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5), 0 0 20px rgba(56, 189, 248, 0.12);
+    }
+
+    .rule-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      gap: 12px;
+    }
+
+    .rule-badge {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 99px;
+      background: rgba(200, 250, 96, 0.12);
+      color: var(--accent-neon);
+      border: 1px solid rgba(200, 250, 96, 0.3);
+    }
+
+    .rule-badge.cyan {
+      background: rgba(56, 189, 248, 0.12);
+      color: #38bdf8;
+      border-color: rgba(56, 189, 248, 0.3);
+    }
+
+    .rule-badge.magenta {
+      background: rgba(255, 43, 184, 0.12);
+      color: #ff8fe5;
+      border-color: rgba(255, 43, 184, 0.3);
+    }
+
+    .rule-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: #ffffff;
+      margin: 0 0 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .rule-intro {
+      font-size: 13px;
+      font-weight: 600;
+      color: #94a3b8;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .rule-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex-grow: 1;
+    }
+
+    .rule-list li {
+      font-size: 14px;
+      color: #cbd5e1;
+      line-height: 1.6;
+      position: relative;
+      padding-left: 22px;
+    }
+
+    .rule-list li::before {
+      content: "\25B9";
+      position: absolute;
+      left: 0;
+      top: 0;
+      color: var(--accent-neon);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .rule-list.cyan-bullet li::before {
+      color: #38bdf8;
+    }
+
+    .rule-list.magenta-bullet li::before {
+      color: #ff8fe5;
+    }
+
+    /* Legal & Ethical Guidelines Container */
+    .legal-ethical-wrap {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+      padding: 36px 32px;
+      margin-bottom: 32px;
+      backdrop-filter: blur(14px);
+    }
+
+    .legal-ethical-header {
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .legal-subgrid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .legal-subcard {
+      background: rgba(14, 8, 40, 0.55);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 14px;
+      padding: 22px 20px;
+      transition: border-color 0.25s ease;
+    }
+
+    .legal-subcard:hover {
+      border-color: rgba(200, 250, 96, 0.35);
+    }
+
+    .legal-subcard-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: #ffffff;
+      margin: 0 0 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .legal-subcard-title .subcard-num {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--accent-neon);
+      background: rgba(200, 250, 96, 0.12);
+      padding: 2px 7px;
+      border-radius: 6px;
+    }
+
+    /* Judging Criteria Showcase */
+    .judging-section-wrap {
+      margin-bottom: 32px;
+    }
+
+    .judging-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 16px;
+    }
+
+    @media (max-width: 980px) {
+      .judging-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      }
+    }
+
+    .judging-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 24px 20px;
+      text-align: center;
+      backdrop-filter: blur(12px);
+      transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .judging-card:hover {
+      transform: translateY(-5px);
+      border-color: var(--accent-neon);
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6), 0 0 24px rgba(200, 250, 96, 0.15);
+    }
+
+    .judging-num {
+      font-family: 'DM Mono', monospace;
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--accent-neon);
+      line-height: 1;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, #c8fa60, #38bdf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .judging-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: #ffffff;
+      line-height: 1.35;
+      margin: 0;
+    }
+
+    /* Disqualification Warning Card */
+    .disqualification-card {
+      position: relative;
+      background: linear-gradient(135deg, rgba(46, 12, 24, 0.85) 0%, rgba(20, 8, 16, 0.95) 100%);
+      border: 1px solid rgba(255, 83, 112, 0.45);
+      border-radius: 20px;
+      padding: 34px 30px;
+      backdrop-filter: blur(14px);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 30px rgba(255, 83, 112, 0.15);
+      overflow: hidden;
+    }
+
+    .disqualification-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 6px;
+      height: 100%;
+      background: linear-gradient(180deg, #ff5370, #ff8f82);
+    }
+
+    .disqualify-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .disqualify-badge {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 5px 12px;
+      border-radius: 99px;
+      background: rgba(255, 83, 112, 0.18);
+      color: #ff8f82;
+      border: 1px solid rgba(255, 83, 112, 0.4);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .disqualify-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: #ffffff;
+      margin: 0 0 8px;
+    }
+
+    .disqualify-desc {
+      font-size: 14px;
+      font-weight: 600;
+      color: #ffb8b0;
+      margin-bottom: 18px;
+    }
+
+    .disqualify-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 12px;
+    }
+
+    .disqualify-list li {
+      font-size: 13.5px;
+      color: #f1cbd2;
+      line-height: 1.55;
+      position: relative;
+      padding-left: 24px;
+    }
+
+    .disqualify-list li::before {
+      content: "\2715";
+      position: absolute;
+      left: 0;
+      top: 0;
+      color: #ff5370;
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+
     /* Registration Section */
     .reg-steps-grid {
       display: grid;
@@ -1417,6 +1743,7 @@
       <a href="#about" class="nav-link">About</a>
       <a href="#partners" class="nav-link">Partners</a>
       <a href="#prizes" class="nav-link">Prize Pool</a>
+      <a href="#rules" class="nav-link">Rules</a>
       <a href="#registration" class="nav-link">Registration</a>
       <a href="#submit" class="nav-link">Submit Reel</a>
       <a href="#leadership" class="nav-link">Leadership</a>
@@ -1850,7 +2177,236 @@
       </div>
     </section>
 
-    <!-- 5. Registration -->
+    <!-- 5. Rules & Regulations Section -->
+    <section class="section-wrap rules-section" id="rules">
+      <div class="section-header">
+        <span class="section-kicker">Official Competition Rulebook</span>
+        <h2 class="section-title">Rules &amp; <span>Regulations</span></h2>
+        <p class="section-desc">
+          To ensure fairness, creative authenticity, safety, and responsible mental health advocacy, all participating teams must adhere strictly to the guidelines detailed below.
+        </p>
+      </div>
+
+      <!-- Core Rule Cards: A to E -->
+      <div class="rules-cards-grid">
+        <!-- A. ELIGIBILITY -->
+        <div class="rule-card">
+          <div class="rule-card-header">
+            <span class="rule-badge">ELIGIBILITY</span>
+          </div>
+          <h3 class="rule-title">A. Eligibility</h3>
+          <ul class="rule-list">
+            <li>Open to individuals aged 18 years and above.</li>
+            <li>Participants from any educational background are welcome.</li>
+            <li>Entries must be submitted as a team.</li>
+            <li>Participation certificates will be provided to all eligible participants.</li>
+          </ul>
+        </div>
+
+        <!-- B. CONTENT GUIDELINES -->
+        <div class="rule-card">
+          <div class="rule-card-header">
+            <span class="rule-badge cyan">CONTENT STANDARDS</span>
+          </div>
+          <h3 class="rule-title">B. Content Guidelines</h3>
+          <div class="rule-intro">The reel must:</div>
+          <ul class="rule-list cyan-bullet">
+            <li>Promote mental health awareness and responsible awareness of mobile phone addiction.</li>
+            <li>Be suitable for public viewing.</li>
+            <li>Avoid vulgar, obscene, abusive, offensive, or adult content (18+).</li>
+            <li>Avoid disrespectful acts, gestures, language, or behaviour.</li>
+            <li>Not promote bullying, harassment, discrimination, hatred, or humiliation.</li>
+            <li>Not glorify or encourage harmful behaviour.</li>
+          </ul>
+        </div>
+
+        <!-- C. ORIGINALITY -->
+        <div class="rule-card">
+          <div class="rule-card-header">
+            <span class="rule-badge magenta">CREATIVE INTEGRITY</span>
+          </div>
+          <h3 class="rule-title">C. Originality</h3>
+          <ul class="rule-list magenta-bullet">
+            <li>The reel must be original content created by the participating team.</li>
+            <li>Plagiarism or copying another creator's work is strictly prohibited.</li>
+            <li>Participants are responsible for obtaining permission for copyrighted music, footage, images, and other third-party materials.</li>
+            <li>AI tools may be used for editing, animation, voice-over, or design. However, the concept, script, and presentation must reflect the team's originality.</li>
+          </ul>
+        </div>
+
+        <!-- D. RELEVANCE TO THE THEME -->
+        <div class="rule-card">
+          <div class="rule-card-header">
+            <span class="rule-badge">THEMATIC FOCUS</span>
+          </div>
+          <h3 class="rule-title">D. Relevance to the Theme</h3>
+          <ul class="rule-list">
+            <li>The reel must clearly communicate a message related to mobile phone addiction.</li>
+            <li>Creative interpretation is encouraged.</li>
+            <li>Content unrelated to the theme will not be considered.</li>
+            <li>The competition aims to promote awareness, empathy, education, emotional well-being, early support, help-seeking, recovery, and hope.</li>
+            <li>Avoid sensationalism, shock value, tragedy, and harmful portrayals of mental health.</li>
+          </ul>
+        </div>
+
+        <!-- E. SUBMISSION GUIDELINES -->
+        <div class="rule-card">
+          <div class="rule-card-header">
+            <span class="rule-badge cyan">SUBMISSION SPECS</span>
+          </div>
+          <h3 class="rule-title">E. Submission Guidelines</h3>
+          <ul class="rule-list cyan-bullet">
+            <li>The completed reel must be submitted on or before <strong>8 November 2026</strong>.</li>
+            <li>Use the specified website submission method.</li>
+            <li>Participants must ensure that the submitted video is clear and of good quality.</li>
+            <li>Once submitted, changes may not be permitted unless allowed by the organisers.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- F. LEGAL & ETHICAL GUIDELINES -->
+      <div class="legal-ethical-wrap">
+        <div class="legal-ethical-header">
+          <div>
+            <h3 class="rule-title" style="margin-bottom: 4px;">F. Legal &amp; Ethical Guidelines</h3>
+            <p style="color: #94a3b8; font-size: 13.5px; margin: 0;">Principles governing ethical storytelling, sensitive advocacy, participant consent, and public safety.</p>
+          </div>
+          <span class="rule-badge magenta">LEGAL &amp; ETHICS</span>
+        </div>
+
+        <div class="legal-subgrid">
+          <!-- 1. Content & Theme -->
+          <div class="legal-subcard">
+            <div class="legal-subcard-title">
+              <span class="subcard-num">01</span> Content &amp; Theme
+            </div>
+            <ul class="rule-list">
+              <li>Treat mental health topics with sensitivity, empathy, accuracy, and responsibility.</li>
+              <li>Mental health experiences must be presented respectfully.</li>
+              <li>Do not mock, shame, ridicule, or stereotype people experiencing mental health difficulties.</li>
+              <li>Avoid spreading myths, misinformation, or misleading claims.</li>
+            </ul>
+          </div>
+
+          <!-- 2. Respect & Privacy -->
+          <div class="legal-subcard">
+            <div class="legal-subcard-title">
+              <span class="subcard-num">02</span> Respect &amp; Privacy
+            </div>
+            <ul class="rule-list cyan-bullet">
+              <li>Obtain consent from all identifiable individuals appearing in the reel.</li>
+              <li>Obtain permission before recording anyone.</li>
+              <li>Do not record or use personal information without permission.</li>
+              <li>Parental or guardian consent is required if minors appear.</li>
+            </ul>
+          </div>
+
+          <!-- 3. Accuracy & Responsibility -->
+          <div class="legal-subcard">
+            <div class="legal-subcard-title">
+              <span class="subcard-num">03</span> Accuracy &amp; Responsibility
+            </div>
+            <ul class="rule-list magenta-bullet">
+              <li>Ensure all information presented is accurate and responsible.</li>
+              <li>Promote awareness, empathy, understanding, and positive mental well-being.</li>
+              <li>Avoid misleading claims about mental health or mobile phone addiction.</li>
+            </ul>
+          </div>
+
+          <!-- 4. Copyright & AI Usage -->
+          <div class="legal-subcard">
+            <div class="legal-subcard-title">
+              <span class="subcard-num">04</span> Copyright &amp; AI Usage
+            </div>
+            <ul class="rule-list">
+              <li>Participants are responsible for ensuring that music, images, videos, graphics, and other materials do not violate copyright regulations.</li>
+              <li>Obtain the necessary permissions for third-party content.</li>
+              <li>AI tools are permitted for editing, animation, voice-over, and design, but the creative concept and presentation must remain original.</li>
+            </ul>
+          </div>
+
+          <!-- 5. Safety -->
+          <div class="legal-subcard">
+            <div class="legal-subcard-title">
+              <span class="subcard-num">05</span> Safety
+            </div>
+            <ul class="rule-list cyan-bullet">
+              <li>Filming must not involve dangerous activities, restricted areas, public disturbances, or situations that compromise the safety or privacy of others.</li>
+            </ul>
+          </div>
+
+          <!-- 6. Final Decision -->
+          <div class="legal-subcard">
+            <div class="legal-subcard-title">
+              <span class="subcard-num">06</span> Final Decision
+            </div>
+            <ul class="rule-list magenta-bullet">
+              <li>Any submission violating the rules, regulations, or ethical guidelines may be disqualified.</li>
+              <li>The judging panel's decision regarding eligibility and winner selection shall be final and binding.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- G. JUDGING CRITERIA -->
+      <div class="judging-section-wrap">
+        <div style="text-align: center; margin-bottom: 24px;">
+          <span class="section-kicker" style="color: var(--accent-neon);">Evaluation Rubric</span>
+          <h3 class="rule-title" style="justify-content: center; font-size: 24px; margin-bottom: 6px;">G. Judging Criteria</h3>
+          <p style="color: #94a3b8; font-size: 14px; margin: 0;">Submissions are evaluated by our distinguished jury across five core criteria:</p>
+        </div>
+
+        <div class="judging-grid">
+          <div class="judging-card">
+            <div class="judging-num">01</div>
+            <div class="judging-title">Relevance to the Theme</div>
+          </div>
+          <div class="judging-card">
+            <div class="judging-num">02</div>
+            <div class="judging-title">Creativity &amp; Originality</div>
+          </div>
+          <div class="judging-card">
+            <div class="judging-num">03</div>
+            <div class="judging-title">Message &amp; Impact</div>
+          </div>
+          <div class="judging-card">
+            <div class="judging-num">04</div>
+            <div class="judging-title">Storytelling</div>
+          </div>
+          <div class="judging-card">
+            <div class="judging-num">05</div>
+            <div class="judging-title">Presentation &amp; Execution &ndash; Overall Effectiveness</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- H. DISQUALIFICATION -->
+      <div class="disqualification-card">
+        <div class="disqualify-header">
+          <div>
+            <h3 class="disqualify-title">H. Disqualification</h3>
+            <div class="disqualify-desc">An entry may be disqualified if:</div>
+          </div>
+          <span class="disqualify-badge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            IMPORTANT NOTE
+          </span>
+        </div>
+
+        <ul class="disqualify-list">
+          <li>It violates any of the rules mentioned in the rulebook.</li>
+          <li>It contains 18+ or adult content.</li>
+          <li>It contains vulgar, obscene, abusive, or offensive content.</li>
+          <li>It includes disrespectful acts, language, or behaviour.</li>
+          <li>It is unrelated to the given theme.</li>
+          <li>It contains plagiarised or unauthorised content.</li>
+          <li>False or misleading registration information is provided.</li>
+          <li>The reel is submitted after the specified deadline.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 6. Registration -->
     <section class="section-wrap" id="registration">
       <div class="section-header">
         <span class="section-kicker">How To Participate</span>
@@ -2075,7 +2631,7 @@
       </div>
     </section>
 
-    <!-- 7. Leadership Section (At the Bottom, After Submit Reel) -->
+    <!-- 8. Leadership Section (At the Bottom, After Submit Reel) -->
     <section class="leadership-section" id="leadership">
       <div class="section-header">
         <span class="section-kicker">Organizing Committee</span>

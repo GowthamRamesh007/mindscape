@@ -236,6 +236,7 @@ def serve_portal():
 @app.get("/register")
 @app.get("/prize-pool")
 @app.get("/prizes")
+@app.get("/rules")
 @app.get("/faq")
 def serve_index():
     candidates_index = [

@@ -39,6 +39,10 @@
       "destination": "/index.html"
     },
     {
+      "source": "/rules",
+      "destination": "/index.html"
+    },
+    {
       "source": "/faq",
       "destination": "/index.html"
     }
