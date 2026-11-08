@@ -26,6 +26,15 @@ except ModuleNotFoundError:
     from routes.submissions import router as submissions_router
     from routes.admin import router as admin_router
 
+for _p in [
+    project_root / ".env",
+    project_root / ".env" / ".env",
+    current_file.parent / ".env",
+    Path.cwd() / ".env",
+    Path.cwd() / ".env" / ".env"
+]:
+    if _p.is_file():
+        load_dotenv(_p)
 load_dotenv()
 
 app = FastAPI(

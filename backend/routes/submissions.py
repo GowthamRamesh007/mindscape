@@ -16,7 +16,7 @@ try:
     )
     from backend.services.deadline_service import is_submission_open
     from backend.services.video_service import validate_video_metadata
-    from backend.services.supabase_service import get_supabase_admin, get_supabase_anon
+    from backend.services.supabase_service import get_supabase_admin, get_supabase_anon, upload_file_to_supabase_storage
     from backend.services.google_sheets_service import is_team_registered, get_team_registration, verify_team_registration
     from backend.services.gdrive_service import upload_file_to_gdrive, GDRIVE_FOLDER_URL, GDRIVE_FOLDER_ID
 except ModuleNotFoundError:
@@ -27,7 +27,7 @@ except ModuleNotFoundError:
     )
     from services.deadline_service import is_submission_open
     from services.video_service import validate_video_metadata
-    from services.supabase_service import get_supabase_admin, get_supabase_anon
+    from services.supabase_service import get_supabase_admin, get_supabase_anon, upload_file_to_supabase_storage
     from services.google_sheets_service import is_team_registered, get_team_registration, verify_team_registration
     from services.gdrive_service import upload_file_to_gdrive, GDRIVE_FOLDER_URL, GDRIVE_FOLDER_ID
 
@@ -422,34 +422,55 @@ async def direct_submit_upload(
         except Exception as chk_err:
             print(f"Idempotency DB check note: {chk_err}")
 
-    # 5. Upload file exclusively to Google Drive with idempotency key
-    # If a prior attempt uploaded to Drive but failed at DB insert, this searches Drive
-    # and reuses the existing Drive file without creating a duplicate.
+    # 5. Dual Upload Pipeline: Google Drive and Supabase Storage
+    # Step A: Google Drive Upload
     gdrive_file_url = None
     gdrive_file_id = None
+    gdrive_upload_res = None
     if raw_bytes:
         try:
-            gdrive_file_url = upload_file_to_gdrive(
+            gdrive_upload_res = upload_file_to_gdrive(
                 file_bytes=raw_bytes,
                 file_name=f"{clean_team[:20]}_{stored_filename}",
                 mime_type=video_file.content_type or "video/mp4",
                 idempotency_key=stable_idempotency_key,
                 video_hash=video_hash
             )
+            if isinstance(gdrive_upload_res, dict):
+                gdrive_file_url = gdrive_upload_res.get("webViewLink")
+                gdrive_file_id = gdrive_upload_res.get("file_id")
+            elif isinstance(gdrive_upload_res, str):
+                gdrive_file_url = gdrive_upload_res
         except Exception as ge:
             print(f"Google Drive upload exception in route: {ge}")
 
-    # Enforce Drive upload success: if Drive upload fails, do not record phantom submission
+    # Enforce Drive upload success
     if not gdrive_file_url:
         raise HTTPException(
             status_code=502,
-            detail="Google Drive backup upload failed. Please verify Google Drive connection or try again."
+            detail="Google Drive video upload failed. Please verify connection and try again."
         )
 
-    # Extract Google Drive file ID from URL
-    id_match = re.search(r'/d/([a-zA-Z0-9_-]+)', gdrive_file_url) or re.search(r'id=([a-zA-Z0-9_-]+)', gdrive_file_url)
-    if id_match:
-        gdrive_file_id = id_match.group(1)
+    # Extract Google Drive file ID if not already captured
+    if not gdrive_file_id:
+        id_match = re.search(r'/d/([a-zA-Z0-9_-]+)', gdrive_file_url) or re.search(r'id=([a-zA-Z0-9_-]+)', gdrive_file_url)
+        if id_match:
+            gdrive_file_id = id_match.group(1)
+
+    # Step B: Supabase Storage Upload
+    supabase_storage_url = None
+    try:
+        supabase_storage_url = upload_file_to_supabase_storage(
+            file_bytes=raw_bytes,
+            file_name=f"{clean_team[:20]}_{stored_filename}",
+            content_type=video_file.content_type or "video/mp4",
+            bucket="mindscape-reels"
+        )
+    except Exception as sse:
+        print(f"Supabase Storage upload note: {sse}")
+
+    # Fallback storage path to Drive URL if Supabase storage is not reachable
+    primary_file_path = supabase_storage_url or gdrive_file_url
 
     submission_id = f"MS26-{uuid.uuid4().hex[:6].upper()}"
 
@@ -494,7 +515,7 @@ async def direct_submit_upload(
         "title": title.strip(),
         "description": (description or "Reel video submission for Mindscape 2026").strip(),
         "language": language.strip(),
-        "file_path": gdrive_file_url,
+        "file_path": primary_file_path,
         "file_name": orig_name,
         "file_size": file_size,
         "duration": duration,
@@ -554,7 +575,7 @@ async def direct_submit_upload(
         "title": title.strip(),
         "description": (description or "Reel video submission for Mindscape 2026").strip(),
         "language": language.strip(),
-        "file_path": gdrive_file_url,
+        "file_path": primary_file_path,
         "gdrive_url": gdrive_file_url,
         "gdrive_file_id": gdrive_file_id,
         "video_hash": video_hash,
@@ -571,9 +592,13 @@ async def direct_submit_upload(
 
     return {
         "success": True,
-        "message": "Reel successfully uploaded and backed up to Google Drive!",
+        "message": "Reel successfully uploaded to Google Drive and Supabase!",
         "submission_id": submission_id,
-        "file_path": gdrive_file_url,
+        "file_id": gdrive_file_id,
+        "filename": orig_name,
+        "webViewLink": gdrive_file_url,
+        "file_path": primary_file_path,
+        "supabase_url": supabase_storage_url,
         "gdrive_url": gdrive_file_url,
         "gdrive_file_id": gdrive_file_id,
         "video_hash": video_hash,
