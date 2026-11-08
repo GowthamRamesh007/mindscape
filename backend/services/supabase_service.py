@@ -1,6 +1,6 @@
 import os
 import json
-from typing import Optional
+from typing import Optional, Dict, Any
 from pathlib import Path
 from dotenv import load_dotenv
 from supabase import create_client, Client
@@ -108,7 +108,6 @@ def ensure_storage_bucket(bucket: str = "mindscape-reels") -> bool:
     if not client:
         return False
     try:
-        # Check if bucket exists
         buckets = client.storage.list_buckets()
         existing = [b.name for b in buckets if hasattr(b, 'name')]
         if bucket not in existing:
@@ -121,6 +120,58 @@ def ensure_storage_bucket(bucket: str = "mindscape-reels") -> bool:
     except Exception as e:
         print(f"[Supabase] Storage bucket check note: {e}")
         return False
+
+def create_signed_supabase_upload(storage_path: str, bucket: str = "mindscape-reels") -> Optional[Dict[str, Any]]:
+    """
+    Generates a secure, short-lived signed upload URL for the browser client to upload directly
+    to Supabase Storage without proxying video binaries through Vercel Functions.
+    """
+    admin = get_supabase_admin()
+    if not admin:
+        return None
+    try:
+        ensure_storage_bucket(bucket)
+        res = admin.storage.from_(bucket).create_signed_upload_url(storage_path)
+        if res and isinstance(res, dict) and (res.get("signed_url") or res.get("signedUrl")):
+            signed_url = res.get("signed_url") or res.get("signedUrl")
+            pub_url = admin.storage.from_(bucket).get_public_url(storage_path)
+            return {
+                "signed_url": signed_url,
+                "token": res.get("token"),
+                "path": storage_path,
+                "public_url": pub_url,
+                "bucket": bucket
+            }
+    except Exception as e:
+        print(f"[Supabase Storage] Error creating signed upload URL: {e}")
+    return None
+
+def verify_supabase_storage_object(storage_path: str, bucket: str = "mindscape-reels") -> Optional[Dict[str, Any]]:
+    """
+    Verifies that an uploaded video object exists in Supabase Storage and returns its metadata.
+    """
+    admin = get_supabase_admin() or get_supabase_anon()
+    if not admin or not storage_path:
+        return None
+    try:
+        # Check parent folder and filename
+        path_parts = storage_path.strip("/").split("/")
+        folder = "/".join(path_parts[:-1]) if len(path_parts) > 1 else ""
+        file_name = path_parts[-1]
+        
+        file_list = admin.storage.from_(bucket).list(folder)
+        for item in file_list:
+            if item.get("name") == file_name:
+                pub_url = admin.storage.from_(bucket).get_public_url(storage_path)
+                return {
+                    "exists": True,
+                    "metadata": item.get("metadata", {}),
+                    "size": item.get("metadata", {}).get("size") or item.get("metadata", {}).get("contentLength"),
+                    "public_url": pub_url
+                }
+    except Exception as e:
+        print(f"[Supabase Storage] Error verifying object {storage_path}: {e}")
+    return None
 
 def upload_file_to_supabase_storage(file_bytes: bytes, file_name: str, content_type: str = "video/mp4", bucket: str = "mindscape-reels") -> Optional[str]:
     """Uploads video file binary to Supabase Storage bucket and returns the public CDN URL."""
@@ -140,7 +191,6 @@ def upload_file_to_supabase_storage(file_bytes: bytes, file_name: str, content_t
                 file=file_bytes,
                 file_options={"content-type": content_type, "upsert": "true"}
             )
-            # Fetch public URL
             pub_res = client.storage.from_(b).get_public_url(storage_path)
             if pub_res:
                 print(f"[Supabase Storage] Uploaded to bucket '{b}': {pub_res}")

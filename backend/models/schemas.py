@@ -61,6 +61,36 @@ class DirectReelUploadRequest(BaseModel):
     rules_confirmed: bool = True
     final_lock_confirmed: bool = True
 
+class PrepareDirectUploadRequest(BaseModel):
+    team_name: str = Field(..., min_length=2, max_length=120)
+    file_name: str = Field(..., min_length=1)
+    file_size: int = Field(..., gt=0, le=100 * 1024 * 1024)
+    duration: float = Field(..., ge=20.0, le=50.0)
+    width: int
+    height: int
+    video_hash: Optional[str] = None
+    mime_type: Optional[str] = "video/mp4"
+
+class FinalizeDirectUploadRequest(BaseModel):
+    team_name: str = Field(..., min_length=2, max_length=120)
+    title: str = Field(..., min_length=2, max_length=150)
+    language: str = Field(default="Tamil", max_length=50)
+    representative_name: Optional[str] = "Registered Team"
+    representative_email: Optional[str] = "participant@mindscape.org"
+    representative_phone: Optional[str] = "0000000000"
+    institution: Optional[str] = "College / Institution"
+    city: Optional[str] = "Chennai"
+    description: Optional[str] = "Reel video submission for Mindscape 2026"
+    file_name: str
+    file_size: int
+    duration: float = Field(..., ge=20.0, le=50.0)
+    width: int
+    height: int
+    video_hash: Optional[str] = ""
+    gdrive_file_id: str
+    gdrive_web_link: Optional[str] = ""
+    supabase_storage_path: str
+
 class ScoreSubmissionRequest(BaseModel):
     relevance_score: float = Field(..., ge=0, le=10)
     creativity_score: float = Field(..., ge=0, le=10)

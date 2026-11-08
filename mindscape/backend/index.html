@@ -2982,26 +2982,138 @@
       fd.append("description", `Reel submission for team ${teamName}`);
       fd.append("duration", videoMetadata ? videoMetadata.duration : 30.0);
       fd.append("width", videoMetadata ? videoMetadata.width : 1080);
-      fd.append("height", videoMetadata ? videoMetadata.height : 1920);
+      fd.append("height", videoMetadata ? videoMetadata.height : 1920);      try {
+        progressBar.style.width = "15%";
+        progressPct.innerText = "15%";
+        if (progressLabel) progressLabel.innerText = "Initializing secure cloud upload session...";
 
-      try {
-        progressBar.style.width = "50%";
-        progressPct.innerText = "50%";
-        if (progressLabel) progressLabel.innerText = "Backing up video to Google Drive...";
+        // Step 1: Request direct upload authorization from backend
+        const prepPayload = {
+          team_name: teamName,
+          file_name: selectedFile.name || "reel.mp4",
+          file_size: selectedFile.size,
+          duration: videoMetadata ? videoMetadata.duration : 30.0,
+          width: videoMetadata ? videoMetadata.width : 1080,
+          height: videoMetadata ? videoMetadata.height : 1920,
+          mime_type: selectedFile.type || "video/mp4"
+        };
 
-        const res = await fetch(`${API_BASE}/api/submissions/direct-submit-upload`, {
+        const prepRes = await fetch(`${API_BASE}/api/submissions/prepare-direct-upload`, {
           method: "POST",
-          body: fd
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(prepPayload)
         });
 
-        if (!res.ok) {
-          const errData = await res.json().catch(() => null);
-          throw new Error(errData?.detail || `Upload rejected by server (${res.status})`);
+        if (!prepRes.ok) {
+          const errData = await prepRes.json().catch(() => null);
+          throw new Error(errData?.detail || `Upload session rejected (${prepRes.status})`);
         }
 
-        const data = await res.json();
+        const prepData = await prepRes.json();
+        if (prepData.already_submitted) {
+          progressBar.style.width = "100%";
+          progressPct.innerText = "100%";
+          document.getElementById("success-video-team").innerText = teamName;
+          document.getElementById("success-video-title").innerText = `"${title}" (${language})`;
+          document.getElementById("success-ref-id").innerText = prepData.submission_id || "MS-2026-CONFIRMED";
+          form.style.display = "none";
+          document.getElementById("submit-success-box").style.display = "block";
+          return;
+        }
+
+        const { supabase_upload, gdrive_upload } = prepData;
+
+        // Step 2: Upload directly to Supabase Storage (Client to Supabase, 0 bytes through Vercel)
+        progressBar.style.width = "35%";
+        progressPct.innerText = "35%";
+        if (progressLabel) progressLabel.innerText = "Storing video in Mindscape Cloud Repository (1/2)...";
+
+        const supaRes = await fetch(supabase_upload.signed_url, {
+          method: "PUT",
+          headers: {
+            "Content-Type": selectedFile.type || "video/mp4"
+          },
+          body: selectedFile
+        });
+
+        if (!supaRes.ok) {
+          throw new Error(`Supabase storage upload failed with status ${supaRes.status}`);
+        }
+
+        // Step 3: Upload directly to Google Drive Resumable Session (Client to Google Drive, 0 bytes through Vercel)
+        progressBar.style.width = "65%";
+        progressPct.innerText = "65%";
+        if (progressLabel) progressLabel.innerText = "Backing up video to Google Drive (2/2)...";
+
+        let gdriveFileId = null;
+        let gdriveWebLink = null;
+
+        if (gdrive_upload.already_uploaded && gdrive_upload.file_id) {
+          gdriveFileId = gdrive_upload.file_id;
+          gdriveWebLink = gdrive_upload.webViewLink;
+        } else if (gdrive_upload.resumable_url) {
+          const driveRes = await fetch(gdrive_upload.resumable_url, {
+            method: "PUT",
+            headers: {
+              "Content-Type": selectedFile.type || "video/mp4",
+              "Content-Range": `bytes 0-${selectedFile.size - 1}/${selectedFile.size}`
+            },
+            body: selectedFile
+          });
+
+          if (!driveRes.ok && driveRes.status !== 200 && driveRes.status !== 201) {
+            throw new Error(`Google Drive backup upload failed with status ${driveRes.status}`);
+          }
+
+          const driveData = await driveRes.json().catch(() => null);
+          if (!driveData || !driveData.id) {
+            throw new Error("Google Drive did not return file identifier.");
+          }
+          gdriveFileId = driveData.id;
+          gdriveWebLink = driveData.webViewLink || `https://drive.google.com/file/d/${driveData.id}/view`;
+        } else {
+          throw new Error("Missing Google Drive upload target.");
+        }
+
+        // Step 4: Finalize metadata with Mindscape Backend (Lightweight JSON, < 1 KB payload)
+        progressBar.style.width = "90%";
+        progressPct.innerText = "90%";
+        if (progressLabel) progressLabel.innerText = "Finalizing and locking submission...";
+
+        const finPayload = {
+          team_name: teamName,
+          title: title,
+          language: language,
+          representative_name: repName,
+          representative_email: repEmail,
+          representative_phone: repPhone,
+          institution: institution,
+          city: city,
+          description: `Reel submission for team ${teamName}`,
+          file_name: selectedFile.name || "reel.mp4",
+          file_size: selectedFile.size,
+          duration: videoMetadata ? videoMetadata.duration : 30.0,
+          width: videoMetadata ? videoMetadata.width : 1080,
+          height: videoMetadata ? videoMetadata.height : 1920,
+          gdrive_file_id: gdriveFileId,
+          gdrive_web_link: gdriveWebLink,
+          supabase_storage_path: supabase_upload.storage_path
+        };
+
+        const finRes = await fetch(`${API_BASE}/api/submissions/finalize-direct-upload`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(finPayload)
+        });
+
+        if (!finRes.ok) {
+          const errData = await finRes.json().catch(() => null);
+          throw new Error(errData?.detail || `Submission finalization failed (${finRes.status})`);
+        }
+
+        const data = await finRes.json();
         if (!data || !data.success) {
-          throw new Error(data?.message || "Google Drive upload failed.");
+          throw new Error(data?.message || "Submission confirmation failed.");
         }
 
         progressBar.style.width = "100%";

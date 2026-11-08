@@ -49,7 +49,6 @@ def get_google_drive_credentials() -> Optional[Dict[str, Any]]:
     env_refresh = os.getenv("GOOGLE_REFRESH_TOKEN", "").strip()
     folder_id = os.getenv("GDRIVE_FOLDER_ID", GDRIVE_FOLDER_ID).strip()
 
-    # If refresh token in environment is present, try checking if it works
     if client_id and client_secret and env_refresh:
         return {
             "client_id": client_id,
@@ -125,7 +124,6 @@ def get_fresh_access_token(refresh_token: str, client_id: Optional[str] = None, 
                 return access_token
             logger.error("[GDrive] Token refresh response did not contain access_token.")
     except urllib.error.HTTPError as he:
-        # If env refresh token returned 401, check Supabase table as fallback
         logger.warning(f"[GDrive] HTTP error during token refresh (Status {he.code}). Checking DB connection fallback...")
         client = get_supabase_admin() or get_supabase_anon()
         if client:
@@ -194,6 +192,97 @@ def find_file_by_idempotency_key(idempotency_key: str) -> Optional[Dict[str, Any
         logger.warning(f"[GDrive] Idempotency search note: {e}")
 
     return None
+
+def verify_gdrive_file(file_id: str) -> Optional[Dict[str, Any]]:
+    """
+    Verifies that a Google Drive file exists in the designated folder and is not trashed.
+    Returns metadata dict if valid, else None.
+    """
+    if not file_id:
+        return None
+
+    creds = get_google_drive_credentials()
+    if not creds or not creds.get("refresh_token"):
+        return None
+
+    access_token = get_fresh_access_token(creds["refresh_token"], creds.get("client_id"), creds.get("client_secret"))
+    if not access_token:
+        return None
+
+    url = f"https://www.googleapis.com/drive/v3/files/{file_id}?fields=id,name,size,mimeType,parents,trashed,webViewLink"
+    req = urllib.request.Request(url, headers={"Authorization": f"Bearer {access_token}"})
+    try:
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+            if data.get("trashed") is True:
+                logger.warning(f"[GDrive] File {file_id} is in trash.")
+                return None
+            return data
+    except Exception as e:
+        logger.warning(f"[GDrive] File verification error for {file_id}: {e}")
+        return None
+
+def create_client_resumable_upload_session(
+    file_name: str,
+    mime_type: str,
+    file_size: int,
+    idempotency_key: Optional[str] = None,
+    video_hash: Optional[str] = None
+) -> Optional[Dict[str, Any]]:
+    """
+    Creates a resumable upload session on Google Drive API v3 and returns the session upload URL
+    for the browser client to upload directly without proxying video bytes through Vercel.
+    Checks idempotency first to reuse existing file if already uploaded.
+    """
+    # 1. Search Google Drive folder for an existing file with the same idempotency_key
+    if idempotency_key:
+        existing_drive = find_file_by_idempotency_key(idempotency_key)
+        if existing_drive:
+            logger.info(f"[GDrive] Idempotent match found in Drive folder: {existing_drive['webViewLink']} (File ID: {existing_drive['file_id']})")
+            return {
+                "resumable_url": None,
+                "already_uploaded": True,
+                "file_id": existing_drive["file_id"],
+                "filename": file_name,
+                "webViewLink": existing_drive["webViewLink"]
+            }
+
+    creds = get_google_drive_credentials()
+    if not creds or not creds.get("refresh_token"):
+        logger.warning("[GDrive] No Google Drive credentials / refresh_token found.")
+        return None
+
+    refresh_token = creds["refresh_token"]
+    drive_folder_id = creds.get("drive_folder_id") or GDRIVE_FOLDER_ID
+
+    access_token = get_fresh_access_token(refresh_token, creds.get("client_id"), creds.get("client_secret"))
+    if not access_token:
+        logger.error("[GDrive] Failed to obtain access token.")
+        return None
+
+    app_props = {}
+    if idempotency_key:
+        app_props["idempotency_key"] = idempotency_key
+    if video_hash:
+        app_props["video_hash"] = video_hash
+
+    session_url = _create_resumable_upload_session(
+        access_token=access_token,
+        file_name=file_name,
+        mime_type=mime_type,
+        file_size=file_size,
+        folder_id=drive_folder_id,
+        app_properties=app_props if app_props else None
+    )
+
+    if not session_url:
+        return None
+
+    return {
+        "resumable_url": session_url,
+        "already_uploaded": False,
+        "folder_id": drive_folder_id
+    }
 
 def _create_resumable_upload_session(
     access_token: str,
@@ -311,16 +400,7 @@ def upload_file_to_gdrive(
     video_hash: Optional[str] = None
 ) -> Optional[Dict[str, Any]]:
     """
-    Uploads a video directly to Google Drive API v3 using configured Google Drive credentials.
-    First checks if a file with the given idempotency_key already exists in the folder;
-    if so, reuses and returns that file's info without re-uploading.
-    Attaches appProperties for idempotency tracking.
-    Returns:
-    {
-        "file_id": file_id,
-        "filename": file_name,
-        "webViewLink": drive_file_url
-    }
+    Server-side fallback: uploads a video directly to Google Drive API v3.
     """
     if not file_bytes:
         logger.error("[GDrive] Cannot upload empty file bytes.")
