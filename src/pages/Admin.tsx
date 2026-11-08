@@ -21,7 +21,7 @@ const fallbackRows: SubmissionRow[] = [
   { id: "MS-26-07A4", name: "Ananya Raman", title: "the colour of a quiet day", institution: "SDNB Vaishnav College", status: "Under review", tone: "tone-coral", time: "12 min ago", format: "MP4 · 24.8 MB · 00:32" },
   { id: "MS-26-07A3", name: "Kavin Raj", title: "things I notice on the bus", institution: "Rotaract Club of Vepery", status: "Received", tone: "tone-sky", time: "38 min ago", format: "MOV · 42.1 MB · 00:40" },
   { id: "MS-26-07A2", name: "Nisha Menon", title: "softness is a superpower", institution: "Jeppiaar University", status: "Approved", tone: "tone-lime", time: "1 hr ago", format: "MP4 · 18.5 MB · 00:28" },
-  { id: "MS-26-07A1", name: "Riya Shah", title: "a map of my grandmother's kitchen", institution: "The New College", status: "Featured", tone: "tone-violet", time: "2 hrs ago", format: "MP4 · 31.0 MB · 00:44" },
+  { id: "MS-26-07A1", name: "Riya Shah", title: "a map of my grandmother's kitchen", institution: "New College", status: "Featured", tone: "tone-violet", time: "2 hrs ago", format: "MP4 · 31.0 MB · 00:44" },
 ];
 
 export default function Admin() {
