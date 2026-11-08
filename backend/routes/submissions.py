@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Header, UploadFile, File, Form
+from fastapi import APIRouter, HTTPException, Header, UploadFile, File, Form, Request
 from typing import Optional
 import json
 import uuid
@@ -738,6 +738,71 @@ def prepare_direct_upload(payload: PrepareDirectUploadRequest):
         "gdrive_upload": gdrive_session,
         "team": verification.get("team")
     }
+
+@router.put("/gdrive-chunk-upload")
+@router.put("/gdrive-chunk-upload/")
+async def gdrive_chunk_upload(
+    request: Request,
+    session_url: str = Header(..., alias="X-GDrive-Session-Url"),
+    content_range: str = Header(..., alias="Content-Range"),
+    content_type: str = Header("video/mp4", alias="Content-Type")
+):
+    """
+    Relays a single video chunk (max 4 MB) from the browser to the Google Drive resumable session.
+    Keeps browser-to-Vercel payload below Vercel's 4.5 MB request-body limit.
+    Bypasses browser CORS restrictions by performing server-to-server PUT to www.googleapis.com.
+    Returns:
+      - 308 Resume Incomplete with Range header if more chunks needed
+      - 200/201 with final file payload once the last chunk is uploaded
+    """
+    if not session_url or not session_url.startswith("https://www.googleapis.com/upload/drive/v3/files"):
+        raise HTTPException(status_code=400, detail="Invalid Google Drive session URL.")
+
+    # Read chunk binary from request body
+    chunk_bytes = await request.body()
+    chunk_len = len(chunk_bytes)
+    if chunk_len == 0 and not content_range.startswith("bytes */"):
+        raise HTTPException(status_code=400, detail="Chunk body cannot be empty.")
+    if chunk_len > 4.5 * 1024 * 1024:
+        raise HTTPException(status_code=413, detail="Chunk exceeds maximum allowable 4.5 MB size.")
+
+    req = urllib.request.Request(
+        session_url,
+        data=chunk_bytes,
+        headers={
+            "Content-Type": content_type,
+            "Content-Range": content_range,
+            "Content-Length": str(chunk_len)
+        },
+        method="PUT"
+    )
+
+    try:
+        with urllib.request.urlopen(req, timeout=60) as resp:
+            resp_body = resp.read().decode("utf-8")
+            data = json.loads(resp_body) if resp_body else {}
+            return {
+                "status": resp.status,
+                "complete": True,
+                "file_id": data.get("id"),
+                "webViewLink": data.get("webViewLink") or (f"https://drive.google.com/file/d/{data.get('id')}/view" if data.get("id") else None),
+                "data": data
+            }
+    except urllib.error.HTTPError as he:
+        if he.code == 308:
+            range_header = he.headers.get("Range")
+            return {
+                "status": 308,
+                "complete": False,
+                "range": range_header
+            }
+        else:
+            err_msg = he.read().decode("utf-8", errors="replace")
+            print(f"[GDrive Chunk Relay Error] HTTP {he.code}: {err_msg}")
+            raise HTTPException(status_code=he.code, detail=f"Google Drive chunk upload error: {err_msg}")
+    except Exception as e:
+        print(f"[GDrive Chunk Relay Exception]: {e}")
+        raise HTTPException(status_code=502, detail=f"Google Drive chunk upload failed: {str(e)}")
 
 @router.post("/finalize-direct-upload")
 @router.post("/finalize-direct-upload/")

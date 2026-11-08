@@ -3060,9 +3060,10 @@
           throw new Error(`Supabase storage upload failed with status ${supaRes.status}`);
         }
 
-        // Step 3: Upload directly to Google Drive Resumable Session (Client to Google Drive, 0 bytes through Vercel)
-        progressBar.style.width = "65%";
-        progressPct.innerText = "65%";
+// Step 3: Upload to Google Drive via 4 MB sequential chunks through FastAPI backend
+        // This solves the Google Drive CORS error without exceeding Vercel's 4.5 MB body limit
+        progressBar.style.width = "40%";
+        progressPct.innerText = "40%";
         if (progressLabel) progressLabel.innerText = "Backing up video to Google Drive (2/2)...";
 
         let gdriveFileId = null;
@@ -3072,25 +3073,58 @@
           gdriveFileId = gdrive_upload.file_id;
           gdriveWebLink = gdrive_upload.webViewLink;
         } else if (gdrive_upload.resumable_url) {
-          const driveRes = await fetch(gdrive_upload.resumable_url, {
-            method: "PUT",
-            headers: {
-              "Content-Type": selectedFile.type || "video/mp4",
-              "Content-Range": `bytes 0-${selectedFile.size - 1}/${selectedFile.size}`
-            },
-            body: selectedFile
-          });
+          const CHUNK_SIZE = 4 * 1024 * 1024; // 4 MB chunks (safe under Vercel 4.5 MB limit)
+          const totalSize = selectedFile.size;
+          let offset = 0;
 
-          if (!driveRes.ok && driveRes.status !== 200 && driveRes.status !== 201) {
-            throw new Error(`Google Drive backup upload failed with status ${driveRes.status}`);
+          while (offset < totalSize) {
+            const chunkEnd = Math.min(offset + CHUNK_SIZE, totalSize);
+            const chunkBlob = selectedFile.slice(offset, chunkEnd);
+            const contentRange = `bytes ${offset}-${chunkEnd - 1}/${totalSize}`;
+
+            const chunkPercent = Math.min(88, Math.round(40 + (offset / totalSize) * 48));
+            progressBar.style.width = `${chunkPercent}%`;
+            progressPct.innerText = `${chunkPercent}%`;
+            if (progressLabel) {
+              progressLabel.innerText = `Backing up to Google Drive (${Math.round((offset / (1024 * 1024)))} / ${Math.round((totalSize / (1024 * 1024)))} MB)...`;
+            }
+
+            const chunkRes = await fetch(`${API_BASE}/api/submissions/gdrive-chunk-upload`, {
+              method: "PUT",
+              headers: {
+                "X-GDrive-Session-Url": gdrive_upload.resumable_url,
+                "Content-Range": contentRange,
+                "Content-Type": selectedFile.type || "video/mp4"
+              },
+              body: chunkBlob
+            });
+
+            if (!chunkRes.ok) {
+              const errBody = await chunkRes.json().catch(() => null);
+              throw new Error(errBody?.detail || `Google Drive backup failed at byte ${offset}`);
+            }
+
+            const chunkData = await chunkRes.json();
+            if (chunkData.complete) {
+              gdriveFileId = chunkData.file_id;
+              gdriveWebLink = chunkData.webViewLink;
+              break;
+            } else if (chunkData.status === 308) {
+              // 308 Resume Incomplete: advance offset based on Range header if present
+              if (chunkData.range && chunkData.range.includes("-")) {
+                const parts = chunkData.range.split("-");
+                offset = parseInt(parts[1], 10) + 1;
+              } else {
+                offset = chunkEnd;
+              }
+            } else {
+              offset = chunkEnd;
+            }
           }
 
-          const driveData = await driveRes.json().catch(() => null);
-          if (!driveData || !driveData.id) {
-            throw new Error("Google Drive did not return file identifier.");
+          if (!gdriveFileId) {
+            throw new Error("Google Drive did not return file identifier after chunk upload.");
           }
-          gdriveFileId = driveData.id;
-          gdriveWebLink = driveData.webViewLink || `https://drive.google.com/file/d/${driveData.id}/view`;
         } else {
           throw new Error("Missing Google Drive upload target.");
         }
