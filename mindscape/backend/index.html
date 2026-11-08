@@ -520,6 +520,96 @@
       justify-content: center;
     }
 
+
+    /* ==========================================================================
+       DIAGONAL BLACK TEXT RIBBON (PARTNER & CO-HOST INSTITUTIONS)
+       ========================================================================== */
+    .ribbon-wrapper {
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+      padding: 30px 0;
+      background: transparent;
+      z-index: 5;
+    }
+
+    .diagonal-text-ribbon {
+      width: 110%;
+      margin-left: -5%;
+      background: #000000;
+      border-top: 1px solid rgba(255, 255, 255, 0.15);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.85);
+      transform: rotate(-1.5deg);
+      padding: 16px 0;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+    }
+
+    .ribbon-marquee-track {
+      display: flex;
+      align-items: center;
+      width: max-content;
+      white-space: nowrap;
+      animation: ribbonScroll 32s linear infinite;
+      will-change: transform;
+    }
+
+    .ribbon-carousel-viewport:hover .ribbon-marquee-track,
+    .diagonal-text-ribbon:hover .ribbon-marquee-track {
+      animation-play-state: running;
+    }
+
+    .ribbon-content-block {
+      display: flex;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .ribbon-item {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(12px, 1.35vw, 15px);
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      color: #ffffff;
+      text-transform: uppercase;
+      display: inline-flex;
+      align-items: center;
+      padding: 0 4px;
+    }
+
+    .ribbon-bullet {
+      color: var(--accent-neon);
+      margin: 0 clamp(16px, 2.2vw, 28px);
+      font-size: clamp(8px, 0.9vw, 11px);
+      line-height: 1;
+      opacity: 0.9;
+    }
+
+    @keyframes ribbonScroll {
+      0% {
+        transform: translateX(0);
+      }
+      100% {
+        transform: translateX(-50%);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .ribbon-wrapper {
+        padding: 22px 0;
+      }
+      .diagonal-text-ribbon {
+        transform: rotate(-1.8deg);
+        padding: 13px 0;
+      }
+      .ribbon-item {
+        font-size: 11.5px;
+        letter-spacing: 0.12em;
+      }
+    }
+
     /* Section Foundations */
     .section-wrap {
       position: relative;
@@ -1808,6 +1898,54 @@
         </div>
       </div>
     </section>
+
+
+    <!-- Animated Diagonal Black Ribbon: Participating Clubs & Institutions -->
+    <div class="ribbon-wrapper" aria-label="Participating Clubs and Institutions Ribbon">
+      <div class="diagonal-text-ribbon">
+        <div class="ribbon-marquee-track">
+          <!-- Block 1 -->
+          <div class="ribbon-content-block">
+            <span class="ribbon-item">ROTARY CLUB OF MADRAS</span>
+            <span class="ribbon-bullet">•</span>
+            <span class="ribbon-item">ROTARACT CLUB OF VEPERY</span>
+            <span class="ribbon-bullet">•</span>
+            <span class="ribbon-item">ROTARACT CLUB OF VMRF</span>
+            <span class="ribbon-bullet">•</span>
+            <span class="ribbon-item">ROTARACT CLUB OF JEPPIAAR ENGINEERING COLLEGE</span>
+            <span class="ribbon-bullet">•</span>
+            <span class="ribbon-item">ROTARACT CLUB OF JEPPIAAR UNIVERSITY</span>
+            <span class="ribbon-bullet">•</span>
+            <span class="ribbon-item">ROTARACT CLUB OF SDNB VAISHNAV COLLEGE</span>
+            <span class="ribbon-bullet">•</span>
+            <span class="ribbon-item">ROTARACT CLUB OF THE NEW COLLEGE</span>
+            <span class="ribbon-bullet">•</span>
+            <span class="ribbon-item">ROTARACT CLUB OF CHENNAI</span>
+            <span class="ribbon-bullet">•</span>
+          </div>
+
+          <!-- Block 2: Duplicate for seamless continuous marquee loop -->
+          <div class="ribbon-content-block" aria-hidden="true">
+            <span class="ribbon-item">ROTARY CLUB OF MADRAS</span>
+            <span class="ribbon-bullet">•</span>
+            <span class="ribbon-item">ROTARACT CLUB OF VEPERY</span>
+            <span class="ribbon-bullet">•</span>
+            <span class="ribbon-item">ROTARACT CLUB OF VMRF</span>
+            <span class="ribbon-bullet">•</span>
+            <span class="ribbon-item">ROTARACT CLUB OF JEPPIAAR ENGINEERING COLLEGE</span>
+            <span class="ribbon-bullet">•</span>
+            <span class="ribbon-item">ROTARACT CLUB OF JEPPIAAR UNIVERSITY</span>
+            <span class="ribbon-bullet">•</span>
+            <span class="ribbon-item">ROTARACT CLUB OF SDNB VAISHNAV COLLEGE</span>
+            <span class="ribbon-bullet">•</span>
+            <span class="ribbon-item">ROTARACT CLUB OF THE NEW COLLEGE</span>
+            <span class="ribbon-bullet">•</span>
+            <span class="ribbon-item">ROTARACT CLUB OF CHENNAI</span>
+            <span class="ribbon-bullet">•</span>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- 3. About the Event -->
     <section class="section-wrap" id="about">
