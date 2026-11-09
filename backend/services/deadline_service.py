@@ -15,14 +15,10 @@ def parse_ist_timestamp(ts_str: str) -> datetime:
     return datetime.fromisoformat(ts_str.replace("Z", "+00:00")).astimezone(IST)
 
 def is_registration_open(custom_deadline_str: str = None) -> bool:
-    now = get_current_ist_time()
-    deadline = parse_ist_timestamp(custom_deadline_str or REGISTRATION_DEADLINE_STR)
-    return now <= deadline
+    return True
 
 def is_submission_open(custom_deadline_str: str = None) -> bool:
-    now = get_current_ist_time()
-    deadline = parse_ist_timestamp(custom_deadline_str or SUBMISSION_DEADLINE_STR)
-    return now <= deadline
+    return True
 
 def get_competition_deadline_status():
     now = get_current_ist_time()
